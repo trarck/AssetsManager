@@ -32,9 +32,12 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
         static private Texture2D m_bundleIcon = null;
         static private Texture2D m_sceneIcon = null;
 
-        public static ABDataSource DataSource {
-            get {
-                if (m_DataSource == null) {
+        public static ABDataSource DataSource
+        {
+            get
+            {
+                if (m_DataSource == null)
+                {
                     m_DataSource = new AssetDatabaseABDataSource ();
                 }
                 return m_DataSource;
@@ -159,7 +162,8 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
                         }
                         else
                         {
-                            if (!DataSource.IsReadOnly ()) {
+                            if (!DataSource.IsReadOnly ())
+                            {
                                 DataSource.RemoveUnusedAssetBundleNames();
                             }
                             index = 0;
@@ -183,7 +187,8 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
                         }
                         else
                         {
-                            if (!DataSource.IsReadOnly ()) {
+                            if (!DataSource.IsReadOnly ())
+                            {
                                 DataSource.RemoveUnusedAssetBundleNames();
                             }
                             index = 0;
@@ -275,12 +280,22 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
                     if (folder == null)
                     {
                         m_InErrorState = true;
-                        LogError("Bundle " + currInfo.m_Name.fullNativeName + " has a name conflict with a bundle-folder.  Display of bundle data and building of bundles will not work.");
+                        LogFolderAndBundleNameConflict(currInfo.m_Name.fullNativeName);
                         break;
                     }
                 }
             }
             return currInfo as BundleFolderConcreteInfo;
+        }
+
+        private static void LogFolderAndBundleNameConflict(string name)
+        {
+            var message = "Bundle '";
+            message += name;
+            message += "' has a name conflict with a bundle-folder.";
+            message += "Display of bundle data and building of bundles will not work.";
+            message += "\nDetails: If you name a bundle 'x/y', then the result of your build will be a bundle named 'y' in a folder named 'x'.  You thus cannot also have a bundle named 'x' at the same level as the folder named 'x'.";
+            LogError(message);
         }
 
         private static BundleInfo AddBundleToFolder(BundleFolderInfo root, BundleNameData nameData)
@@ -327,7 +342,7 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
                     if (dataInfo == null)
                     {
                         m_InErrorState = true;
-                        LogError("Bundle " + nameData.fullNativeName + " has a name conflict with a bundle-folder.  Display of bundle data and building of bundles will not work.");
+                        LogFolderAndBundleNameConflict(nameData.fullNativeName);
                     }
                 }
             }
@@ -541,7 +556,8 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
             }
             public void Apply()
             {
-                if (!DataSource.IsReadOnly ()) {
+                if (!DataSource.IsReadOnly ())
+                {
                     DataSource.SetAssetBundleNameAndVariant(assetName, bundleName, variantName);
                 }
             }
@@ -584,7 +600,8 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
                     EditorPrefs.SetBool("kAutoRefresh", autoRefresh);
                     m_MoveData.Clear();
                 }
-                if (!DataSource.IsReadOnly ()) {
+                if (!DataSource.IsReadOnly ())
+                {
                     DataSource.RemoveUnusedAssetBundleNames();
                 }
                 Refresh();
@@ -666,6 +683,9 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
 
         public static void UnRegisterAsset(AssetInfo asset, string bundle)
         {
+            if (m_DependencyTracker == null || asset == null)
+                return;
+
             if (m_DependencyTracker.ContainsKey(asset.fullAssetName))
             {
                 m_DependencyTracker[asset.fullAssetName].Remove(bundle);

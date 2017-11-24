@@ -15,10 +15,11 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
             get { return m_asset; }
         }
         public AssetTreeItem() : base(-1, -1) { }
-        public AssetTreeItem(AssetInfo a) : base(a.fullAssetName.GetHashCode(), 0, a.displayName)
+        public AssetTreeItem(AssetInfo a) : base(a != null ? a.fullAssetName.GetHashCode() : Random.Range(int.MinValue, int.MaxValue), 0, a != null ? a.displayName : "failed")
         {
             m_asset = a;
-            icon = AssetDatabase.GetCachedIcon(a.fullAssetName) as Texture2D;
+            if (a != null)
+                icon = AssetDatabase.GetCachedIcon(a.fullAssetName) as Texture2D;
         }
 
         private Color m_color = new Color(0, 0, 0, 0);
@@ -26,7 +27,7 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
         {
             get
             {
-                if (m_color.a == 0.0f)
+                if (m_color.a == 0.0f && m_asset != null)
                 {
                     m_color = m_asset.GetColor();
                 }
@@ -40,7 +41,8 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
         }
         public MessageType HighestMessageLevel()
         {
-            return m_asset.HighestMessageLevel();
+            return m_asset != null ?
+                m_asset.HighestMessageLevel() : MessageType.Error;
         }
 
         public bool ContainsChild(AssetInfo asset)
@@ -49,9 +51,12 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
             if (children == null)
                 return contains;
 
-            foreach(var child in children)
+            if (asset == null)
+                return false;
+            foreach (var child in children)
             {
-                if( (child as AssetTreeItem).asset.fullAssetName == asset.fullAssetName )
+                var c = child as AssetTreeItem;
+                if (c != null && c.asset != null && c.asset.fullAssetName == asset.fullAssetName)
                 {
                     contains = true;
                     break;
@@ -168,7 +173,25 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
                 }
                 message = message.Substring(0, message.Length - 2);//remove trailing comma.
                 messages.Add(new MessageSystem.Message(message, MessageType.Info));
-            }
+            }            
+
+            if (m_dependencies != null && m_dependencies.Count > 0)
+            {
+                var message = string.Empty;
+                foreach (var dependent in m_dependencies)
+                {
+                    if (dependent.bundleName != bundleName)
+                    {
+                        message += dependent.bundleName + " : " + dependent.displayName + "\n";
+                    }
+                }
+                if (string.IsNullOrEmpty(message) == false)
+                {
+                    message = message.Insert(0, displayName + "\n" + "Is dependent on other bundle's asset(s) or auto included asset(s): \n");
+                    message = message.Substring(0, message.Length - 1);//remove trailing line break.
+                    messages.Add(new MessageSystem.Message(message, MessageType.Info));
+                }
+            }            
 
             messages.Add(new MessageSystem.Message(displayName + "\n" + "Path: " + fullAssetName, MessageType.Info));
 

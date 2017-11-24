@@ -5,7 +5,7 @@ using UnityEditor.IMGUI.Controls;
 namespace UnityEngine.AssetBundles
 {
 
-    public class AssetBundleBrowserMain : EditorWindow, IHasCustomMenu
+    public class AssetBundleBrowserMain : EditorWindow, IHasCustomMenu, ISerializationCallbackReceiver
     {
 
         public const float kButtonWidth = 150;
@@ -20,13 +20,16 @@ namespace UnityEngine.AssetBundles
         Mode m_Mode;
 
         [SerializeField]
+        int m_DataSourceIndex;
+
+        [SerializeField]
         public AssetBundleManageTab m_ManageTab;
 
         [SerializeField]
         public AssetBundleBuildTab m_BuildTab;
 
-        //[SerializeField]
-        //public AssetBundleInspectTab m_InspectTab;
+        [SerializeField]
+        public AssetBundleInspectTab m_InspectTab;
 
         private Texture2D m_RefreshTexture;
 
@@ -43,9 +46,9 @@ namespace UnityEngine.AssetBundles
 
         [SerializeField]
         public bool multiDataSource = false;
+        List<AssetBundleDataSource.ABDataSource> m_DataSourceList = null;
         public virtual void AddItemsToMenu(GenericMenu menu)
         {
-            //menu.AddSeparator(string.Empty);
             menu.AddItem(new GUIContent("Custom Sources"), multiDataSource, FlipDataSource);
         }
         public void FlipDataSource()
@@ -63,18 +66,46 @@ namespace UnityEngine.AssetBundles
             if(m_BuildTab == null)
                 m_BuildTab = new AssetBundleBuildTab();
             m_BuildTab.OnEnable(subPos, this);
-            //if (m_InspectTab == null)
-            //    m_InspectTab = new AssetBundleInspectTab();
-            //m_InspectTab.OnEnable(subPos, this);
+            if (m_InspectTab == null)
+                m_InspectTab = new AssetBundleInspectTab();
+            m_InspectTab.OnEnable(subPos, this);
 
             m_RefreshTexture = EditorGUIUtility.FindTexture("Refresh");
-
-
+            
+            InitDataSources();
+        } 
+        private void InitDataSources()
+        {
             //determine if we are "multi source" or not...
             multiDataSource = false;
-            List<System.Type> types = AssetBundleDataSource.ABDataSourceProviderUtility.CustomABDataSourceTypes;
-            if (types.Count > 1)
+            m_DataSourceList = new List<AssetBundleDataSource.ABDataSource>();
+            foreach (var info in AssetBundleDataSource.ABDataSourceProviderUtility.CustomABDataSourceTypes)
+            {
+                m_DataSourceList.AddRange(info.GetMethod("CreateDataSources").Invoke(null, null) as List<AssetBundleDataSource.ABDataSource>);
+            }
+             
+            if (m_DataSourceList.Count > 1)
+            {
                 multiDataSource = true;
+                if (m_DataSourceIndex >= m_DataSourceList.Count)
+                    m_DataSourceIndex = 0;
+                AssetBundleModel.Model.DataSource = m_DataSourceList[m_DataSourceIndex];
+            }
+        }
+        private void OnDisable()
+        {
+            if (m_BuildTab != null)
+                m_BuildTab.OnDisable();
+            if (m_InspectTab != null)
+                m_InspectTab.OnDisable();
+        }
+
+        public void OnBeforeSerialize()
+        {
+        }
+        public void OnAfterDeserialize()
+        {
+            InitDataSources();
         }
 
         private Rect GetSubWindowArea()
@@ -91,10 +122,8 @@ namespace UnityEngine.AssetBundles
             switch (m_Mode)
             {
                 case Mode.Builder:
-                    //m_BuildTab.Update();
                     break;
                 case Mode.Inspect:
-                    //m_InspectTab.Update();
                     break;
                 case Mode.Browser:
                 default:
@@ -113,7 +142,7 @@ namespace UnityEngine.AssetBundles
                     m_BuildTab.OnGUI(GetSubWindowArea());
                     break;
                 case Mode.Inspect:
-                    //m_InspectTab.OnGUI(GetSubWindowArea());
+                    m_InspectTab.OnGUI(GetSubWindowArea());
                     break;
                 case Mode.Browser:
                 default:
@@ -126,18 +155,27 @@ namespace UnityEngine.AssetBundles
         {
             GUILayout.BeginHorizontal();
             GUILayout.Space(k_ToolbarPadding);
-            if (m_Mode == Mode.Browser)
+            bool clicked = false;
+            switch(m_Mode)
             {
-                bool clicked = GUILayout.Button(m_RefreshTexture);
-                if (clicked)
-                    m_ManageTab.ForceReloadData();
+                case Mode.Browser:
+                    clicked = GUILayout.Button(m_RefreshTexture);
+                    if (clicked)
+                        m_ManageTab.ForceReloadData();
+                    break;
+                case Mode.Builder:
+                    GUILayout.Space(m_RefreshTexture.width + k_ToolbarPadding);
+                    break;
+                case Mode.Inspect:
+                    clicked = GUILayout.Button(m_RefreshTexture);
+                    if (clicked)
+                        m_InspectTab.RefreshBundles();
+                    break;
             }
-            else
-            {
-                GUILayout.Space(m_RefreshTexture.width + k_ToolbarPadding);
-            }
+
             float toolbarWidth = position.width - k_ToolbarPadding * 4 - m_RefreshTexture.width;
-            string[] labels = new string[2] { "Configure", "Build" };//, "Inspect" }; 
+            //string[] labels = new string[2] { "Configure", "Build"};
+            string[] labels = new string[3] { "Configure", "Build", "Inspect" };
             m_Mode = (Mode)GUILayout.Toolbar((int)m_Mode, labels, "LargeButton", GUILayout.Width(toolbarWidth) );
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
@@ -154,35 +192,27 @@ namespace UnityEngine.AssetBundles
                     if (GUILayout.Button(c , EditorStyles.toolbarPopup) )
                     {
                         GenericMenu menu = new GenericMenu();
-                        bool firstItem = true;
 
-                        foreach (var info in AssetBundleDataSource.ABDataSourceProviderUtility.CustomABDataSourceTypes)
+                        for (int index = 0; index < m_DataSourceList.Count; index++)
                         {
-                            List<AssetBundleDataSource.ABDataSource> dataSourceList = null;
-                            dataSourceList = info.GetMethod("CreateDataSources").Invoke(null, null) as List<AssetBundleDataSource.ABDataSource>;
-                        
-
-                            if (dataSourceList == null)
+                            var ds = m_DataSourceList[index];
+                            if (ds == null)
                                 continue;
 
-                            if (!firstItem)
-                            {
+                            if (index > 0)
                                 menu.AddSeparator("");
-                            }
+                             
+                            var counter = index;
+                            menu.AddItem(new GUIContent(string.Format("{0} ({1})", ds.Name, ds.ProviderName)), false,
+                                () =>
+                                {
+                                    m_DataSourceIndex = counter;
+                                    var thisDataSource = ds;
+                                    AssetBundleModel.Model.DataSource = thisDataSource;
+                                    m_ManageTab.ForceReloadData();
+                                }
+                            );
 
-                            foreach (var ds in dataSourceList)
-                            {
-                                menu.AddItem(new GUIContent(string.Format("{0} ({1})", ds.Name, ds.ProviderName)), false,
-                                    () =>
-                                    {
-                                        var thisDataSource = ds;
-                                        AssetBundleModel.Model.DataSource = thisDataSource;
-                                        m_ManageTab.ForceReloadData();
-                                    }
-                                );
-                            }
-
-                            firstItem = false;
                         }
 
                         menu.ShowAsContext();
