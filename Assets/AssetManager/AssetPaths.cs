@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 
@@ -7,11 +8,11 @@ namespace YH.AssetManager
 {
     public class AssetPaths
     {
-#if UNITY_EDITOR
-        public static string assetsPath = Application.dataPath;
-#else
-        public static string assetsPath=Application.streamingAssetsPath;
-#endif
+
+        public static string dataPath = Application.dataPath;
+
+        public static string streamingAssetsPath = Application.streamingAssetsPath;
+
         public static string bundlesPath="AssetBundles";
 
         public static List<string> searchPaths = new List<string>();
@@ -48,6 +49,79 @@ namespace YH.AssetManager
             {
                 searchPaths.Remove(path);
             }
+        }
+
+        public static string StreamingPathForFilename(string filePath)
+        {
+            
+#if UNITY_ANROID
+            return "jar:file://" + Application.dataPath + "!/assets/" + filePath;
+#elif unity_IOS
+            return "file://" + Application.dataPath + "/Raw/" + filePath;
+#else
+            return "file://" + Application.dataPath + "/StreamingAssets/" + filePath;
+#endif
+        }
+
+        public static string Combine(params string[] paths)
+        {
+            if (paths.Length == 0) return string.Empty;
+            if (paths.Length == 1) return paths[0];
+
+            StringBuilder sb = new StringBuilder();
+
+            string c=null,n=null;            
+
+            int start = 0;
+            for (; start < paths.Length; ++start)
+            {
+                c = paths[start];
+                if (!string.IsNullOrEmpty(c))
+                {
+                    sb.Append(c);
+                    break;
+                }
+            }            
+
+            for(int i = start+1; i < paths.Length; ++i)
+            {
+                n = paths[i];
+                if (string.IsNullOrEmpty(n))
+                {
+                    continue;
+                }
+    
+                if((c.EndsWith("/") || c.EndsWith("\\")))
+                {
+                    if(n.StartsWith("/") || n.StartsWith("\\"))
+                    {
+                        sb.Append(n.Substring(1));
+                    }
+                    else
+                    {
+                        sb.Append(n);
+                    }
+                }
+                else
+                {
+                    if (n.StartsWith("/") || n.StartsWith("\\"))
+                    {
+                        sb.Append(n);
+                    }
+                    else
+                    {
+                        sb.Append(Path.DirectorySeparatorChar);
+                        sb.Append(n);
+                    }
+                }
+                c = n;
+            }
+            return sb.ToString();
+        }
+
+        public static string NormalizeFilename(string filename)
+        {
+            return filename.Replace("\\", "/");
         }
     }
 }
