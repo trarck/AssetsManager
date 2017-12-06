@@ -5,8 +5,10 @@ using System.Text;
 
 namespace YH.AssetManager
 {
-    interface ILoader
+    public interface ILoader
     {
+        bool isDone { get; set; }
+
         void Start();
     }
 }

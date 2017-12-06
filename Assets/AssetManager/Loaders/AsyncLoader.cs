@@ -5,12 +5,23 @@ using UnityEngine;
 
 namespace YH.AssetManager
 {
-    public class AsyncLoader : ILoader
+    public class AsyncLoader : Loader
     {
         string m_AssetPath;
         Action<AssetBundle> m_CompleteHandle;
         AssetBundle m_AssetBundle;
-        AssetBundleCreateRequest m_Request;
+        LoaderRequest m_LoaderRequest;
+
+        bool m_IsDone=false;
+
+        public override bool isDone
+        {
+            get
+            {
+                return m_LoaderRequest != null || m_LoaderRequest.isDone;
+                //return m_IsDone;  
+            }
+        }
 
         public AsyncLoader(string assetPath, Action<AssetBundle> completeHandle)
         {
@@ -18,38 +29,37 @@ namespace YH.AssetManager
             m_CompleteHandle = completeHandle;
         }
 
-        public void Start()
+        public override void Start()
         {
-            
-        }
-
-        public void Update()
-        {
-            if (m_Request.isDone)
+            if (m_AssetPath.Contains("://"))
             {
-                //load back
-                m_AssetBundle = m_Request.assetBundle;
-                DoLoadComplete();
+                this.LoadFromPackage(m_AssetPath);
+            }
+            else
+            {
+                this.LoadFromPackage(m_AssetPath);
             }
         }
 
-        protected void LoadFromFile(string path)
+        public override void Complete()
         {
-            m_Request = AssetBundle.LoadFromFileAsync(path);
+            if (m_LoaderRequest!=null)
+            {
+                m_AssetBundle = m_LoaderRequest.assetBundle;
+            }
+            DoLoadComplete();
         }
 
-        protected IEnumerator LoadFromFileYield(string path)
+        protected LoaderRequest LoadFromFile(string path)
         {
-            AssetBundleCreateRequest request =AssetBundle.LoadFromFileAsync(path);
-            yield return request;
-            //load back
-            m_AssetBundle = request.assetBundle;
-            DoLoadComplete();            
+            m_LoaderRequest =new AsyncRequest(AssetBundle.LoadFromFileAsync(path));
+            return m_LoaderRequest;
         }
 
-        protected void LoadFromPackage(string path)
+        protected LoaderRequest LoadFromPackage(string path)
         {
-
+            m_LoaderRequest = new WWWRequest(new WWW(path));
+            return m_LoaderRequest;
         }
 
         protected void DoLoadComplete()

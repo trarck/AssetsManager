@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace YH.AssetManager
 {
-    public class SyncLoader : ILoader
-    {
-        public void Start()
-        {
-            throw new NotImplementedException();
-        }
-    }
+    //public class SyncLoader : ILoader
+    //{
+    //    public void Start()
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
 }

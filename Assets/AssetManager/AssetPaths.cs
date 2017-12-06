@@ -24,7 +24,12 @@ namespace YH.AssetManager
                 return filename;
             }
 
-            foreach(string searchPath in searchPaths)
+            return GetFullPathFromSearchPaths(filename);
+        }
+
+        public static string GetFullPathFromSearchPaths(string filename)
+        {
+            foreach (string searchPath in searchPaths)
             {
                 string fullPath = Path.Combine(searchPath, filename);
                 if (File.Exists(fullPath))
@@ -43,6 +48,19 @@ namespace YH.AssetManager
             }
         }
 
+        public static void InsertSearchPath(int index,string path)
+        {
+            if (!searchPaths.Contains(path))
+            {
+                searchPaths.Insert(index, path);
+            }
+        }
+
+        //public static void InsertRangeSearchPath(int index, string[] paths)
+        //{
+        //    searchPaths.InsertRange(index, paths);
+        //}
+
         public static void RemoveSearchPath(string path)
         {
             if (!searchPaths.Contains(path))
@@ -51,16 +69,46 @@ namespace YH.AssetManager
             }
         }
 
-        public static string StreamingPathForFilename(string filePath)
+        public static string StreamingUrlForFilename(string filename)
         {
-            
 #if UNITY_ANROID
-            return "jar:file://" + Application.dataPath + "!/assets/" + filePath;
-#elif unity_IOS
-            return "file://" + Application.dataPath + "/Raw/" + filePath;
+            return "jar:file://" + Application.dataPath + "!/assets/" + filename;
 #else
-            return "file://" + Application.dataPath + "/StreamingAssets/" + filePath;
+            return "file://" + Combine(Application.streamingAssetsPath, filename);
 #endif
+        }
+
+        public static string StreamingPathForFilename(string filename)
+        {
+            return Combine(Application.streamingAssetsPath, filename);
+        }
+
+
+        public static string GetAssetFullPath(string filename)
+        {
+            if (string.IsNullOrEmpty(filename))
+            {
+                return filename;
+            }
+
+            //filename is root and exists
+            if (Path.IsPathRooted(filename))
+            {
+                if (File.Exists(filename))
+                {
+                    return filename;
+                }
+            }
+
+            //get from search path
+            var fullPath= GetFullPathFromSearchPaths(filename);
+            if (!string.IsNullOrEmpty(fullPath))
+            {
+                return fullPath;
+            }
+
+            //get from package
+            return StreamingPathForFilename(filename);  
         }
 
         public static string Combine(params string[] paths)
