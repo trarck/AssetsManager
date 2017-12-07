@@ -7,9 +7,16 @@ namespace YH.AssetManager
     {
         int m_MaxActiveLoader=5;
         int m_CurrentActiveLoader=0;
-        List<Loader> m_ActivesLoaders=new List<Loader>();
-        List<int> m_TickFinished=new List<int>();
-        List<Loader> m_PrepareLoaders=new List<Loader>();
+        List<Loader> m_ActivesLoaders=ListPool<Loader>.Get();
+        List<int> m_TickFinished= ListPool<int>.Get();
+        List<Loader> m_PrepareLoaders= ListPool<Loader>.Get();
+
+
+
+        public void Init()
+        {
+            Application.lowMemory += OnLowMemory;
+        }
 
         public Loader Load(string path)
         {
@@ -85,8 +92,17 @@ namespace YH.AssetManager
 
         protected Loader CreateLoader(string path)
         {
-
             return null;
+        }
+
+        void OnLowMemory()
+        {
+            UnloadUnuseds();
+        }
+
+        public void UnloadUnuseds()
+        {
+
         }
     }
 }

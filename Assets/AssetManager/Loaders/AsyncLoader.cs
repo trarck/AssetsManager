@@ -50,6 +50,11 @@ namespace YH.AssetManager
             DoLoadComplete();
         }
 
+        protected void LoadDependencies()
+        {
+
+        }
+
         protected LoaderRequest LoadFromFile(string path)
         {
             m_LoaderRequest =new AsyncRequest(AssetBundle.LoadFromFileAsync(path));
