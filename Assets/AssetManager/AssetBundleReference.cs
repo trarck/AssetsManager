@@ -14,14 +14,21 @@ namespace YH.AssetManager
         HashSet<AssetBundleReference> m_Dependencies=HashSetPool<AssetBundleReference>.Get();
         //List<string> m_Dependents = ListPool<string>.Get();
 
-        List<string> m_Tags = ListPool<string>.Get();
+        HashSet<string> m_Tags = HashSetPool<string>.Get();
 
         public AssetBundle assetBundle { get; set; }
+
         public int level { get; set; }
 
         public delegate void DisposeHandle(AssetBundleReference abr);
 
         public event DisposeHandle onDispose;
+
+        public AssetBundleReference(AssetBundle assetBundle,int level)
+        {
+            this.assetBundle = assetBundle;
+            this.level = level;
+        }
 
         public void AddDependency(AssetBundleReference dependency)
         {
@@ -113,6 +120,7 @@ namespace YH.AssetManager
             ReleaseDependencies();
             ListPool<WeakReference>.Release(m_Owners);
             m_Owners = null;
+            HashSetPool<string>.Release(m_Tags);
         }
 
         void UnloadBundle()
@@ -140,7 +148,33 @@ namespace YH.AssetManager
             m_RefCount = 1;
             m_Owners= ListPool<WeakReference>.Get();
             m_Dependencies= HashSetPool<AssetBundleReference>.Get();
-            m_Tags = ListPool<string>.Get();
+            m_Tags = HashSetPool<string>.Get();
+        }
+
+        public void AddTag(string tag)
+        {
+            m_Tags.Add(tag);
+        }
+
+        public void AddTags(string[] tags)
+        {
+            for(int i=0,l=tags.Length;i< l; ++i)
+            {
+                m_Tags.Add(tags[i]);
+            }
+        }
+
+        public void RemoveTag(string tag)
+        {
+            m_Tags.Remove(tag);
+        }
+
+        public void RemoveTags(string[] tags)
+        {
+            for (int i = 0, l = tags.Length; i < l; ++i)
+            {
+                m_Tags.Remove(tags[i]);
+            }
         }
     }
 }

@@ -11,7 +11,8 @@ namespace YH.AssetManager
         List<int> m_TickFinished= ListPool<int>.Get();
         List<Loader> m_PrepareLoaders= ListPool<Loader>.Get();
 
-
+        //all loaded assets
+        List<AssetBundleReference> m_Assets = ListPool<AssetBundleReference>.Get();
 
         public void Init()
         {
