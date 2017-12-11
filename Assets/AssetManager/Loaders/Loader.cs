@@ -20,5 +20,15 @@ namespace YH.AssetManager
         {
 
         }
+
+        public virtual void Clean()
+        {
+
+        }
+
+        public virtual AssetBundleReference GetResult()
+        {
+            return null;
+        }
     }
 }

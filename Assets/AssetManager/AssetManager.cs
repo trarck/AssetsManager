@@ -12,11 +12,19 @@ namespace YH.AssetManager
         List<Loader> m_PrepareLoaders= ListPool<Loader>.Get();
 
         //all loaded assets
-        List<AssetBundleReference> m_Assets = ListPool<AssetBundleReference>.Get();
+        Dictionary<string,AssetBundleReference> m_Assets =new Dictionary<string, AssetBundleReference>();
 
         public void Init()
         {
             Application.lowMemory += OnLowMemory;
+        }
+
+        public void Clean()
+        {
+            ListPool<Loader>.Release(m_ActivesLoaders);
+            ListPool<int>.Release(m_TickFinished);
+            ListPool<Loader>.Release(m_PrepareLoaders);
+            m_Assets.Clear();
         }
 
         public Loader Load(string path)
@@ -43,11 +51,11 @@ namespace YH.AssetManager
 
         void Update()
         {
-            //check loader 
-            CheckLoaderTick();
-
             //start new loader
             CheckAndStartLoaders();
+
+            //check loader 
+            CheckLoaderTick();
         }
 
         protected void CheckLoaderTick()
@@ -103,7 +111,70 @@ namespace YH.AssetManager
 
         public void UnloadUnuseds()
         {
+            if (m_Assets.Count == 0)
+            {
+                return;
+            }
+            AssetBundleReference abr=null;
+            List<string> keys = ListPool<string>.Get();
+            keys.AddRange(m_Assets.Keys);
 
+            for(int i=0,l=keys.Count;i< l;++i)
+            {
+                abr = m_Assets[keys[i]];
+                if (abr.isUnused())
+                {
+                    abr.Dispose();
+                    m_Assets.Remove(keys[i]);
+                }
+            }
+            ListPool<string>.Release(keys);
+        }
+
+        public void UnloadUnuseds(string tag)
+        {
+            if (m_Assets.Count == 0)
+            {
+                return;
+            }
+
+            AssetBundleReference abr = null;
+            List<string> keys = ListPool<string>.Get();
+            keys.AddRange(m_Assets.Keys);
+
+            for (int i = 0, l = keys.Count; i < l; ++i)
+            {
+                abr = m_Assets[keys[i]];
+                if (abr.isUnused() && abr.HaveTag(tag))
+                {
+                    abr.Dispose();
+                    m_Assets.Remove(keys[i]);
+                }
+            }
+            ListPool<string>.Release(keys);
+        }
+
+        public void UnloadUnuseds(int level)
+        {
+            if (m_Assets.Count == 0)
+            {
+                return;
+            }
+
+            AssetBundleReference abr = null;
+            List<string> keys = ListPool<string>.Get();
+            keys.AddRange(m_Assets.Keys);
+
+            for (int i = 0, l = keys.Count; i < l; ++i)
+            {
+                abr = m_Assets[keys[i]];
+                if (abr.isUnused() && abr.MatchLevel(level))
+                {
+                    abr.Dispose();
+                    m_Assets.Remove(keys[i]);
+                }
+            }
+            ListPool<string>.Release(keys);
         }
     }
 }

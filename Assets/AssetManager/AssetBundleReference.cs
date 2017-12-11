@@ -164,6 +164,15 @@ namespace YH.AssetManager
             }
         }
 
+        public void AddTags(ICollection<string> tags)
+        {
+            var iter = tags.GetEnumerator();
+            while (iter.MoveNext())
+            {
+                m_Tags.Add(iter.Current);
+            }
+        }
+
         public void RemoveTag(string tag)
         {
             m_Tags.Remove(tag);
@@ -175,6 +184,16 @@ namespace YH.AssetManager
             {
                 m_Tags.Remove(tags[i]);
             }
+        }
+
+        public bool HaveTag(string tag)
+        {
+            return m_Tags.Contains(tag);
+        }
+
+        public bool MatchLevel(int level)
+        {
+            return this.level <= level;
         }
     }
 }

@@ -23,6 +23,23 @@ namespace YH.AssetManager
             }
         }
 
+        public string assetPaths
+        {
+            get { return m_AssetPath; }
+            set { m_AssetPath = value; }
+        }
+
+        public Action<AssetBundle> completeHandle
+        {
+            get { return m_CompleteHandle; }
+            set { m_CompleteHandle = value; }
+        }
+
+        public AsyncLoader()
+        {
+
+        }
+
         public AsyncLoader(string assetPath, Action<AssetBundle> completeHandle)
         {
             m_AssetPath = assetPath;
@@ -73,6 +90,21 @@ namespace YH.AssetManager
             {
                 m_CompleteHandle(m_AssetBundle);
             }
+        }
+
+        public override AssetBundleReference GetResult()
+        {
+            AssetBundleReference abr = new AssetBundleReference(m_AssetBundle,0);
+            return abr;
+        }
+
+        public override void Clean()
+        {
+            m_AssetPath = null;
+            m_AssetBundle = null;
+            m_CompleteHandle = null;
+            m_IsDone = false;
+            m_LoaderRequest = null;
         }
     }
 }
