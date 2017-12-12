@@ -70,6 +70,7 @@ namespace YH.AssetManager
                 {
                     m_TickFinished.Add(i);
                     loader.Complete();
+                    AssetBundleReference assetBundleRef = loader.GetResult();
                 }
             }
 

@@ -95,6 +95,8 @@ namespace YH.AssetManager
         public override AssetBundleReference GetResult()
         {
             AssetBundleReference abr = new AssetBundleReference(m_AssetBundle,0);
+            abr.level = assetlevel;
+            abr.AddTag(assetTag);
             return abr;
         }
 
@@ -105,6 +107,7 @@ namespace YH.AssetManager
             m_CompleteHandle = null;
             m_IsDone = false;
             m_LoaderRequest = null;
+            base.Clean();
         }
     }
 }
