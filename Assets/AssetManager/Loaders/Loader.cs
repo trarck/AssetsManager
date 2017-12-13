@@ -6,9 +6,11 @@ namespace YH.AssetManager
 {
     public abstract class Loader : DataEnumerator
     {
+        public Action<AssetBundleReference> onComplete;
 
         public int assetlevel { get; set; }
         public string assetTag { get; set; }
+        public virtual AssetBundleInfo info { get; set; }
 
         public virtual void Start()
         {

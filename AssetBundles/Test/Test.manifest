@@ -1,0 +1,11 @@
+ManifestFileVersion: 0
+CRC: 832279200
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: mytest
+      Dependencies:
+        Dependency_0: mypng
+    Info_1:
+      Name: mypng
+      Dependencies: {}

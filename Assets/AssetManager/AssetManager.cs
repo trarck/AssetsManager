@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace YH.AssetManager
@@ -6,7 +7,6 @@ namespace YH.AssetManager
     public class AssetManager:MonoBehaviour
     {
         int m_MaxActiveLoader=5;
-        int m_CurrentActiveLoader=0;
         List<Loader> m_ActivesLoaders=ListPool<Loader>.Get();
         List<int> m_TickFinished= ListPool<int>.Get();
         List<Loader> m_PrepareLoaders= ListPool<Loader>.Get();
@@ -14,9 +14,12 @@ namespace YH.AssetManager
         //all loaded assets
         Dictionary<string,AssetBundleReference> m_Assets =new Dictionary<string, AssetBundleReference>();
 
+        AssetInfoManager m_InfoManager;
+
         public void Init()
         {
             Application.lowMemory += OnLowMemory;
+            m_InfoManager = new AssetInfoManager();
         }
 
         public void Clean()
@@ -27,9 +30,11 @@ namespace YH.AssetManager
             m_Assets.Clear();
         }
 
-        public Loader Load(string path)
+        public Loader Load(string path,Action<AssetBundleReference> completeHandle)
         {
+                        
             Loader loader = CreateLoader(path);
+            loader.onComplete += completeHandle;
 
             AddLoader(loader);
 
@@ -70,7 +75,7 @@ namespace YH.AssetManager
                 {
                     m_TickFinished.Add(i);
                     loader.Complete();
-                    AssetBundleReference assetBundleRef = loader.GetResult();
+                    m_Assets[loader.info.fullName]= loader.GetResult();
                 }
             }
 
@@ -102,6 +107,14 @@ namespace YH.AssetManager
 
         protected Loader CreateLoader(string path)
         {
+            AssetBundleInfo info = m_InfoManager.Find(path);
+            if (info != null)
+            {
+                Loader loader = new AsyncLoader();
+                loader.info = info;
+                return loader;
+            }
+
             return null;
         }
 

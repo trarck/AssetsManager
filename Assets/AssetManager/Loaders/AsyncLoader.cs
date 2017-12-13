@@ -8,18 +8,17 @@ namespace YH.AssetManager
     public class AsyncLoader : Loader
     {
         string m_AssetPath;
-        Action<AssetBundle> m_CompleteHandle;
-        AssetBundle m_AssetBundle;
+        AssetBundleInfo m_Info;
         LoaderRequest m_LoaderRequest;
-
         bool m_IsDone=false;
+
+        AssetBundleReference m_Result;
 
         public override bool isDone
         {
             get
             {
                 return m_LoaderRequest != null || m_LoaderRequest.isDone;
-                //return m_IsDone;  
             }
         }
 
@@ -29,21 +28,10 @@ namespace YH.AssetManager
             set { m_AssetPath = value; }
         }
 
-        public Action<AssetBundle> completeHandle
+        public override AssetBundleInfo info
         {
-            get { return m_CompleteHandle; }
-            set { m_CompleteHandle = value; }
-        }
-
-        public AsyncLoader()
-        {
-
-        }
-
-        public AsyncLoader(string assetPath, Action<AssetBundle> completeHandle)
-        {
-            m_AssetPath = assetPath;
-            m_CompleteHandle = completeHandle;
+            get { return m_Info; }
+            set { m_Info = value; }
         }
 
         public override void Start()
@@ -60,11 +48,15 @@ namespace YH.AssetManager
 
         public override void Complete()
         {
-            if (m_LoaderRequest!=null)
-            {
-                m_AssetBundle = m_LoaderRequest.assetBundle;
-            }
             DoLoadComplete();
+        }
+
+        protected void DoLoadComplete()
+        {
+            if (onComplete != null)
+            {
+                onComplete(GetResult());
+            }
         }
 
         protected void LoadDependencies()
@@ -84,29 +76,32 @@ namespace YH.AssetManager
             return m_LoaderRequest;
         }
 
-        protected void DoLoadComplete()
-        {
-            if (m_CompleteHandle != null)
-            {
-                m_CompleteHandle(m_AssetBundle);
-            }
-        }
+
 
         public override AssetBundleReference GetResult()
         {
-            AssetBundleReference abr = new AssetBundleReference(m_AssetBundle,0);
-            abr.level = assetlevel;
-            abr.AddTag(assetTag);
-            return abr;
+            if (isDone)
+            {
+                if (m_Result == null)
+                {
+                    m_Result = new AssetBundleReference(m_LoaderRequest.assetBundle, 0);
+                    m_Result.level = assetlevel;
+                    m_Result.AddTag(assetTag);
+                }
+
+                return m_Result;
+            }
+
+            return null;
         }
 
         public override void Clean()
         {
             m_AssetPath = null;
-            m_AssetBundle = null;
-            m_CompleteHandle = null;
+            onComplete = null;
             m_IsDone = false;
             m_LoaderRequest = null;
+            m_Result = null;
             base.Clean();
         }
     }
