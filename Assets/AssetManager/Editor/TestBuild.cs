@@ -22,7 +22,7 @@ public class TestBuild {
 
         build = new AssetBundleBuild();
         assets = new string[1];
-        assets[0] = "Assets/ArtResources/Materials/MyMaterial.prefab";
+        assets[0] = "Assets/ArtResources/Materials/MyMaterial";
         build.assetBundleName = "mymat";
         build.assetNames = assets;
         builds.Add(build);
