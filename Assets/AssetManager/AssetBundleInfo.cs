@@ -10,6 +10,7 @@ namespace YH.AssetManager
         Reference=2
     }
 
+    [System.Serializable]
     public class AssetBundleInfo 
     {
         public string fullName;
@@ -31,5 +32,12 @@ namespace YH.AssetManager
         {
             m_DependenciesData=dependenciesData;
         }
+    }
+
+    [System.Serializable]
+    public class BundleManifest
+    {
+        public string version = "1";
+        public List<AssetBundleInfo> bundleInfos;
     }
 }

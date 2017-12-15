@@ -254,6 +254,13 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
         protected bool m_IsSceneBundle;
         protected long m_TotalSize;
 
+        public long size
+        {
+            get{
+                return m_TotalSize;
+            }
+        }
+
         public BundleDataInfo(string name, BundleFolderInfo parent) : base(name, parent)
         {
             m_ConcreteAssets = new List<AssetInfo>();

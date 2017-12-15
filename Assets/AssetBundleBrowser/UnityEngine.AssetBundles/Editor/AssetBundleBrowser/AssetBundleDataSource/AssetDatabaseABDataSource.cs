@@ -1,10 +1,9 @@
 ﻿using System;
+using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using UnityEngine.Assertions;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEditor.IMGUI.Controls;
+using YH.AssetManager;
 
 namespace UnityEngine.AssetBundles.AssetBundleDataSource
 {
@@ -79,9 +78,15 @@ namespace UnityEngine.AssetBundles.AssetBundleDataSource
 
         public bool BuildAssetBundles (ABBuildInfo info) {
             var buildManifest = BuildPipeline.BuildAssetBundles(info.outputDirectory, info.options, info.buildTarget);
+            
             if (buildManifest == null)
                 return false;
-            foreach(var assetBundleName in buildManifest.GetAllAssetBundles())
+
+            ClearTempManifest(info.outputDirectory);
+
+            SaveBundleManifest(buildManifest,info.outputDirectory);
+
+            foreach (var assetBundleName in buildManifest.GetAllAssetBundles())
             {
                 if (info.onBuild != null)
                 {
@@ -90,5 +95,45 @@ namespace UnityEngine.AssetBundles.AssetBundleDataSource
             }
             return true;
         }
+
+        void ClearTempManifest(string outDir)
+        {
+            YH.FileSystemUtil.RemoveDirectoryFiles(outDir, @".*\.manifest");
+        }
+
+        void SaveBundleManifest(AssetBundleManifest buildManifest,string outDir)
+        {
+            BundleManifest bundleManifest = new BundleManifest();
+
+            List<YH.AssetManager.AssetBundleInfo> all = new List<YH.AssetManager.AssetBundleInfo>();
+
+            if (AssetBundleModel.Model.BundleListIsEmpty())
+            {
+                AssetBundleModel.Model.Rebuild();
+            }
+
+            foreach (var assetBundleName in buildManifest.GetAllAssetBundles())
+            {
+                AssetBundleModel.BundleDataInfo bundleInfo = AssetBundleModel.Model.FindBundle(new AssetBundleModel.BundleNameData(assetBundleName)) as AssetBundleModel.BundleDataInfo;
+                Debug.Log(AssetBundleModel.Model.FindBundle(new AssetBundleModel.BundleNameData(assetBundleName)));
+                if (bundleInfo != null)
+                {
+                    YH.AssetManager.AssetBundleInfo assetBundleInfo = new YH.AssetManager.AssetBundleInfo();
+                    assetBundleInfo.fullName = bundleInfo.m_Name.fullNativeName;
+                    assetBundleInfo.shortName = bundleInfo.m_Name.shortName;
+                    assetBundleInfo.size = (int)bundleInfo.size;
+                    assetBundleInfo.hash = buildManifest.GetAssetBundleHash(assetBundleName).ToString();
+                    assetBundleInfo.dependencies = buildManifest.GetDirectDependencies(assetBundleName);
+
+                    all.Add(assetBundleInfo);
+                }
+            }
+            bundleManifest.bundleInfos = all;
+
+            string content = JsonUtility.ToJson(bundleManifest);
+
+            System.IO.File.WriteAllText(Path.Combine(outDir, "all.manifest"), content);
+        }
+        
     }
 }
