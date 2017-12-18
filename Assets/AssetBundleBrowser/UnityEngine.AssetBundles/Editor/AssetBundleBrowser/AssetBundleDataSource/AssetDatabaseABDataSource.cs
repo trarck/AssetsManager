@@ -82,7 +82,7 @@ namespace UnityEngine.AssetBundles.AssetBundleDataSource
             if (buildManifest == null)
                 return false;
 
-            ClearTempManifest(info.outputDirectory);
+          //  ClearTempManifest(info.outputDirectory);
 
             SaveBundleManifest(buildManifest,info.outputDirectory);
 
@@ -124,6 +124,14 @@ namespace UnityEngine.AssetBundles.AssetBundleDataSource
                     assetBundleInfo.size = (int)bundleInfo.size;
                     assetBundleInfo.hash = buildManifest.GetAssetBundleHash(assetBundleName).ToString();
                     assetBundleInfo.dependencies = buildManifest.GetDirectDependencies(assetBundleName);
+
+                    List<string> assets = new List<string>();
+                    foreach(AssetBundleModel.AssetInfo assetInfo in bundleInfo.GetConcretes())
+                    {
+                        Debug.Log(assetInfo.displayName + "," + assetInfo.bundleName + "," + assetInfo.fullAssetName);
+                        assets.Add(assetInfo.fullAssetName);
+                    }
+                    assetBundleInfo.assets = assets.ToArray();
 
                     all.Add(assetBundleInfo);
                 }

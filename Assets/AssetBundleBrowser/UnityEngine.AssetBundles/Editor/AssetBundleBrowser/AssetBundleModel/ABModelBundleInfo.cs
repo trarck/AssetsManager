@@ -552,6 +552,11 @@ namespace UnityEngine.AssetBundles.AssetBundleModel
         {
             return m_DependentAssets;
         }
+
+        public List<AssetInfo> GetConcretes()
+        {
+            return m_ConcreteAssets;
+        }
     }
 
     public class BundleVariantDataInfo : BundleDataInfo
