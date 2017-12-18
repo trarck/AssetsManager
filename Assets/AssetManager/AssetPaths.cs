@@ -15,6 +15,10 @@ namespace YH.AssetManager
 
         public static string bundlesPath="AssetBundles";
 
+        public static string bundleManifestFile = "all.manifest";
+
+        public static string bundleOutPaths = "AssetBundles";
+
         public static List<string> searchPaths = new List<string>();
 
         public static string FullPathForFilename(string filename)
@@ -84,7 +88,7 @@ namespace YH.AssetManager
         }
 
 
-        public static string GetAssetFullPath(string filename)
+        public static string GetFullPath(string filename)
         {
             if (string.IsNullOrEmpty(filename))
             {

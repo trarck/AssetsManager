@@ -14,12 +14,27 @@ namespace YH.AssetManager
         //all loaded assets
         Dictionary<string,AssetBundleReference> m_Assets =new Dictionary<string, AssetBundleReference>();
 
-        AssetInfoManager m_InfoManager;
+        InfoManager m_InfoManager;
 
         public void Init()
         {
             Application.lowMemory += OnLowMemory;
-            m_InfoManager = new AssetInfoManager();
+
+            //add search paths
+            AssetPaths.AddSearchPath(AssetPaths.Combine(Application.persistentDataPath, AssetPaths.bundlesPath));
+#if UNITY_EDITOR
+            //bunlde out path
+            AssetPaths.AddSearchPath(
+                AssetPaths.Combine(
+                    System.IO.Path.GetFullPath("."),
+                    AssetPaths.bundleOutPaths,
+                    UnityEditor.EditorUserBuildSettings.activeBuildTarget.ToString()
+                )
+            );            
+#endif
+
+            m_InfoManager = new InfoManager();
+            m_InfoManager.LoadFromFile(AssetPaths.GetFullPath(AssetPaths.bundleManifestFile));
         }
 
         public void Clean()

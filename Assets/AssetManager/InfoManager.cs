@@ -74,7 +74,7 @@ namespace YH.AssetManager
                 bundleInfo = m_BundleManifest.bundleInfos[i];
 
                 //create bundle dependes
-                CreateInfoDependencies(bundleInfo);
+                CreateBundleDependencies(bundleInfo);
 
                 //create asset info map
                 for (int j = 0, k = bundleInfo.assets.Length; j < k; ++j)
@@ -97,7 +97,7 @@ namespace YH.AssetManager
             return null;
         }
 
-        protected void CreateInfoDependencies(AssetBundleInfo info)
+        protected void CreateBundleDependencies(AssetBundleInfo info)
         {
             if (info.GetDependencies() == null)
             {
@@ -105,7 +105,7 @@ namespace YH.AssetManager
                 List<AssetBundleInfo> data = new List<AssetBundleInfo>();
                 for(int i=0,l=dependencies.Length;i< l; ++i)
                 {
-                    if (m_AssetInfos.ContainsKey(dependencies[i]))
+                    if (m_AssetBundleInfos.ContainsKey(dependencies[i]))
                     {
                         data.Add(m_AssetBundleInfos[dependencies[i]]);
                     }

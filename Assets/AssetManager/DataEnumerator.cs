@@ -16,8 +16,8 @@ namespace YH.AssetManager
 
         public abstract bool isDone { get; }
 
-        public virtual Object data { get; }
-        public virtual AssetBundle assetBundle { get; }
+        public virtual Object data { get; set; }
+        public virtual AssetBundle assetBundle { get; set; }
 
         public bool MoveNext()
         {
