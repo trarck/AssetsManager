@@ -8,7 +8,7 @@ public class TestAssetLoad : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        m_AssetManager.Init();
+        m_AssetManager.Init(null);
     }
 	
 	// Update is called once per frame

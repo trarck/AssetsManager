@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,24 +12,90 @@ namespace YH.AssetManager
         Dictionary<string, AssetInfo> m_AssetInfos;
         Dictionary<string, AssetBundleInfo> m_AssetBundleInfos;
 
-        public void LoadFromFile(string filePath)
+        AssetManager m_AssetManager;
+
+        public Action onInitComplete;
+
+        public void Load(string filePath)
         {
-            string content = File.ReadAllText(filePath);
-            m_BundleManifest = JsonUtility.FromJson<BundleManifest>(content);
-            InitManifest();
+            if (filePath.Contains("://"))
+            {
+                LoadFromPackage(filePath);
+            }
+            else
+            {
+                LoadFromFile(filePath);
+            }
         }
 
-        public void LoadFromBinary(string filePath)
+        public void LoadFromPackage(string filePath)
         {
-            using (FileStream fs = new FileStream(filePath, FileMode.Open))
+            m_AssetManager.StartCoroutine(LoadPackageFile(filePath));
+        }
+
+        IEnumerator LoadPackageFile(string filePath)
+        {
+            WWW www = new WWW(filePath);
+            yield return www;
+            if (www.error == null)
             {
-                LoadFromStream(fs);
+                using (MemoryStream stream = new MemoryStream(www.bytes))
+                {
+                    LoadFromStream(stream);
+                }
             }
+            else
+            {
+                Debug.LogErrorFormat("LoadPackageFile:{0} error: {1} ", filePath, www.error);
+            }
+
+            InitComplete();
+        }
+
+        public void LoadFromFile(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                using (FileStream fs = new FileStream(filePath, FileMode.Open))
+                {
+                    LoadFromStream(fs);
+                }
+            }
+
+            InitComplete();
         }
 
         public void LoadFromStream(Stream steam)
         {
             BinaryReader reader = new BinaryReader(steam);
+
+            if(reader.ReadChar()=='A'&& reader.ReadChar() == 'B' && reader.ReadChar()=='M' && reader.ReadChar()=='I')
+            {
+                LoadFromBinaryStream(steam);
+            }
+            else
+            {
+                LoadFromTextStream(steam);
+            }
+
+            InitManifest();
+        }
+
+        public void LoadFromTextStream(Stream steam)
+        {
+            steam.Position = 0;
+            StreamReader reader = new StreamReader(steam);
+            string content = reader.ReadToEnd();
+            m_BundleManifest = JsonUtility.FromJson<BundleManifest>(content);
+        }
+
+        public void LoadFromBinaryStream(Stream steam)
+        {
+            BinaryReader reader = new BinaryReader(steam);
+            
+            //skip head sign
+            //reader.ReadInt32();
+            steam.Position = 4;
             m_BundleManifest = new BundleManifest();
             m_BundleManifest.Read(reader);
         }
@@ -46,6 +113,7 @@ namespace YH.AssetManager
             if (m_BundleManifest != null)
             {
                 BinaryWriter writer = new BinaryWriter(stream);
+                writer.Write(0x41424D49);
                 m_BundleManifest.Write(writer);
             }
         }
@@ -114,6 +182,15 @@ namespace YH.AssetManager
                         throw new Exception("Can't find dependency info of " + dependencies[i]);
                     }
                 }
+            }
+        }
+
+        void InitComplete()
+        {
+            Debug.Log("Info Manager init complete");
+            if (onInitComplete != null)
+            {
+                onInitComplete();
             }
         }
     }

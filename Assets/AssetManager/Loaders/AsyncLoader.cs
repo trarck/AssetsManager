@@ -42,7 +42,7 @@ namespace YH.AssetManager
             }
             else
             {
-                this.LoadFromPackage(m_AssetPath);
+                this.LoadFromFile(m_AssetPath);
             }
         }
 

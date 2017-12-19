@@ -16,7 +16,7 @@ namespace YH.AssetManager
 
         InfoManager m_InfoManager;
 
-        public void Init()
+        public void Init(Action callback)
         {
             Application.lowMemory += OnLowMemory;
 
@@ -34,7 +34,12 @@ namespace YH.AssetManager
 #endif
 
             m_InfoManager = new InfoManager();
-            m_InfoManager.LoadFromFile(AssetPaths.GetFullPath(AssetPaths.bundleManifestFile));
+            if (callback != null)
+            {
+                m_InfoManager.onInitComplete += callback;
+            }
+            
+            m_InfoManager.Load(AssetPaths.GetFullPath(AssetPaths.bundleManifestFile));
         }
 
         public void Clean()
