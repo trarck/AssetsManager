@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace YH.AssetManager
 {
@@ -9,6 +10,8 @@ namespace YH.AssetManager
         public Action<UnityEngine.Object> onComplete;
 
         public AssetInfo info { get; set; }
+
+        public AssetBundle assetBundle { get; set; }
 
         public override bool isDone
         {
@@ -20,22 +23,9 @@ namespace YH.AssetManager
 
         public override void Start()
         {
-            if (string.IsNullOrEmpty(info.bundleName))
+            if (assetBundle != null)
             {
-                //load asset
-            }
-            else
-            {
-                //load bundle
-            }
 
-            if (m_AssetPath.Contains("://"))
-            {
-                this.LoadFromPackage(m_AssetPath);
-            }
-            else
-            {
-                this.LoadFromFile(m_AssetPath);
             }
         }
 

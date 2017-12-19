@@ -8,6 +8,6 @@ namespace YH.AssetManager
     internal static class LoaderPool
     {
         // Object pool to avoid allocations.
-        public static readonly ObjectPool<AsyncLoader> asyncLoaderPool = new ObjectPool<AsyncLoader>(null, l=>l.Clean());
+        public static readonly ObjectPool<AssetBundleLoader> assetBundleLoader = new ObjectPool<AssetBundleLoader>(null, l=>l.Clean());
     }
 }

@@ -66,18 +66,23 @@ namespace YH.AssetManager
             return loader;
         }
 
-        public AssetLoader LoadAsset(string path,Action<Object> completeHandle)
+        public AssetLoader LoadAsset(string path, Action<Object> completeHandle)
         {
-                        
+
             AssetLoader loader = m_LoaderManager.CreateAssetLoader(path);
             loader.onComplete += completeHandle;
 
             if (!string.IsNullOrEmpty(loader.info.bundleName))
             {
-
+                LoadAssetBundle(loader.info.bundleName, (abr) => {
+                    loader.assetBundle = abr.assetBundle;
+                    AddLoader(loader);
+                });
             }
-
-            AddLoader(loader);
+            else
+            {
+                AddLoader(loader);
+            }
 
             return loader;
         }
