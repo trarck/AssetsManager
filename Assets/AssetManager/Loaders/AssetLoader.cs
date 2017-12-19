@@ -25,7 +25,6 @@ namespace YH.AssetManager
         {
             if (assetBundle != null)
             {
-
             }
         }
 
