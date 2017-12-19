@@ -12,13 +12,14 @@ namespace YH.AssetManager
         int m_RefCount=1;
         List<WeakReference> m_Owners=ListPool<WeakReference>.Get();
         HashSet<AssetBundleReference> m_Dependencies=HashSetPool<AssetBundleReference>.Get();
-        //List<string> m_Dependents = ListPool<string>.Get();
 
         HashSet<string> m_Tags = HashSetPool<string>.Get();
 
         public AssetBundle assetBundle { get; set; }
 
         public int level { get; set; }
+
+        public string assetBundleName { get; set; }
 
         public delegate void DisposeHandle(AssetBundleReference abr);
 

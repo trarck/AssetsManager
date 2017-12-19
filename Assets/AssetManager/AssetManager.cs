@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace YH.AssetManager
 {
@@ -12,9 +13,10 @@ namespace YH.AssetManager
         List<Loader> m_PrepareLoaders= ListPool<Loader>.Get();
 
         //all loaded assets
-        Dictionary<string,AssetBundleReference> m_Assets =new Dictionary<string, AssetBundleReference>();
+        Dictionary<string,AssetBundleReference> m_AssetBundles =new Dictionary<string, AssetBundleReference>();
 
         InfoManager m_InfoManager;
+        LoaderManager m_LoaderManager;
 
         public void Init(Action callback)
         {
@@ -30,10 +32,12 @@ namespace YH.AssetManager
                     AssetPaths.bundleOutPaths,
                     UnityEditor.EditorUserBuildSettings.activeBuildTarget.ToString()
                 )
-            );            
+            );
 #endif
 
-            m_InfoManager = new InfoManager();
+            m_LoaderManager = new LoaderManager(this);
+
+            m_InfoManager = new InfoManager(this);
             if (callback != null)
             {
                 m_InfoManager.onInitComplete += callback;
@@ -47,14 +51,31 @@ namespace YH.AssetManager
             ListPool<Loader>.Release(m_ActivesLoaders);
             ListPool<int>.Release(m_TickFinished);
             ListPool<Loader>.Release(m_PrepareLoaders);
-            m_Assets.Clear();
+            m_AssetBundles.Clear();
         }
 
-        public Loader Load(string path,Action<AssetBundleReference> completeHandle)
+        public AssetBundleLoader LoadAssetBundle(string path, Action<AssetBundleReference> completeHandle)
+        {
+            AssetBundleLoader loader = m_LoaderManager.CreateAssetBundleLoader(path);
+            loader.onLoaded += DoAssetBundleLoaded;
+
+            loader.onComplete += completeHandle;            
+
+            AddLoader(loader);
+
+            return loader;
+        }
+
+        public AssetLoader LoadAsset(string path,Action<Object> completeHandle)
         {
                         
-            Loader loader = CreateLoader(path);
+            AssetLoader loader = m_LoaderManager.CreateAssetLoader(path);
             loader.onComplete += completeHandle;
+
+            if (!string.IsNullOrEmpty(loader.info.bundleName))
+            {
+
+            }
 
             AddLoader(loader);
 
@@ -95,7 +116,6 @@ namespace YH.AssetManager
                 {
                     m_TickFinished.Add(i);
                     loader.Complete();
-                    m_Assets[loader.info.fullName]= loader.GetResult();
                 }
             }
 
@@ -125,19 +145,6 @@ namespace YH.AssetManager
             }
         }
 
-        protected Loader CreateLoader(string path)
-        {
-            AssetBundleInfo info = m_InfoManager.Find(path);
-            if (info != null)
-            {
-                Loader loader = new AsyncLoader();
-                loader.info = info;
-                return loader;
-            }
-
-            return null;
-        }
-
         void OnLowMemory()
         {
             UnloadUnuseds();
@@ -145,21 +152,21 @@ namespace YH.AssetManager
 
         public void UnloadUnuseds()
         {
-            if (m_Assets.Count == 0)
+            if (m_AssetBundles.Count == 0)
             {
                 return;
             }
             AssetBundleReference abr=null;
             List<string> keys = ListPool<string>.Get();
-            keys.AddRange(m_Assets.Keys);
+            keys.AddRange(m_AssetBundles.Keys);
 
             for(int i=0,l=keys.Count;i< l;++i)
             {
-                abr = m_Assets[keys[i]];
+                abr = m_AssetBundles[keys[i]];
                 if (abr.isUnused())
                 {
                     abr.Dispose();
-                    m_Assets.Remove(keys[i]);
+                    m_AssetBundles.Remove(keys[i]);
                 }
             }
             ListPool<string>.Release(keys);
@@ -167,22 +174,22 @@ namespace YH.AssetManager
 
         public void UnloadUnuseds(string tag)
         {
-            if (m_Assets.Count == 0)
+            if (m_AssetBundles.Count == 0)
             {
                 return;
             }
 
             AssetBundleReference abr = null;
             List<string> keys = ListPool<string>.Get();
-            keys.AddRange(m_Assets.Keys);
+            keys.AddRange(m_AssetBundles.Keys);
 
             for (int i = 0, l = keys.Count; i < l; ++i)
             {
-                abr = m_Assets[keys[i]];
+                abr = m_AssetBundles[keys[i]];
                 if (abr.isUnused() && abr.HaveTag(tag))
                 {
                     abr.Dispose();
-                    m_Assets.Remove(keys[i]);
+                    m_AssetBundles.Remove(keys[i]);
                 }
             }
             ListPool<string>.Release(keys);
@@ -190,25 +197,39 @@ namespace YH.AssetManager
 
         public void UnloadUnuseds(int level)
         {
-            if (m_Assets.Count == 0)
+            if (m_AssetBundles.Count == 0)
             {
                 return;
             }
 
             AssetBundleReference abr = null;
             List<string> keys = ListPool<string>.Get();
-            keys.AddRange(m_Assets.Keys);
+            keys.AddRange(m_AssetBundles.Keys);
 
             for (int i = 0, l = keys.Count; i < l; ++i)
             {
-                abr = m_Assets[keys[i]];
+                abr = m_AssetBundles[keys[i]];
                 if (abr.isUnused() && abr.MatchLevel(level))
                 {
                     abr.Dispose();
-                    m_Assets.Remove(keys[i]);
+                    m_AssetBundles.Remove(keys[i]);
                 }
             }
             ListPool<string>.Release(keys);
+        }
+
+        public void DoAssetBundleLoaded(AssetBundleLoader loader)
+        {
+            AssetBundleReference abr = loader.GetResult();
+            if (abr != null)
+            {
+                m_AssetBundles[abr.assetBundleName] = abr;
+            }
+        }
+
+        public InfoManager infoManager
+        {
+            get { return m_InfoManager; }
         }
     }
 }

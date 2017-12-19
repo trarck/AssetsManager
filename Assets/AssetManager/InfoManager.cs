@@ -16,6 +16,11 @@ namespace YH.AssetManager
 
         public Action onInitComplete;
 
+        public InfoManager(AssetManager assetManager)
+        {
+            m_AssetManager = assetManager;
+        }
+
         public void Load(string filePath)
         {
             if (filePath.Contains("://"))
@@ -156,9 +161,18 @@ namespace YH.AssetManager
             }
         }
 
-        public AssetBundleInfo Find(string key)
+        public AssetInfo FindAssetInfo(string key)
         {
             if (m_AssetInfos.ContainsKey(key))
+            {
+                return m_AssetInfos[key];
+            }
+            return null;
+        }
+
+        public AssetBundleInfo FindAssetBundleInfo(string key)
+        {
+            if (m_AssetBundleInfos.ContainsKey(key))
             {
                 return m_AssetBundleInfos[key]; 
             }

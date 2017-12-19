@@ -6,11 +6,11 @@ namespace YH.AssetManager
 {
     public abstract class Loader : DataEnumerator
     {
-        public Action<AssetBundleReference> onComplete;
+        //public Action<AssetBundleReference> onComplete;
 
-        public int assetlevel { get; set; }
-        public string assetTag { get; set; }
-        public virtual AssetBundleInfo info { get; set; }
+        //public int assetlevel { get; set; }
+        //public string assetTag { get; set; }
+        //public virtual AssetBundleInfo info { get; set; }
 
         public virtual void Start()
         {
@@ -29,8 +29,8 @@ namespace YH.AssetManager
 
         public virtual void Clean()
         {
-            assetlevel = 0;
-            assetTag = null;
+            //assetlevel = 0;
+            //assetTag = null;
         }
 
         public virtual AssetBundleReference GetResult()
