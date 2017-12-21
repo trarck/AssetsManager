@@ -1,0 +1,15 @@
+ManifestFileVersion: 0
+CRC: 1470356424
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: mymaterial
+      Dependencies:
+        Dependency_0: bnt_blue_s
+    Info_1:
+      Name: bnt_blue_s
+      Dependencies: {}
+    Info_2:
+      Name: aaaa
+      Dependencies:
+        Dependency_0: mymaterial

@@ -1,0 +1,17 @@
+ManifestFileVersion: 0
+CRC: 1153908291
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: d87136ceb77186ad557538ade253511e
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 4cd0a5558493b0679e071c141fc729a3
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+Assets:
+- Assets/ArtResources/Textures/bnt_Blue_S.png
+- Assets/ArtResources/Textures/bnt_Blue_S2.png
+Dependencies: []

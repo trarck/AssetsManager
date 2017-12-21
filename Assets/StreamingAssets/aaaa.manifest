@@ -1,0 +1,27 @@
+ManifestFileVersion: 0
+CRC: 861602620
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: a2e9c5edf3de8c236b47966970b2e55f
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 02689407958b3b99319348c541dc5079
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+Assets:
+- Assets/ArtResources/Prefabs/TestPrefab.prefab
+Dependencies:
+- D:/unity/TestAssetBundle/AssetBundles/StandaloneWindows64/mymaterial
