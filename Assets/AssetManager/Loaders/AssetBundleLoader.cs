@@ -9,7 +9,6 @@ namespace YH.AssetManager
     {
         AssetBundleInfo m_Info;
         LoaderRequest m_LoaderRequest;
-        bool m_IsDone=false;
 
         AssetBundleReference m_Result;
 
@@ -17,14 +16,11 @@ namespace YH.AssetManager
 
         public Action<AssetBundleLoader> onLoaded;
 
-        public int assetBundlelevel { get; set; }
-        public string assetBundleTag { get; set; }
-
         public override bool isDone
         {
             get
             {
-                return m_LoaderRequest != null || m_LoaderRequest.isDone;
+                return forceDone || m_LoaderRequest != null && m_LoaderRequest.isDone;
             }
         }
 
@@ -61,7 +57,7 @@ namespace YH.AssetManager
 
             if (onComplete != null)
             {
-                onComplete(GetResult());
+                onComplete(this.result);
             }
         }
 
@@ -72,7 +68,7 @@ namespace YH.AssetManager
 
         protected LoaderRequest LoadFromFile(string path)
         {
-            m_LoaderRequest =new AsyncRequest(AssetBundle.LoadFromFileAsync(path));
+            m_LoaderRequest =new BundleLoaderRequest(AssetBundle.LoadFromFileAsync(path));
             return m_LoaderRequest;
         }
 
@@ -82,27 +78,37 @@ namespace YH.AssetManager
             return m_LoaderRequest;
         }
 
-        public override AssetBundleReference GetResult()
+        public AssetBundleReference result
         {
-            if (isDone)
+            get
             {
-                if (m_Result == null)
+                if (isDone)
                 {
-                    m_Result = new AssetBundleReference(m_LoaderRequest.assetBundle, assetBundlelevel);
-                    m_Result.assetBundleName = m_Info.fullName;
-                    m_Result.AddTag(assetBundleTag);
+                    if (m_Result == null)
+                    {
+                        m_Result = new AssetBundleReference(m_LoaderRequest.assetBundle, m_Info.fullName);
+                        m_Result.level = paramLevel;
+                        if (!string.IsNullOrEmpty(paramTag))
+                        {
+                            m_Result.AddTag(paramTag);
+                        }
+
+                    }
+
+                    return m_Result;
                 }
 
-                return m_Result;
+                return null;
             }
-
-            return null;
+            set
+            {
+                m_Result = value;
+            }
         }
 
         public override void Clean()
         {
             onComplete = null;
-            m_IsDone = false;
             m_LoaderRequest = null;
             m_Result = null;
             base.Clean();

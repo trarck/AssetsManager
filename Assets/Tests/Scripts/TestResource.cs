@@ -38,6 +38,7 @@ public class TestResource : MonoBehaviour {
         {
             sw = 3;
             Texture2D texture= m_AssetBundle.LoadAsset("bnt_Blue_S2") as Texture2D;
+            Texture2D tt = m_AssetBundle.LoadAsset<Texture2D>("bnt_blue");
             // MeshRenderer mesh = m_Target.GetComponent<MeshRenderer>();
             //mesh.material.mainTexture = texture;
             m_O = texture;
@@ -47,14 +48,19 @@ public class TestResource : MonoBehaviour {
         {
             sw = 4;
             //Resources.UnloadAsset(m_O);
+            m_O = null;
             Resources.UnloadUnusedAssets();
+            //m_AssetBundle.Unload(false);
+            //m_AssetBundle = null;
+            //Resources.UnloadUnusedAssets();
+            //m_AssetBundle.Unload(false);
         }
 
 
         if (m_Elapsed > 8 && sw == 4)
         {
             sw = 5;
-
+           //m_AssetBundle.Unload(true);
         }
     }
 }

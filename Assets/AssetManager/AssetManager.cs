@@ -12,8 +12,11 @@ namespace YH.AssetManager
         List<int> m_TickFinished= ListPool<int>.Get();
         List<Loader> m_PrepareLoaders= ListPool<Loader>.Get();
 
-        //all loaded assets
+        //all loaded  asset bundles
         Dictionary<string,AssetBundleReference> m_AssetBundles =new Dictionary<string, AssetBundleReference>();
+
+        //all loaded  asset bundles.usefull preload
+        Dictionary<string, AssetReference> m_Assets = new Dictionary<string, AssetReference>();
 
         InfoManager m_InfoManager;
         LoaderManager m_LoaderManager;
@@ -52,36 +55,88 @@ namespace YH.AssetManager
             ListPool<int>.Release(m_TickFinished);
             ListPool<Loader>.Release(m_PrepareLoaders);
             m_AssetBundles.Clear();
+            m_Assets.Clear();
         }
 
         public AssetBundleLoader LoadAssetBundle(string path, Action<AssetBundleReference> completeHandle)
         {
-            AssetBundleLoader loader = m_LoaderManager.CreateAssetBundleLoader(path);
-            loader.onLoaded += DoAssetBundleLoaded;
-
-            loader.onComplete += completeHandle;            
-
-            AddLoader(loader);
-
-            return loader;
+            return LoadAssetBundle(path,null,0,completeHandle);
         }
 
-        public AssetLoader LoadAsset(string path, Action<Object> completeHandle)
+        public AssetBundleLoader LoadAssetBundle(string path,string tag, int level, Action<AssetBundleReference> completeHandle)
         {
+            AssetBundleLoader loader = null;
 
-            AssetLoader loader = m_LoaderManager.CreateAssetLoader(path);
-            loader.onComplete += completeHandle;
-
-            if (!string.IsNullOrEmpty(loader.info.bundleName))
+            if (m_AssetBundles.ContainsKey(path))
             {
-                LoadAssetBundle(loader.info.bundleName, (abr) => {
-                    loader.assetBundle = abr.assetBundle;
-                    AddLoader(loader);
-                });
+                AssetBundleReference abr = m_AssetBundles[path];
+
+                loader = m_LoaderManager.CreateAssetBundleLoader(path);
+                loader.forceDone = true;
+                loader.result = abr;
+
+                //refresh 
+                abr.level = level;
+                abr.AddTag(tag);
+
+                if (completeHandle != null)
+                {
+                    completeHandle(abr);
+                }
             }
             else
             {
+                loader = m_LoaderManager.CreateAssetBundleLoader(path);
+                loader.paramLevel = level;
+                loader.paramTag = tag;
+                loader.onLoaded += DoAssetBundleLoaded;
+                loader.onComplete += completeHandle;
+
                 AddLoader(loader);
+            }
+            return loader;
+        }
+
+        public AssetLoader LoadAsset(string path,string tag, int level, Action<AssetReference> completeHandle)
+        {
+            AssetLoader loader = null;
+
+            if (m_Assets.ContainsKey(path))
+            {
+                AssetReference ar = m_Assets[path];
+                loader = m_LoaderManager.CreateAssetLoader(path);
+                loader.forceDone = true;
+                loader.result = ar;
+
+                //refresh
+                ar.level = level;
+                ar.AddTag(tag);
+
+                if (completeHandle != null)
+                {
+                    completeHandle(ar);
+                }
+            }
+            else
+            {
+                loader = m_LoaderManager.CreateAssetLoader(path);
+                loader.paramLevel = level;
+                loader.paramTag = tag;
+                loader.onLoaded += DoAssetLoaded;
+                loader.onComplete += completeHandle;
+
+                if (!string.IsNullOrEmpty(loader.info.bundleName))
+                {
+                    LoadAssetBundle(loader.info.bundleName, (abr) =>
+                    {
+                        loader.assetBundleReference = abr;
+                        AddLoader(loader);
+                    });
+                }
+                else
+                {
+                    AddLoader(loader);
+                }
             }
 
             return loader;
@@ -157,6 +212,24 @@ namespace YH.AssetManager
 
         public void UnloadUnuseds()
         {
+            UnloadUnusedAssets();
+            UnloadUnusedBundles();
+        }
+
+        public void UnloadUnuseds(string tag)
+        {
+            UnloadUnusedAssets(tag);
+            UnloadUnusedBundles(tag);
+        }
+
+        public void UnloadUnuseds(int level)
+        {
+            UnloadUnusedAssets(level);
+            UnloadUnusedBundles(level);
+        }
+
+        public void UnloadUnusedBundles()
+        {
             if (m_AssetBundles.Count == 0)
             {
                 return;
@@ -177,7 +250,7 @@ namespace YH.AssetManager
             ListPool<string>.Release(keys);
         }
 
-        public void UnloadUnuseds(string tag)
+        public void UnloadUnusedBundles(string tag)
         {
             if (m_AssetBundles.Count == 0)
             {
@@ -200,7 +273,7 @@ namespace YH.AssetManager
             ListPool<string>.Release(keys);
         }
 
-        public void UnloadUnuseds(int level)
+        public void UnloadUnusedBundles(int level)
         {
             if (m_AssetBundles.Count == 0)
             {
@@ -223,12 +296,89 @@ namespace YH.AssetManager
             ListPool<string>.Release(keys);
         }
 
-        public void DoAssetBundleLoaded(AssetBundleLoader loader)
+        public void UnloadUnusedAssets()
         {
-            AssetBundleReference abr = loader.GetResult();
+            if (m_Assets.Count == 0)
+            {
+                return;
+            }
+            AssetReference ar = null;
+            List<string> keys = ListPool<string>.Get();
+            keys.AddRange(m_Assets.Keys);
+
+            for (int i = 0, l = keys.Count; i < l; ++i)
+            {
+                ar = m_Assets[keys[i]];
+                if (ar.isUnused())
+                {
+                    ar.Dispose();
+                    m_Assets.Remove(keys[i]);
+                }
+            }
+            ListPool<string>.Release(keys);
+        }
+
+        public void UnloadUnusedAssets(string tag)
+        {
+            if (m_Assets.Count == 0)
+            {
+                return;
+            }
+
+            AssetReference ar = null;
+            List<string> keys = ListPool<string>.Get();
+            keys.AddRange(m_Assets.Keys);
+
+            for (int i = 0, l = keys.Count; i < l; ++i)
+            {
+                ar = m_Assets[keys[i]];
+                if (ar.isUnused() && ar.HaveTag(tag))
+                {
+                    ar.Dispose();
+                    m_Assets.Remove(keys[i]);
+                }
+            }
+            ListPool<string>.Release(keys);
+        }
+
+        public void UnloadUnusedAssets(int level)
+        {
+            if (m_Assets.Count == 0)
+            {
+                return;
+            }
+
+            AssetReference ar = null;
+            List<string> keys = ListPool<string>.Get();
+            keys.AddRange(m_Assets.Keys);
+
+            for (int i = 0, l = keys.Count; i < l; ++i)
+            {
+                ar = m_Assets[keys[i]];
+                if (ar.isUnused() && ar.MatchLevel(level))
+                {
+                    ar.Dispose();
+                    m_Assets.Remove(keys[i]);
+                }
+            }
+            ListPool<string>.Release(keys);
+        }
+
+        void DoAssetBundleLoaded(AssetBundleLoader loader)
+        {
+            AssetBundleReference abr = loader.result;
             if (abr != null)
             {
                 m_AssetBundles[abr.assetBundleName] = abr;
+            }
+        }
+
+        void DoAssetLoaded(AssetLoader loader)
+        {
+            AssetReference ar = loader.result;
+            if (ar != null)
+            {
+                m_Assets[ar.assetPath] = ar;
             }
         }
 

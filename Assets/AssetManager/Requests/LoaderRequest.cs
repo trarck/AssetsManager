@@ -43,7 +43,7 @@ namespace YH.AssetManager
         }
     }
 
-    public class AsyncRequest : LoaderRequest
+    public class BundleLoaderRequest : LoaderRequest
     {
         AssetBundleCreateRequest m_CreateRequest;
 
@@ -70,9 +70,75 @@ namespace YH.AssetManager
             }
         }
 
-        public AsyncRequest(AssetBundleCreateRequest createRequest)
+        public BundleLoaderRequest(AssetBundleCreateRequest createRequest)
         {
             m_CreateRequest = createRequest;
+        }
+    }
+
+    public class AssetLoaderRequest : LoaderRequest
+    {
+        AssetBundleRequest m_Request;
+
+        public override bool isDone
+        {
+            get
+            {
+                if (m_Request != null)
+                {
+                    return m_Request.isDone;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public override Object data
+        {
+            get
+            {
+                return m_Request != null ? m_Request.asset : null;
+            }
+        }
+
+        public AssetLoaderRequest(AssetBundleRequest request)
+        {
+            m_Request = request;
+        }
+    }
+
+    public class ResouceLoaderRequest : LoaderRequest
+    {
+        ResourceRequest m_Request;
+
+        public override bool isDone
+        {
+            get
+            {
+                if (m_Request != null)
+                {
+                    return m_Request.isDone;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public override Object data
+        {
+            get
+            {
+                return m_Request != null ? m_Request.asset : null;
+            }
+        }
+
+        public ResouceLoaderRequest(ResourceRequest request)
+        {
+            m_Request = request;
         }
     }
 }

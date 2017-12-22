@@ -8,9 +8,10 @@ namespace YH.AssetManager
     {
         //public Action<AssetBundleReference> onComplete;
 
-        //public int assetlevel { get; set; }
-        //public string assetTag { get; set; }
-        //public virtual AssetBundleInfo info { get; set; }
+        public int paramLevel { get; set; }
+        public string paramTag { get; set; }
+
+        public bool forceDone { get; set; }
 
         public virtual void Start()
         {
@@ -29,13 +30,12 @@ namespace YH.AssetManager
 
         public virtual void Clean()
         {
-            //assetlevel = 0;
-            //assetTag = null;
+            paramLevel = 0;
+            paramTag = null;
         }
-
-        public virtual AssetBundleReference GetResult()
-        {
-            return null;
-        }
+        //public virtual AssetBundleReference GetResult()
+        //{
+        //    return null;
+        //}
     }
 }
