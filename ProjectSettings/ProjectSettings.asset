@@ -501,6 +501,7 @@ PlayerSettings:
   webGLCompressionFormat: 1
   scriptingDefineSymbols:
     1: SILVERLIGHT
+    7: ASSET_EDITOR_LOADER
   platformArchitecture: {}
   scriptingBackend: {}
   incrementalIl2cppBuild: {}

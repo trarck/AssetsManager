@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace YH.AssetManager
 {
     public class AssetLoader : Loader
     {
-        LoaderRequest m_LoaderRequest;
+        protected LoaderRequest m_LoaderRequest;
 
-        AssetReference m_Result;
+        protected AssetReference m_Result;
 
         public Action<AssetReference> onComplete;
 
@@ -31,14 +30,24 @@ namespace YH.AssetManager
 
         public override void Start()
         {
-            if (assetBundleReference != null)
+            if (m_State == State.Idle)
             {
-                LoadFromAssetBundle();
+                state = State.Loading;
+
+                if (assetBundleReference != null)
+                {
+                    LoadFromAssetBundle();
+                }
+                else
+                {
+                    LoadFromResources();
+                }
             }
-            else
+            else if (m_State != State.Loading)
             {
-                LoadFromResources();
+                DoLoadComplete();
             }
+            
         }
 
         void LoadFromAssetBundle()
@@ -57,6 +66,7 @@ namespace YH.AssetManager
             else
             {
                 Error();
+                Debug.LogError("Load Asset with no info");
             }
         }
 
@@ -64,14 +74,31 @@ namespace YH.AssetManager
         {
             if (info != null)
             {
+                string resourcePath = Path.Combine(Path.GetDirectoryName(info.name), Path.GetFileNameWithoutExtension(info.name));
+
                 if (type == null)
                 {
-                    m_LoaderRequest = new ResouceLoaderRequest(Resources.LoadAsync(info.name));
+                    m_LoaderRequest = new ResouceLoaderRequest(Resources.LoadAsync(resourcePath));
                 }
                 else
                 {
-                    m_LoaderRequest = new ResouceLoaderRequest(Resources.LoadAsync(info.name, type));
+                    m_LoaderRequest = new ResouceLoaderRequest(Resources.LoadAsync(resourcePath, type));
                 }                
+            }
+            else
+            {
+                Error();
+                Debug.LogError("Load Asset with no info");
+            }
+        }
+
+        public override void Complete()
+        {
+            //check success or fail
+            if(m_LoaderRequest!=null && m_LoaderRequest.data != null)
+            {
+                state = State.Completed;
+                DoLoadComplete();
             }
             else
             {
@@ -79,13 +106,13 @@ namespace YH.AssetManager
             }
         }
 
-        public override void Complete()
-        {
-            DoLoadComplete();
-        }
-
         public override void Error()
         {
+            state = State.Error;
+            if (info != null)
+            {
+                Debug.LogErrorFormat("Load asset {0} fail", info.name);
+            }
             DoLoadComplete();
         }
 
@@ -114,33 +141,31 @@ namespace YH.AssetManager
         {
             get
             {
-                if (isDone)
+                if (m_Result == null && state==State.Completed)
                 {
-                    if (m_Result == null)
+                    if (isDone)
                     {
-                        m_Result = new AssetReference(m_LoaderRequest.data, info.name);
-                        m_Result.level = paramLevel;
-                        if (!string.IsNullOrEmpty(paramTag))
+                        if (m_LoaderRequest.data != null)
                         {
-                            m_Result.AddTag(paramTag);
-                        }
-                        if (assetBundleReference != null)
-                        {
-                            m_Result.assetBundleReference = assetBundleReference;
-                        }
+                            m_Result = new AssetReference(m_LoaderRequest.data, info.name);
+                            m_Result.level = paramLevel;
+                            if (!string.IsNullOrEmpty(paramTag))
+                            {
+                                m_Result.AddTag(paramTag);
+                            }
+                            if (assetBundleReference != null)
+                            {
+                                m_Result.assetBundleReference = assetBundleReference;
+                            }
+                        }                        
                     }
-
-                    return m_Result;
                 }
-
-                return null;
+                return m_Result;
             }
-
             set
             {
                 m_Result = value;
             }
-           
         }
 
         public void SetResult(AssetReference ar)

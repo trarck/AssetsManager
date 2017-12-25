@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -95,7 +96,7 @@ namespace YH.AssetManager
             }
         }
 
-        public override Object data
+        public override UnityEngine.Object data
         {
             get
             {
@@ -128,7 +129,7 @@ namespace YH.AssetManager
             }
         }
 
-        public override Object data
+        public override UnityEngine.Object data
         {
             get
             {
@@ -139,6 +140,17 @@ namespace YH.AssetManager
         public ResouceLoaderRequest(ResourceRequest request)
         {
             m_Request = request;
+        }
+    }
+
+    public class SyncLoaderRequest : LoaderRequest
+    {
+        public override bool isDone
+        {
+            get
+            {
+                return true;
+            }
         }
     }
 }

@@ -7,7 +7,6 @@ namespace YH.AssetManager
 {
     public class AssetBundleLoader : Loader
     {
-        AssetBundleInfo m_Info;
         LoaderRequest m_LoaderRequest;
 
         AssetBundleReference m_Result;
@@ -24,27 +23,54 @@ namespace YH.AssetManager
             }
         }
 
-        public AssetBundleInfo info
-        {
-            get { return m_Info; }
-            set { m_Info = value; }
-        }
+        public AssetBundleInfo info { get; set; }
 
         public override void Start()
         {
-            string assetPath = AssetPaths.GetFullPath(m_Info.fullName);
-            if (assetPath.Contains("://"))
+            if (m_State == State.Idle)
             {
-                this.LoadFromPackage(assetPath);
+                if (info != null)
+                {
+                    state = State.Loading;
+
+                    string assetPath = AssetPaths.GetFullPath(info.fullName);
+                    if (assetPath.Contains("://"))
+                    {
+                        this.LoadFromPackage(assetPath);
+                    }
+                    else
+                    {
+                        this.LoadFromFile(assetPath);
+                    }
+                }
+                else
+                {
+                    Error();
+                    Debug.LogError("AssetBundleLoader can't start without info");
+                }
             }
-            else
+            else if (m_State != State.Loading)
             {
-                this.LoadFromFile(assetPath);
+                DoLoadComplete();
             }
         }
 
         public override void Complete()
         {
+            if (m_LoaderRequest != null && m_LoaderRequest.assetBundle != null)
+            {
+                state = State.Completed;
+                DoLoadComplete();
+            }
+            else
+            {
+                Error();
+            }
+        }
+
+        public override void Error()
+        {
+            state = State.Error;
             DoLoadComplete();
         }
 
@@ -82,11 +108,12 @@ namespace YH.AssetManager
         {
             get
             {
-                if (isDone)
+                if (m_Result == null)
                 {
-                    if (m_Result == null)
+                    if (isDone)
                     {
-                        m_Result = new AssetBundleReference(m_LoaderRequest.assetBundle, m_Info.fullName);
+
+                        m_Result = new AssetBundleReference(m_LoaderRequest.assetBundle, info.fullName);
                         m_Result.level = paramLevel;
                         if (!string.IsNullOrEmpty(paramTag))
                         {
@@ -94,11 +121,8 @@ namespace YH.AssetManager
                         }
 
                     }
-
-                    return m_Result;
                 }
-
-                return null;
+                return m_Result;
             }
             set
             {

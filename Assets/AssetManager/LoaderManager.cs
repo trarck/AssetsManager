@@ -14,16 +14,26 @@ namespace YH.AssetManager
         }
 
         public AssetLoader CreateAssetLoader(string path)
-        {
-            AssetInfo info = m_AssetManager.infoManager.FindAssetInfo(path);
-            if (info != null)
-            {
-                AssetLoader loader = new AssetLoader();
-                loader.info = info;
-                return loader;
-            }
+        { 
+            AssetLoader loader = null;
+            AssetInfo info = null;
 
-            return null;
+#if UNITY_EDITOR && ASSET_EDITOR_LOADER
+            loader = new AssetEditorLoader();
+            info = new AssetInfo();
+            info.name = path;
+#else
+            loader = new AssetLoader();
+            info = m_AssetManager.infoManager.FindAssetInfo(path);
+            //can't find asset info
+            if (info == null)
+            {
+                info = new AssetInfo();
+                info.name = path;
+            }
+#endif
+            loader.info = info;
+            return loader;
         }
 
         public AssetBundleLoader CreateAssetBundleLoader(string path)

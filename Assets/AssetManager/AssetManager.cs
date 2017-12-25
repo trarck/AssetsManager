@@ -97,7 +97,22 @@ namespace YH.AssetManager
             return loader;
         }
 
-        public AssetLoader LoadAsset(string path,string tag, int level, Action<AssetReference> completeHandle)
+        public AssetLoader LoadAsset(string path, Action<AssetReference> completeHandle)
+        {
+            return LoadAsset(path, null, 0,null, completeHandle);
+        }
+
+        public AssetLoader LoadAsset<T>(string path, Action<AssetReference> completeHandle)
+        {
+            return LoadAsset(path, null, 0, typeof(T), completeHandle);
+        }
+
+        public AssetLoader LoadAsset<T>(string path, string tag, int level,Action<AssetReference> completeHandle)
+        {
+            return LoadAsset(path, null, 0, typeof(T), completeHandle);
+        }
+
+        public AssetLoader LoadAsset(string path,string tag, int level, Type type,Action<AssetReference> completeHandle)
         {
             AssetLoader loader = null;
 
@@ -124,6 +139,11 @@ namespace YH.AssetManager
                 loader.paramTag = tag;
                 loader.onLoaded += DoAssetLoaded;
                 loader.onComplete += completeHandle;
+
+                if (type != null)
+                {
+                    loader.type = type;
+                }
 
                 if (!string.IsNullOrEmpty(loader.info.bundleName))
                 {
