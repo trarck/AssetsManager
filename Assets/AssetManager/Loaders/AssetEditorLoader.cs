@@ -11,13 +11,15 @@ namespace YH.AssetManager
     {
         public override void Start()
         {
-            if (m_State == State.Idle)
+            if (m_State == State.Inited)
             {
+                Debug.Log("EditorLoader load from resource" + "," + Time.frameCount);
                 state = State.Loading;
                 LoadFromResources();
             }
-            else if (m_State != State.Loading)
-            {
+            else if (isFinishedState())
+            { 
+                Debug.Log("EditorLoader director complete" + "," + Time.frameCount);
                 DoLoadComplete();
             }
         }
@@ -26,15 +28,16 @@ namespace YH.AssetManager
         {
             if (info != null)
             {
+                string resPath = AssetPaths.AddAssetPrev(info.name);
                 if (type == null)
                 {
                     m_LoaderRequest = new SyncLoaderRequest();
-                    m_LoaderRequest.data= AssetDatabase.LoadMainAssetAtPath(info.name);
+                    m_LoaderRequest.data= AssetDatabase.LoadMainAssetAtPath(resPath);
                 }
                 else
                 {
                     m_LoaderRequest = new SyncLoaderRequest();
-                    m_LoaderRequest.data = AssetDatabase.LoadAssetAtPath(info.name, type);
+                    m_LoaderRequest.data = AssetDatabase.LoadAssetAtPath(resPath, type);
                 }                
             }
             else

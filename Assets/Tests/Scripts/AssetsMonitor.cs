@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace YH
 {
 
-    public class AssetsMonitor : UnitySingleton<AssetsMonitor>
+    public class AssetsMonitor : AssetManager.UnitySingleton<AssetsMonitor>
     {
 
         public struct AssetItem

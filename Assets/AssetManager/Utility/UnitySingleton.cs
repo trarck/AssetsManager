@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace YH
+namespace YH.AssetManager
 {
     public class UnitySingleton<T> : MonoBehaviour
         where T : Component

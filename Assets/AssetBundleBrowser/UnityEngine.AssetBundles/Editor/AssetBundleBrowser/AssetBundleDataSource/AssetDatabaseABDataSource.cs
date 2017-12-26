@@ -129,7 +129,7 @@ namespace UnityEngine.AssetBundles.AssetBundleDataSource
                     foreach(AssetBundleModel.AssetInfo assetInfo in bundleInfo.GetConcretes())
                     {
                         Debug.Log(assetInfo.displayName + "," + assetInfo.bundleName + "," + assetInfo.fullAssetName);
-                        assets.Add(assetInfo.fullAssetName);
+                        assets.Add(AssetPaths.RemoveAssetPrev(assetInfo.fullAssetName));
                     }
                     assetBundleInfo.assets = assets.ToArray();
 

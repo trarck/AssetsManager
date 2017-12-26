@@ -30,7 +30,7 @@ namespace YH.AssetManager
 
         public override void Start()
         {
-            if (m_State == State.Idle)
+            if (m_State == State.Inited)
             {
                 state = State.Loading;
 
@@ -43,7 +43,7 @@ namespace YH.AssetManager
                     LoadFromResources();
                 }
             }
-            else if (m_State != State.Loading)
+            else if (isFinishedState())
             {
                 DoLoadComplete();
             }

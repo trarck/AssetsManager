@@ -68,4 +68,15 @@ public class TestBuild {
             Debug.Log(dep);
         }
     }
+
+    [MenuItem("Test/TestOhters")]
+    public static void TestOthers()
+    {
+        string p = "assets/ArtResources/Prefabs/TestPrefab.prefab";
+       // p = YH.AssetManager.AssetPaths.RemoveAssetPrev(p);
+       // Debug.Log(p);
+        p = YH.AssetManager.AssetPaths.AddAssetPrev(p);
+
+        Debug.Log(p);
+    }
 }

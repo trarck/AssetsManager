@@ -11,6 +11,7 @@ namespace YH.AssetManager
         public enum State
         {
             Idle,
+            Inited,
             Loading,
             Completed,
             Error
@@ -73,5 +74,10 @@ namespace YH.AssetManager
         //{
         //    return null;
         //}
+
+        protected bool isFinishedState()
+        {
+            return m_State == State.Completed || m_State == State.Error;
+        }
     }
 }

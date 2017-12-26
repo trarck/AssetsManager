@@ -19,6 +19,8 @@ namespace YH.AssetManager
 
         public static string bundleOutPaths = "AssetBundles";
 
+        public static string assetPathPrev = "Assets/";
+
         public static List<string> searchPaths = new List<string>();
 
         public static string FullPathForFilename(string filename)
@@ -174,6 +176,24 @@ namespace YH.AssetManager
         public static string NormalizeFilename(string filename)
         {
             return filename.Replace("\\", "/");
+        }
+
+        public static string RemoveAssetPrev(string path)
+        {
+            if (!string.IsNullOrEmpty(path) && path.StartsWith(assetPathPrev,System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                return path.Substring(assetPathPrev.Length);
+            }
+            return path;
+        }
+
+        public static string AddAssetPrev(string path)
+        {
+            if (!string.IsNullOrEmpty(path) && !path.StartsWith(assetPathPrev, System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                return Combine(assetPathPrev, path);
+            }
+            return path;
         }
     }
 }

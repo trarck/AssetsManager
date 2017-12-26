@@ -25,9 +25,20 @@ public class TestAssetLoad : MonoBehaviour {
     IEnumerator Test()
     {
         yield return new WaitForSeconds(2);
-        m_AssetManager.LoadAsset("Assets/ArtResources/Prefabs/MyPrefab.prefab",(ar)=> {
+        m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab",(ar)=> {
 
-            Debug.Log(ar);
+            Debug.Log(ar + "," + Time.frameCount);
+            if (ar != null)
+            {
+                Debug.Log(ar.asset);
+                GameObject.Instantiate(ar.asset);
+            }
+        });
+
+        m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        {
+
+            Debug.Log(ar + "," + Time.frameCount);
             if (ar != null)
             {
                 Debug.Log(ar.asset);

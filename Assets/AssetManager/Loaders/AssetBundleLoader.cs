@@ -27,7 +27,7 @@ namespace YH.AssetManager
 
         public override void Start()
         {
-            if (m_State == State.Idle)
+            if (m_State == State.Inited)
             {
                 if (info != null)
                 {
@@ -49,7 +49,7 @@ namespace YH.AssetManager
                     Debug.LogError("AssetBundleLoader can't start without info");
                 }
             }
-            else if (m_State != State.Loading)
+            else if (isFinishedState())
             {
                 DoLoadComplete();
             }

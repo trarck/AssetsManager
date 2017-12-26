@@ -18,6 +18,9 @@ namespace YH.AssetManager
         //all loaded  asset bundles.usefull preload
         Dictionary<string, AssetReference> m_Assets = new Dictionary<string, AssetReference>();
 
+        Dictionary<string, AssetBundleLoader> m_AssetBundleLoaders = new Dictionary<string, AssetBundleLoader>();
+        Dictionary<string, AssetLoader> m_AssetLoaders = new Dictionary<string, AssetLoader>();
+
         InfoManager m_InfoManager;
         LoaderManager m_LoaderManager;
 
@@ -86,13 +89,28 @@ namespace YH.AssetManager
             }
             else
             {
-                loader = m_LoaderManager.CreateAssetBundleLoader(path);
+                if (m_AssetBundleLoaders.ContainsKey(path))
+                {
+                    loader = m_AssetBundleLoaders[path];
+                }
+                else
+                {
+                    loader = m_LoaderManager.CreateAssetBundleLoader(path);
+                    m_AssetBundleLoaders[path] = loader;
+                }
+                
                 loader.paramLevel = level;
                 loader.paramTag = tag;
-                loader.onLoaded += DoAssetBundleLoaded;
                 loader.onComplete += completeHandle;
 
-                AddLoader(loader);
+                if (loader.state == Loader.State.Idle)
+                {
+                    loader.onLoaded += DoAssetBundleLoaded;
+                }
+                
+                loader.state = Loader.State.Inited;
+
+                ActiveLoader(loader);
             }
             return loader;
         }
@@ -118,6 +136,7 @@ namespace YH.AssetManager
 
             if (m_Assets.ContainsKey(path))
             {
+                Debug.Log("LoadAsset asset is loaded "+path+","+Time.frameCount);
                 AssetReference ar = m_Assets[path];
                 loader = m_LoaderManager.CreateAssetLoader(path);
                 loader.forceDone = true;
@@ -134,11 +153,13 @@ namespace YH.AssetManager
             }
             else
             {
+                Debug.Log("LoadAsset create new loader" + path + "," + Time.frameCount);
                 loader = m_LoaderManager.CreateAssetLoader(path);
                 loader.paramLevel = level;
                 loader.paramTag = tag;
                 loader.onLoaded += DoAssetLoaded;
                 loader.onComplete += completeHandle;
+                loader.state = Loader.State.Inited;
 
                 if (type != null)
                 {
@@ -150,19 +171,19 @@ namespace YH.AssetManager
                     LoadAssetBundle(loader.info.bundleName, (abr) =>
                     {
                         loader.assetBundleReference = abr;
-                        AddLoader(loader);
+                        ActiveLoader(loader);
                     });
                 }
                 else
                 {
-                    AddLoader(loader);
+                    ActiveLoader(loader);
                 }
             }
 
             return loader;
         }
 
-        void AddLoader(Loader loader)
+        void ActiveLoader(Loader loader)
         {
             if (m_ActivesLoaders.Count < m_MaxActiveLoader)
             {
