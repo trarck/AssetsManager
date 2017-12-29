@@ -13,10 +13,13 @@ public class TestBuild {
 
         AssetBundleBuild build = new AssetBundleBuild();
         string[] assets = new string[1];
-        assets[0] = "Assets/ArtResources/Prefabs/TestPrefab.prefab";
+        string[] names = new string[1];
+        assets[0] = "Assets/ArtResources/Prefabs/MyPrefab.prefab";
+        names[0] = "ArtResources/Prefabs/MyPrefab.prefab";
 
-        build.assetBundleName = "aaaaaaa";
+        build.assetBundleName = "aaa";
         build.assetNames = assets;
+        build.addressableNames = names;
 
         builds.Add(build);
 
@@ -37,7 +40,7 @@ public class TestBuild {
 
         string outDir = Path.Combine(Application.dataPath, "../AssetBundles/Test");
 
-        AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(outDir, builds.ToArray(), BuildAssetBundleOptions.CollectDependencies | BuildAssetBundleOptions.DeterministicAssetBundle, EditorUserBuildSettings.activeBuildTarget);
+        AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(outDir, builds.ToArray(), BuildAssetBundleOptions.DeterministicAssetBundle, EditorUserBuildSettings.activeBuildTarget);
 
         Debug.Log("####All Bundles " + manifest.GetAllAssetBundles().Length);
         foreach (string v in manifest.GetAllAssetBundles())
@@ -72,11 +75,17 @@ public class TestBuild {
     [MenuItem("Test/TestOhters")]
     public static void TestOthers()
     {
-        string p = "assets/ArtResources/Prefabs/TestPrefab.prefab";
-       // p = YH.AssetManager.AssetPaths.RemoveAssetPrev(p);
-       // Debug.Log(p);
-        p = YH.AssetManager.AssetPaths.AddAssetPrev(p);
+        var dataPath = System.IO.Path.GetFullPath(".");
+        AssetBundle ab=AssetBundle.LoadFromFile(dataPath + "/AssetBundles/Test/aaa");
+        Debug.Log(ab);
+        foreach(string n in ab.GetAllAssetNames())
+        {
+            Debug.Log(n);
+        }
 
-        Debug.Log(p);
+        Object o = ab.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
+        Debug.Log(o);
+
+        ab.Unload(false);
     }
 }

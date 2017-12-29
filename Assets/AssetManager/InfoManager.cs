@@ -146,15 +146,12 @@ namespace YH.AssetManager
             {
                 bundleInfo = m_BundleManifest.bundleInfos[i];
 
-                //create bundle dependes
-                CreateBundleDependencies(bundleInfo);
-
                 //create asset info map
                 for (int j = 0, k = bundleInfo.assets.Length; j < k; ++j)
                 {
                     string assetName = bundleInfo.assets[j];
                     assetInfo = new AssetInfo();
-                    assetInfo.name = assetName;
+                    assetInfo.fullName = assetName;
                     assetInfo.bundleName = bundleInfo.fullName;
                     m_AssetInfos.Add(assetName, assetInfo);
                 }
@@ -163,40 +160,32 @@ namespace YH.AssetManager
 
         public AssetInfo FindAssetInfo(string key)
         {
-            if (m_AssetInfos.ContainsKey(key))
+            if (m_AssetInfos!=null && !string.IsNullOrEmpty(key))
             {
-                return m_AssetInfos[key];
+                if (m_AssetInfos.ContainsKey(key))
+                {
+                    return m_AssetInfos[key];
+                }
+
+                string fixKey = AssetPaths.AddAssetPrev(key);
+                if (!fixKey.Equals(key))
+                {
+                    if (m_AssetInfos.ContainsKey(fixKey))
+                    {
+                        return m_AssetInfos[fixKey];
+                    }
+                }
             }
             return null;
         }
 
         public AssetBundleInfo FindAssetBundleInfo(string key)
         {
-            if (m_AssetBundleInfos.ContainsKey(key))
+            if (m_AssetBundleInfos!=null && m_AssetBundleInfos.ContainsKey(key))
             {
                 return m_AssetBundleInfos[key]; 
             }
             return null;
-        }
-
-        protected void CreateBundleDependencies(AssetBundleInfo info)
-        {
-            if (info.GetDependencies() == null)
-            {
-                string[] dependencies = info.dependencies;
-                List<AssetBundleInfo> data = new List<AssetBundleInfo>();
-                for(int i=0,l=dependencies.Length;i< l; ++i)
-                {
-                    if (m_AssetBundleInfos.ContainsKey(dependencies[i]))
-                    {
-                        data.Add(m_AssetBundleInfos[dependencies[i]]);
-                    }
-                    else
-                    {
-                        throw new Exception("Can't find dependency info of " + dependencies[i]);
-                    }
-                }
-            }
         }
 
         void InitComplete()

@@ -54,13 +54,18 @@ namespace YH.AssetManager
         {
             if (info != null)
             {
+#if SUPPORT_ASSET_ALIAS
+                string assetName = info.aliasName;
+#else
+                string assetName = AssetPaths.AddAssetPrev(info.fullName);
+#endif
                 if (type == null)
                 {
-                    m_LoaderRequest = new AssetLoaderRequest(assetBundleReference.assetBundle.LoadAssetAsync(info.name));
+                    m_LoaderRequest = new AssetLoaderRequest(assetBundleReference.assetBundle.LoadAssetAsync(assetName));
                 }
                 else
                 {
-                    m_LoaderRequest = new AssetLoaderRequest(assetBundleReference.assetBundle.LoadAssetAsync(info.name, type));
+                    m_LoaderRequest = new AssetLoaderRequest(assetBundleReference.assetBundle.LoadAssetAsync(assetName, type));
                 }                
             }
             else
@@ -74,8 +79,8 @@ namespace YH.AssetManager
         {
             if (info != null)
             {
-                string resourcePath = Path.Combine(Path.GetDirectoryName(info.name), Path.GetFileNameWithoutExtension(info.name));
-
+                string resourcePath = Path.Combine(Path.GetDirectoryName(info.fullName), Path.GetFileNameWithoutExtension(info.fullName));
+                resourcePath = AssetPaths.RemoveAssetPrev(resourcePath);
                 if (type == null)
                 {
                     m_LoaderRequest = new ResouceLoaderRequest(Resources.LoadAsync(resourcePath));
@@ -111,7 +116,7 @@ namespace YH.AssetManager
             state = State.Error;
             if (info != null)
             {
-                Debug.LogErrorFormat("Load asset {0} fail", info.name);
+                Debug.LogErrorFormat("Load asset {0} fail", info.fullName);
             }
             DoLoadComplete();
         }
@@ -147,7 +152,7 @@ namespace YH.AssetManager
                     {
                         if (m_LoaderRequest.data != null)
                         {
-                            m_Result = new AssetReference(m_LoaderRequest.data, info.name);
+                            m_Result = new AssetReference(m_LoaderRequest.data, info.fullName);
                             m_Result.level = paramLevel;
                             if (!string.IsNullOrEmpty(paramTag))
                             {

@@ -5,21 +5,22 @@ using Object = UnityEngine.Object;
 
 namespace YH.AssetManager
 {
-    public class AssetManager:MonoBehaviour
+    public class AssetManager : MonoBehaviour
     {
-        int m_MaxActiveLoader=5;
-        List<Loader> m_ActivesLoaders=ListPool<Loader>.Get();
-        List<int> m_TickFinished= ListPool<int>.Get();
-        List<Loader> m_PrepareLoaders= ListPool<Loader>.Get();
+        int m_MaxActiveLoader = 5;
+        List<Loader> m_ActivesLoaders = ListPool<Loader>.Get();
+        List<int> m_TickFinished = ListPool<int>.Get();
+        List<Loader> m_PrepareLoaders = ListPool<Loader>.Get();
 
         //all loaded  asset bundles
-        Dictionary<string,AssetBundleReference> m_AssetBundles =new Dictionary<string, AssetBundleReference>();
+        Dictionary<string, AssetBundleReference> m_AssetBundles = new Dictionary<string, AssetBundleReference>();
 
         //all loaded  asset bundles.usefull preload
         Dictionary<string, AssetReference> m_Assets = new Dictionary<string, AssetReference>();
 
-        Dictionary<string, AssetBundleLoader> m_AssetBundleLoaders = new Dictionary<string, AssetBundleLoader>();
-        Dictionary<string, AssetLoader> m_AssetLoaders = new Dictionary<string, AssetLoader>();
+        //loading loaders
+        Dictionary<string, AssetBundleLoader> m_LoadingAssetBundleLoaders = new Dictionary<string, AssetBundleLoader>();
+        Dictionary<string, AssetLoader> m_LoadingAssetLoaders = new Dictionary<string, AssetLoader>();
 
         InfoManager m_InfoManager;
         LoaderManager m_LoaderManager;
@@ -72,6 +73,7 @@ namespace YH.AssetManager
 
             if (m_AssetBundles.ContainsKey(path))
             {
+                //asset bundle is loaded
                 AssetBundleReference abr = m_AssetBundles[path];
 
                 loader = m_LoaderManager.CreateAssetBundleLoader(path);
@@ -82,6 +84,7 @@ namespace YH.AssetManager
                 abr.level = level;
                 abr.AddTag(tag);
 
+                //call complete callback
                 if (completeHandle != null)
                 {
                     completeHandle(abr);
@@ -89,14 +92,14 @@ namespace YH.AssetManager
             }
             else
             {
-                if (m_AssetBundleLoaders.ContainsKey(path))
+                if (m_LoadingAssetBundleLoaders.ContainsKey(path))
                 {
-                    loader = m_AssetBundleLoaders[path];
+                    loader = m_LoadingAssetBundleLoaders[path];
                 }
                 else
                 {
                     loader = m_LoaderManager.CreateAssetBundleLoader(path);
-                    m_AssetBundleLoaders[path] = loader;
+                    m_LoadingAssetBundleLoaders[path] = loader;
                 }
                 
                 loader.paramLevel = level;
@@ -106,11 +109,9 @@ namespace YH.AssetManager
                 if (loader.state == Loader.State.Idle)
                 {
                     loader.onLoaded += DoAssetBundleLoaded;
-                }
-                
-                loader.state = Loader.State.Inited;
-
-                ActiveLoader(loader);
+                    loader.state = Loader.State.Inited;
+                    ActiveLoader(loader);
+                }                
             }
             return loader;
         }
@@ -153,30 +154,44 @@ namespace YH.AssetManager
             }
             else
             {
-                Debug.Log("LoadAsset create new loader" + path + "," + Time.frameCount);
-                loader = m_LoaderManager.CreateAssetLoader(path);
+                if (m_LoadingAssetLoaders.ContainsKey(path))
+                {
+                    Debug.Log("LoadAsset using loading loader" + path + "," + Time.frameCount);
+                    loader = m_LoadingAssetLoaders[path];
+                }
+                else
+                {
+                    Debug.Log("LoadAsset create new loader" + path + "," + Time.frameCount);
+                    loader = m_LoaderManager.CreateAssetLoader(path);
+                    m_LoadingAssetLoaders[path] = loader;
+                }
+                
                 loader.paramLevel = level;
                 loader.paramTag = tag;
-                loader.onLoaded += DoAssetLoaded;
                 loader.onComplete += completeHandle;
-                loader.state = Loader.State.Inited;
 
                 if (type != null)
                 {
                     loader.type = type;
                 }
 
-                if (!string.IsNullOrEmpty(loader.info.bundleName))
+                if (loader.state == Loader.State.Idle)
                 {
-                    LoadAssetBundle(loader.info.bundleName, (abr) =>
+                    loader.onLoaded += DoAssetLoaded;
+                    loader.state = Loader.State.Inited;
+
+                    if (!string.IsNullOrEmpty(loader.info.bundleName))
                     {
-                        loader.assetBundleReference = abr;
+                        LoadAssetBundle(loader.info.bundleName, (abr) =>
+                        {
+                            loader.assetBundleReference = abr;
+                            ActiveLoader(loader);
+                        });
+                    }
+                    else
+                    {
                         ActiveLoader(loader);
-                    });
-                }
-                else
-                {
-                    ActiveLoader(loader);
+                    }
                 }
             }
 
@@ -411,6 +426,10 @@ namespace YH.AssetManager
             if (abr != null)
             {
                 m_AssetBundles[abr.assetBundleName] = abr;
+                if (m_LoadingAssetBundleLoaders.ContainsKey(abr.assetBundleName))
+                {
+                    m_LoadingAssetBundleLoaders.Remove(abr.assetBundleName);
+                }
             }
         }
 
@@ -420,6 +439,10 @@ namespace YH.AssetManager
             if (ar != null)
             {
                 m_Assets[ar.assetPath] = ar;
+                if (m_LoadingAssetLoaders.ContainsKey(ar.assetPath))
+                {
+                    m_LoadingAssetLoaders.Remove(ar.assetPath);
+                }
             }
         }
 

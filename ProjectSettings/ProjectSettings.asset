@@ -500,8 +500,8 @@ PlayerSettings:
   webGLUseWasm: 0
   webGLCompressionFormat: 1
   scriptingDefineSymbols:
-    1: SILVERLIGHT
-    7: ASSET_EDITOR_LOADER
+    1: SILVERLIGHT;ASSET_BUNDLE_LOADER
+    7: ASSET_BUNDLE_LOADER
   platformArchitecture: {}
   scriptingBackend: {}
   incrementalIl2cppBuild: {}

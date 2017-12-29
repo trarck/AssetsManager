@@ -28,7 +28,7 @@ namespace YH.AssetManager
         {
             if (info != null)
             {
-                string resPath = AssetPaths.AddAssetPrev(info.name);
+                string resPath = AssetPaths.AddAssetPrev(info.fullName);
                 if (type == null)
                 {
                     m_LoaderRequest = new SyncLoaderRequest();

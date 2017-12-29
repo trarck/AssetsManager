@@ -18,21 +18,22 @@ namespace YH.AssetManager
             AssetLoader loader = null;
             AssetInfo info = null;
 
-#if UNITY_EDITOR && ASSET_EDITOR_LOADER
-            loader = new AssetEditorLoader();
-            info = new AssetInfo();
-            info.name = path;
-#else
+#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
             loader = new AssetLoader();
             info = m_AssetManager.infoManager.FindAssetInfo(path);
             //can't find asset info
             if (info == null)
             {
                 info = new AssetInfo();
-                info.name = path;
+                info.fullName = path;
             }
+#else
+            loader = new AssetEditorLoader();
+            info = new AssetInfo();
+            info.fullName = path;
 #endif
             loader.info = info;
+            loader.assetManager = m_AssetManager;
             return loader;
         }
 
@@ -43,6 +44,7 @@ namespace YH.AssetManager
             {
                 AssetBundleLoader loader = new AssetBundleLoader();
                 loader.info = info;
+                loader.assetManager = m_AssetManager;
                 return loader;
             }
 

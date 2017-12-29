@@ -11,6 +11,8 @@ namespace YH.AssetManager
 
         AssetBundleReference m_Result;
 
+        int m_activeDependencyLoader = 0;
+
         public Action<AssetBundleReference> onComplete;
 
         public Action<AssetBundleLoader> onLoaded;
@@ -33,14 +35,13 @@ namespace YH.AssetManager
                 {
                     state = State.Loading;
 
-                    string assetPath = AssetPaths.GetFullPath(info.fullName);
-                    if (assetPath.Contains("://"))
+                    if (info.dependencies.Length>0)
                     {
-                        this.LoadFromPackage(assetPath);
+                        LoadDependencies();
                     }
                     else
                     {
-                        this.LoadFromFile(assetPath);
+                        LoadBundle();
                     }
                 }
                 else
@@ -52,6 +53,39 @@ namespace YH.AssetManager
             else if (isFinishedState())
             {
                 DoLoadComplete();
+            }
+        }
+
+        protected void LoadBundle()
+        {
+            string assetPath = AssetPaths.GetFullPath(info.fullName);
+            if (assetPath.Contains("://"))
+            {
+                this.LoadFromPackage(assetPath);
+            }
+            else
+            {
+                this.LoadFromFile(assetPath);
+            }
+        }
+
+        protected void LoadDependencies()
+        {
+            string[] dependencies = info.dependencies;
+            m_activeDependencyLoader = dependencies.Length;
+
+            for (int i = 0, l = dependencies.Length;i< l;++i)
+            {
+                string dep = dependencies[i];
+                assetManager.LoadAssetBundle(dep, OnDependencyComplete);
+            }
+        }
+
+        protected void OnDependencyComplete(AssetBundleReference abr)
+        {
+            if (--m_activeDependencyLoader == 0)
+            {
+                LoadBundle();
             }
         }
 
@@ -85,11 +119,6 @@ namespace YH.AssetManager
             {
                 onComplete(this.result);
             }
-        }
-
-        protected void LoadDependencies()
-        {
-
         }
 
         protected LoaderRequest LoadFromFile(string path)

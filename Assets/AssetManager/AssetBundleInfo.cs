@@ -13,8 +13,12 @@ namespace YH.AssetManager
 
     public class AssetInfo
     {
-        public string name;
+        public string fullName;
         public string bundleName;
+        /// <summary>
+        /// custom define name
+        /// </summary>
+        public string aliasName;
     }
 
     [System.Serializable]
@@ -30,19 +34,6 @@ namespace YH.AssetManager
 
         //need other bundle
         public string[] dependencies;
-
-        //create by runtime
-        List<AssetBundleInfo> m_DependenciesData;
-
-        public List<AssetBundleInfo> GetDependencies()
-        {
-            return m_DependenciesData;
-        }
-
-        public void SetDependencies(List<AssetBundleInfo> dependenciesData)
-        {
-            m_DependenciesData=dependenciesData;
-        }
 
         public void Read(BinaryReader reader)
         {

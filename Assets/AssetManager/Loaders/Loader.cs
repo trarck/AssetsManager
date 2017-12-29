@@ -24,6 +24,8 @@ namespace YH.AssetManager
         public int paramLevel { get; set; }
         public string paramTag { get; set; }
 
+        public AssetManager assetManager { get; set; }
+
         public bool forceDone
         {
             get
@@ -69,6 +71,7 @@ namespace YH.AssetManager
         {
             paramLevel = 0;
             paramTag = null;
+            assetManager = null;
         }
         //public virtual AssetBundleReference GetResult()
         //{
