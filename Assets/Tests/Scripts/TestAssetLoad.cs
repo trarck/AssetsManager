@@ -35,7 +35,7 @@ public class TestAssetLoad : MonoBehaviour {
             }
         });
 
-        m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
         {
 
             Debug.Log(ar + "," + Time.frameCount);
