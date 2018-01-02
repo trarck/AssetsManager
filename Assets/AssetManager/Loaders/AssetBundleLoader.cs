@@ -59,6 +59,7 @@ namespace YH.AssetManager
         protected void LoadBundle()
         {
             string assetPath = AssetPaths.GetFullPath(info.fullName);
+            Debug.Log("LoadBundle " + assetPath + "," + Time.frameCount);
             if (assetPath.Contains("://"))
             {
                 this.LoadFromPackage(assetPath);
@@ -73,6 +74,8 @@ namespace YH.AssetManager
         {
             string[] dependencies = info.dependencies;
             m_activeDependencyLoader = dependencies.Length;
+
+            Debug.Log("Load Dependencies " + m_activeDependencyLoader+","+Time.frameCount);
 
             for (int i = 0, l = dependencies.Length;i< l;++i)
             {

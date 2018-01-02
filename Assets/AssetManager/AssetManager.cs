@@ -73,6 +73,7 @@ namespace YH.AssetManager
 
             if (m_AssetBundles.ContainsKey(path))
             {
+                Debug.Log("LoadAssetBundle asset bundle is loaded " + path + "," + Time.frameCount);
                 //asset bundle is loaded
                 AssetBundleReference abr = m_AssetBundles[path];
 
@@ -94,10 +95,12 @@ namespace YH.AssetManager
             {
                 if (m_LoadingAssetBundleLoaders.ContainsKey(path))
                 {
+                    Debug.Log("LoadAssetBundle using loading loader " + path + "," + Time.frameCount);
                     loader = m_LoadingAssetBundleLoaders[path];
                 }
                 else
                 {
+                    Debug.Log("LoadAssetBundle create new loader " + path + "," + Time.frameCount);
                     loader = m_LoaderManager.CreateAssetBundleLoader(path);
                     m_LoadingAssetBundleLoaders[path] = loader;
                 }
@@ -156,12 +159,12 @@ namespace YH.AssetManager
             {
                 if (m_LoadingAssetLoaders.ContainsKey(path))
                 {
-                    Debug.Log("LoadAsset using loading loader" + path + "," + Time.frameCount);
+                    Debug.Log("LoadAsset using loading loader " + path + "," + Time.frameCount);
                     loader = m_LoadingAssetLoaders[path];
                 }
                 else
                 {
-                    Debug.Log("LoadAsset create new loader" + path + "," + Time.frameCount);
+                    Debug.Log("LoadAsset create new loader " + path + "," + Time.frameCount);
                     loader = m_LoaderManager.CreateAssetLoader(path);
                     m_LoadingAssetLoaders[path] = loader;
                 }
