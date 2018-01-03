@@ -125,14 +125,17 @@ namespace UnityEngine.AssetBundles.AssetBundleDataSource
                     assetBundleInfo.hash = buildManifest.GetAssetBundleHash(assetBundleName).ToString();
                     assetBundleInfo.dependencies = buildManifest.GetDirectDependencies(assetBundleName);
 
-                    List<string> assets = new List<string>();
+                    List<AssetInfo> assets = new List<AssetInfo>();
                     foreach(AssetBundleModel.AssetInfo assetInfo in bundleInfo.GetConcretes())
                     {
+                        AssetInfo ai = new AssetInfo();
                         Debug.Log(assetInfo.displayName + "," + assetInfo.bundleName + "," + assetInfo.fullAssetName);
-                        assets.Add(assetInfo.fullAssetName);
+                        ai.fullName = assetInfo.fullAssetName;
+
+                        assets.Add(ai);
                         //assets.Add(AssetPaths.RemoveAssetPrev(assetInfo.fullAssetName));
                     }
-                    assetBundleInfo.assets = assets.ToArray();
+                    assetBundleInfo.assets = assets;
 
                     all.Add(assetBundleInfo);
                 }

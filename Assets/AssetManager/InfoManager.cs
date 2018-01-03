@@ -147,13 +147,11 @@ namespace YH.AssetManager
                 bundleInfo = m_BundleManifest.bundleInfos[i];
 
                 //create asset info map
-                for (int j = 0, k = bundleInfo.assets.Length; j < k; ++j)
+                for (int j = 0, k = bundleInfo.assets.Count; j < k; ++j)
                 {
-                    string assetName = bundleInfo.assets[j];
-                    assetInfo = new AssetInfo();
-                    assetInfo.fullName = assetName;
+                    assetInfo = bundleInfo.assets[j];
                     assetInfo.bundleName = bundleInfo.fullName;
-                    m_AssetInfos.Add(assetName, assetInfo);
+                    m_AssetInfos.Add(assetInfo.fullName, assetInfo);
                 }
             }
         }
@@ -174,6 +172,18 @@ namespace YH.AssetManager
                     {
                         return m_AssetInfos[fixKey];
                     }
+                }
+            }
+            return null;
+        }
+
+        public AssetInfo FindAssetInfoWithAlias(string alias)
+        {
+            if (m_AssetInfos != null && !string.IsNullOrEmpty(alias))
+            {
+                if (m_AssetInfos.ContainsKey(alias))
+                {
+                    return m_AssetInfos[alias];
                 }
             }
             return null;

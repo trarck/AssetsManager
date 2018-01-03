@@ -11,7 +11,7 @@ public class TestAssetLoad : MonoBehaviour {
     {
         m_AssetManager.Init(()=>{
 
-            StartCoroutine(Test());
+            StartCoroutine(Test2());
 
         });
     }
@@ -56,5 +56,56 @@ public class TestAssetLoad : MonoBehaviour {
                 GameObject.Instantiate(ar.asset);
             }
         });
+    }
+
+    IEnumerator Test2()
+    {
+        yield return new WaitForSeconds(2);
+        yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        {
+
+            Debug.Log(ar + "," + Time.frameCount);
+            if (ar != null)
+            {
+                Debug.Log(ar.asset);
+                GameObject.Instantiate(ar.asset);
+            }
+        });
+
+        yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+        {
+
+            Debug.Log(ar + "," + Time.frameCount);
+            if (ar != null)
+            {
+                Debug.Log(ar.asset);
+                GameObject.Instantiate(ar.asset);
+            }
+        });
+
+        yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        {
+
+            Debug.Log(ar + "," + Time.frameCount);
+            if (ar != null)
+            {
+                Debug.Log(ar.asset);
+                GameObject.Instantiate(ar.asset);
+            }
+        });
+
+
+        yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+        {
+
+            Debug.Log(ar + "," + Time.frameCount);
+            if (ar != null)
+            {
+                Debug.Log(ar.asset);
+                GameObject.Instantiate(ar.asset);
+            }
+        });
+
+        Debug.Log("Load complete");
     }
 }

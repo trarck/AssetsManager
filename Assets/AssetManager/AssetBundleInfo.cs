@@ -11,14 +11,15 @@ namespace YH.AssetManager
         Reference=2
     }
 
+    [System.Serializable]
     public class AssetInfo
     {
         public string fullName;
-        public string bundleName;
         /// <summary>
         /// custom define name
         /// </summary>
         public string aliasName;
+        public string bundleName;
     }
 
     [System.Serializable]
@@ -30,7 +31,7 @@ namespace YH.AssetManager
         public string hash;
         public AssetBundleType type;
         //bundle contents
-        public string[] assets;
+        public List<AssetInfo> assets;
 
         //need other bundle
         public string[] dependencies;
@@ -44,12 +45,14 @@ namespace YH.AssetManager
             type =( AssetBundleType) reader.ReadInt32();
 
             int assetsCount = reader.ReadInt32();
-            List<string> assetNames= new List<string>();
-            for(int i = 0; i < assetsCount; ++i)
+            assets = new List<AssetInfo>();
+            for (int i = 0; i < assetsCount; ++i)
             {
-                assetNames.Add(reader.ReadString());
+                AssetInfo assetInfo = new AssetInfo();
+                assetInfo.fullName = reader.ReadString();
+                assetInfo.aliasName = reader.ReadString();
+                assets.Add(assetInfo);
             }
-            assets = assetNames.ToArray();
 
             int dependencyCount = reader.ReadInt32();
             List<string> dependencyNames = new List<string>();
@@ -68,10 +71,11 @@ namespace YH.AssetManager
             writer.Write(hash);
             writer.Write((int)type);
 
-            writer.Write(assets.Length);
-            for(int i=0,l=assets.Length;i<l;++i)
+            writer.Write(assets.Count);
+            for(int i=0,l=assets.Count;i<l;++i)
             {
-                writer.Write(assets[i]);
+                writer.Write(assets[i].fullName);
+                writer.Write(assets[i].aliasName);
             }
 
             writer.Write(dependencies.Length);
