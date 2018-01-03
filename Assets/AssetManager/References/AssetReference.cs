@@ -59,7 +59,16 @@ namespace YH.AssetManager
             base.Release(owner);
         }
 
-        
+        public override void RetainMonitor(GameObject gameObject)
+        {
+            AssetRefercenceMonitor monitor = gameObject.GetComponent<AssetRefercenceMonitor>();
+            if (monitor == null)
+            {
+                monitor = gameObject.AddComponent<AssetRefercenceMonitor>();
+            }
+            monitor.assetReference = this;
+        }
+
         public override void Dispose()
         {
             if (asset == null)
@@ -82,5 +91,40 @@ namespace YH.AssetManager
             assetBundleReference = null;
             assetPath = null;
         }      
+    }
+
+
+    public class AssetRefercenceMonitor : MonoBehaviour
+    {
+        AssetReference m_AssetReference;
+
+        public AssetReference assetReference
+        {
+            get
+            {
+                return m_AssetReference;
+            }
+
+            set
+            {
+                if (m_AssetReference != null)
+                {
+                    m_AssetReference.Release();
+                }
+                m_AssetReference = value;
+                if (m_AssetReference != null)
+                {
+                    m_AssetReference.Retain();
+                }            
+            }
+        }
+
+        void OnDestroy()
+        {
+            if (m_AssetReference != null)
+            {
+                m_AssetReference.Release();
+            }
+        }
     }
 }

@@ -63,6 +63,11 @@ namespace YH.AssetManager
             CheckRefCount();
         }
 
+        public virtual void RetainMonitor(GameObject gameObject)
+        {
+
+        }
+
         void CheckRefCount()
         {
             //if no ref remove id
