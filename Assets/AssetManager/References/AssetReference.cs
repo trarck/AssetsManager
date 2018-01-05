@@ -11,14 +11,17 @@ namespace YH.AssetManager
 
         public AssetBundleReference assetBundleReference { get; set; }
 
-        public string assetPath { get; set; }
-
         public Object asset { get; set; }
+
+
+        public delegate void DisposeHandle(AssetReference abr);
+
+        public event DisposeHandle onDispose;
 
         public AssetReference(Object asset, string assetPath)
         {
             this.asset = asset;
-            this.assetPath = assetPath;
+            this.name = assetPath;
         }
         
         public override void Retain()
@@ -61,24 +64,40 @@ namespace YH.AssetManager
 
         public override void RetainMonitor(GameObject gameObject)
         {
-            AssetRefercenceMonitor monitor = gameObject.GetComponent<AssetRefercenceMonitor>();
-            if (monitor == null)
+            if (gameObject != null)
             {
-                monitor = gameObject.AddComponent<AssetRefercenceMonitor>();
+                AssetRefercenceMonitor monitor = gameObject.GetComponent<AssetRefercenceMonitor>();
+                if (monitor == null)
+                {
+                    monitor = gameObject.AddComponent<AssetRefercenceMonitor>();
+                }
+                monitor.assetReference = this;
             }
-            monitor.assetReference = this;
         }
 
         public override void Dispose()
         {
-            if (asset == null)
+            Debug.Log("Asset dispose " + name);
+
+            if (onDispose != null)
             {
-                Resources.UnloadAsset(asset);
+                onDispose(this);
+                onDispose = null;
+            }
+
+            if (asset != null)
+            {
+                if (!(asset is GameObject))
+                {
+                    Resources.UnloadAsset(asset);
+                }
+                
                 asset = null;
             }
+
             asset = null;
             assetBundleReference = null;
-            assetPath = null;
+            name = null;
 
             base.Dispose();
         }
@@ -89,7 +108,7 @@ namespace YH.AssetManager
             base.Reset();
             asset = null;
             assetBundleReference = null;
-            assetPath = null;
+            name = null;
         }      
     }
 

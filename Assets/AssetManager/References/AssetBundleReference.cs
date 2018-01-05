@@ -12,12 +12,14 @@ namespace YH.AssetManager
 
         public AssetBundle assetBundle { get; set; }
 
-        public string assetBundleName { get; set; }
+        public delegate void DisposeHandle(AssetBundleReference abr);
+
+        public event DisposeHandle onDispose;
 
         public AssetBundleReference(AssetBundle assetBundle,string assetBundleName)
         {
             this.assetBundle = assetBundle;
-            this.assetBundleName = assetBundleName;
+            this.name = assetBundleName;
         }
 
         public void AddDependency(AssetBundleReference dependency)
@@ -30,6 +32,11 @@ namespace YH.AssetManager
         
         public override void Dispose()
         {
+            if (onDispose != null)
+            {
+                onDispose(this);
+                onDispose = null;
+            }
 
             UnloadBundle();
             ReleaseDependencies();

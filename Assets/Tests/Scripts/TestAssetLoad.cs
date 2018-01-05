@@ -6,9 +6,12 @@ public class TestAssetLoad : MonoBehaviour {
     [SerializeField]
     AssetManager m_AssetManager;
 
+    Object m_Obj;
 	// Use this for initialization
 	void Start ()
     {
+        YH.AssetsMonitor.Instance.CheckAssets();
+
         m_AssetManager.Init(()=>{
 
             StartCoroutine(Test2());
@@ -21,6 +24,11 @@ public class TestAssetLoad : MonoBehaviour {
     {
 		
 	}
+
+    void OnDestroy()
+    {
+        m_AssetManager.UnloadUnuseds();
+    }
 
     IEnumerator Test()
     {
@@ -61,16 +69,41 @@ public class TestAssetLoad : MonoBehaviour {
     IEnumerator Test2()
     {
         yield return new WaitForSeconds(2);
-        yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
-        {
 
+        //yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        //{
+
+        //    Debug.Log(ar + "," + Time.frameCount);
+        //    if (ar != null)
+        //    {
+        //        Debug.Log(ar.asset);
+        //        m_Obj = GameObject.Instantiate(ar.asset);
+        //        //ar.Retain(m_Obj);
+        //        ar.RetainMonitor(m_Obj as GameObject);
+        //        ar.Release();
+        //    }
+        //});
+
+        yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+        {
             Debug.Log(ar + "," + Time.frameCount);
             if (ar != null)
             {
                 Debug.Log(ar.asset);
-                GameObject.Instantiate(ar.asset);
             }
         });
+
+        //yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        //{
+
+        //    Debug.Log(ar + "," + Time.frameCount);
+        //    if (ar != null)
+        //    {
+        //        Debug.Log(ar.asset);
+        //        GameObject.Instantiate(ar.asset);
+        //    }
+        //});
+
 
         yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
         {
@@ -79,33 +112,15 @@ public class TestAssetLoad : MonoBehaviour {
             if (ar != null)
             {
                 Debug.Log(ar.asset);
-                GameObject.Instantiate(ar.asset);
-            }
-        });
-
-        yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
-        {
-
-            Debug.Log(ar + "," + Time.frameCount);
-            if (ar != null)
-            {
-                Debug.Log(ar.asset);
-                GameObject.Instantiate(ar.asset);
-            }
-        });
-
-
-        yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
-        {
-
-            Debug.Log(ar + "," + Time.frameCount);
-            if (ar != null)
-            {
-                Debug.Log(ar.asset);
-                GameObject.Instantiate(ar.asset);
             }
         });
 
         Debug.Log("Load complete");
+        yield return new WaitForSeconds(2);
+        if (m_Obj != null)
+        {
+            Destroy(m_Obj);
+        }
+        //m_AssetManager.UnloadUnuseds();
     }
 }

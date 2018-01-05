@@ -109,7 +109,7 @@ namespace YH.AssetManager
 
                 if (loader.state == Loader.State.Idle)
                 {
-                    loader.onLoaded += DoAssetBundleLoaded;
+                    loader.onLoaded += OnAssetBundleLoaded;
                     loader.state = Loader.State.Inited;
                     ActiveLoader(loader);
                 }                
@@ -181,7 +181,7 @@ namespace YH.AssetManager
 
                 if (loader.state == Loader.State.Idle)
                 {
-                    loader.onLoaded += DoAssetLoaded;
+                    loader.onLoaded += OnAssetLoaded;
                     loader.state = Loader.State.Inited;
 
                     if (!string.IsNullOrEmpty(loader.info.bundleName))
@@ -288,12 +288,14 @@ namespace YH.AssetManager
         {
             UnloadUnusedAssets();
             UnloadUnusedBundles();
+            Resources.UnloadUnusedAssets();
         }
 
         public void UnloadUnuseds(string tag)
         {
             UnloadUnusedAssets(tag);
             UnloadUnusedBundles(tag);
+            Resources.UnloadUnusedAssets();
         }
 
         public void UnloadUnusedBundles()
@@ -386,37 +388,86 @@ namespace YH.AssetManager
             ListPool<string>.Release(keys);
         }
 
-        void DoAssetBundleLoaded(AssetBundleLoader loader)
+        public void RemoveAssetBundle(string assetBundleName)
+        {
+            if (m_AssetBundles.ContainsKey(assetBundleName))
+            {
+                AssetBundleReference abr = m_AssetBundles[assetBundleName];
+                m_AssetBundles.Remove(assetBundleName);
+                abr.onDispose -= OnAssetBundleDispose;
+                abr.Release();
+            }
+        }
+
+        public void RemoveAssetBundle(AssetBundleReference abr)
+        {
+            if (m_AssetBundles.ContainsValue(abr))
+            {
+                m_AssetBundles.Remove(abr.name);
+                abr.onDispose -= OnAssetBundleDispose;
+                abr.Release();
+            }
+        }
+
+        public void RemoveAsset(string assetName)
+        {
+            if (m_Assets.ContainsKey(assetName))
+            {
+                AssetReference ar = m_Assets[assetName];
+                m_Assets.Remove(assetName);
+                ar.onDispose -= OnAssetDispose;
+                ar.Release();
+            }
+        }
+
+        public void RemoveAsset(AssetReference ar)
+        {
+            if (m_Assets.ContainsValue(ar))
+            {
+                m_Assets.Remove(ar.name);
+                ar.onDispose -= OnAssetDispose;
+                ar.Release();
+            }
+        }
+
+        void OnAssetBundleLoaded(AssetBundleLoader loader)
         {
             AssetBundleReference abr = loader.result;
             if (abr != null)
             {
-                m_AssetBundles[abr.assetBundleName] = abr;
-                if (m_LoadingAssetBundleLoaders.ContainsKey(abr.assetBundleName))
+                m_AssetBundles[abr.name] = abr;
+                if (m_LoadingAssetBundleLoaders.ContainsKey(abr.name))
                 {
-                    m_LoadingAssetBundleLoaders.Remove(abr.assetBundleName);
+                    m_LoadingAssetBundleLoaders.Remove(abr.name);
                 }
+
+                abr.onDispose += OnAssetBundleDispose;
             }
         }
 
-        void DoAssetLoaded(AssetLoader loader)
+        void OnAssetBundleDispose(AssetBundleReference abr)
+        {
+            m_AssetBundles.Remove(abr.name);
+        }
+
+        void OnAssetLoaded(AssetLoader loader)
         {
             AssetReference ar = loader.result;
             if (ar != null)
             {
-                m_Assets[ar.assetPath] = ar;
-                if (m_LoadingAssetLoaders.ContainsKey(ar.assetPath))
+                m_Assets[ar.name] = ar;
+                if (m_LoadingAssetLoaders.ContainsKey(ar.name))
                 {
-                    m_LoadingAssetLoaders.Remove(ar.assetPath);
+                    m_LoadingAssetLoaders.Remove(ar.name);
                 }
 
-#if SUPPORT_ASSET_ALIAS || true
-                if (!string.IsNullOrEmpty(loader.info.aliasName))
-                {
-                    m_Assets[loader.info.aliasName] = ar;
-                }
-#endif
+                ar.onDispose += OnAssetDispose;
             }
+        }
+
+        void OnAssetDispose(AssetReference ar)
+        {
+            m_Assets.Remove(ar.name);
         }
 
         public InfoManager infoManager

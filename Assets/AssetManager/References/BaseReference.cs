@@ -16,9 +16,7 @@ namespace YH.AssetManager
 
         int m_Level;
 
-        public delegate void DisposeHandle(BaseReference abr);
-
-        public event DisposeHandle onDispose;
+        public string name { get; set; }
 
         public virtual void Retain()
         {
@@ -28,6 +26,12 @@ namespace YH.AssetManager
         public virtual void Release()
         {
             --m_RefCount;
+            //check sub overflow
+            if (m_RefCount < 0)
+            {
+                m_RefCount = 0;
+            }
+
             CheckRefCount();
         }
 
@@ -97,12 +101,6 @@ namespace YH.AssetManager
 
         public virtual void Dispose()
         {
-            if (onDispose != null)
-            {
-                onDispose(this);
-                onDispose = null;
-            }
-
             ListPool<WeakReference>.Release(m_Owners);
             m_Owners = null;
             HashSetPool<string>.Release(m_Tags);
