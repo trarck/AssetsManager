@@ -122,7 +122,8 @@ public class TestAssetLoad : MonoBehaviour {
         {
             Destroy(m_Obj);
         }
-        //yield return null;
-        //m_AssetManager.UnloadUnuseds();
+
+        yield return null;
+        m_AssetManager.UnloadUnuseds();
     }
 }
