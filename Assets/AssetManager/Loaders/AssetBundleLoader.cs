@@ -13,6 +13,8 @@ namespace YH.AssetManager
 
         int m_activeDependencyLoader = 0;
 
+        HashSet<AssetBundleReference> m_Dependencies = HashSetPool<AssetBundleReference>.Get();
+
         public Action<AssetBundleReference> onComplete;
 
         public Action<AssetBundleLoader> onLoaded;
@@ -26,6 +28,11 @@ namespace YH.AssetManager
         }
 
         public AssetBundleInfo info { get; set; }
+
+        ~AssetBundleLoader()
+        {
+            Debug.Log("AsssetBundleLoader desctury ");
+        }
 
         public override void Start()
         {
@@ -86,6 +93,7 @@ namespace YH.AssetManager
 
         protected void OnDependencyComplete(AssetBundleReference abr)
         {
+            m_Dependencies.Add(abr);
             if (--m_activeDependencyLoader == 0)
             {
                 LoadBundle();
@@ -113,6 +121,7 @@ namespace YH.AssetManager
 
         protected void DoLoadComplete()
         {
+            //选调用onLoaded再调用onComplete,否则可能收不到Reference的onDispose事件。
             if (onLoaded != null)
             {
                 onLoaded(this);
@@ -144,14 +153,14 @@ namespace YH.AssetManager
                 {
                     if (isDone)
                     {
-
                         m_Result = new AssetBundleReference(m_LoaderRequest.assetBundle, info.fullName);
-                        m_Result.level = paramLevel;
-                        if (!string.IsNullOrEmpty(paramTag))
-                        {
-                            m_Result.AddTag(paramTag);
-                        }
 
+                        m_Result.AddTags(paramTags);
+
+                        if (m_Dependencies!=null && m_Dependencies.Count > 0)
+                        {
+                            m_Result.AddDependencies(m_Dependencies);
+                        }
                     }
                 }
                 return m_Result;
@@ -167,6 +176,8 @@ namespace YH.AssetManager
             onComplete = null;
             m_LoaderRequest = null;
             m_Result = null;
+            HashSetPool<AssetBundleReference>.Release(m_Dependencies);
+            m_Dependencies = null;
             base.Clean();
         }
     }

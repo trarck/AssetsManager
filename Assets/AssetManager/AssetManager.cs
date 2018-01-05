@@ -104,7 +104,7 @@ namespace YH.AssetManager
                     m_LoadingAssetBundleLoaders[path] = loader;
                 }
                 
-                loader.paramTag = tag;
+                loader.AddParamTag(tag);
                 loader.onComplete += completeHandle;
 
                 if (loader.state == Loader.State.Idle)
@@ -185,7 +185,7 @@ namespace YH.AssetManager
                     m_LoadingAssetLoaders[path] = loader;
                 }
                 
-                loader.paramTag = tag;
+                loader.AddParamTag(tag);
                 loader.onComplete += completeHandle;
 
                 if (type != null)
@@ -305,10 +305,10 @@ namespace YH.AssetManager
             Resources.UnloadUnusedAssets();
         }
 
-        public void UnloadUnuseds(string tag)
+        public void UnloadUnuseds(string tag,bool needRemove = false)
         {
-            UnloadUnusedAssets(tag);
-            UnloadUnusedBundles(tag);
+            UnloadUnusedAssets(tag, needRemove);
+            UnloadUnusedBundles(tag, needRemove);
             Resources.UnloadUnusedAssets();
         }
 
@@ -334,7 +334,7 @@ namespace YH.AssetManager
             ListPool<string>.Release(keys);
         }
 
-        public void UnloadUnusedBundles(string tag)
+        public void UnloadUnusedBundles(string tag, bool needRemove = false)
         {
             if (m_AssetBundles.Count == 0)
             {
@@ -348,10 +348,17 @@ namespace YH.AssetManager
             for (int i = 0, l = keys.Count; i < l; ++i)
             {
                 abr = m_AssetBundles[keys[i]];
-                if (abr.isUnused() && abr.HaveTag(tag))
+                if(abr.HaveTag(tag))
                 {
-                    abr.Dispose();
-                    m_AssetBundles.Remove(keys[i]);
+                    if (abr.isUnused())
+                    {
+                        abr.Dispose();
+                        m_AssetBundles.Remove(keys[i]);
+                    }
+                    else if (needRemove)
+                    {
+                        abr.RemoveTag(tag);
+                    }
                 }
             }
             ListPool<string>.Release(keys);
@@ -379,7 +386,7 @@ namespace YH.AssetManager
             ListPool<string>.Release(keys);
         }
 
-        public void UnloadUnusedAssets(string tag)
+        public void UnloadUnusedAssets(string tag,bool needRemove=false)
         {
             if (m_Assets.Count == 0)
             {
@@ -393,10 +400,17 @@ namespace YH.AssetManager
             for (int i = 0, l = keys.Count; i < l; ++i)
             {
                 ar = m_Assets[keys[i]];
-                if (ar.isUnused() && ar.HaveTag(tag))
+                if (ar.HaveTag(tag))
                 {
-                    ar.Dispose();
-                    m_Assets.Remove(keys[i]);
+                    if (ar.isUnused())
+                    {
+                        ar.Dispose();
+                        m_Assets.Remove(keys[i]);
+                    }
+                    else if (needRemove)
+                    {
+                        ar.RemoveTag(tag);
+                    }
                 }
             }
             ListPool<string>.Release(keys);
