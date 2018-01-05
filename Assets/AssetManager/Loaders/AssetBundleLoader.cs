@@ -29,11 +29,6 @@ namespace YH.AssetManager
 
         public AssetBundleInfo info { get; set; }
 
-        ~AssetBundleLoader()
-        {
-            Debug.Log("AsssetBundleLoader desctury ");
-        }
-
         public override void Start()
         {
             if (m_State == State.Inited)
