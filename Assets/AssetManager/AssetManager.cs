@@ -132,6 +132,20 @@ namespace YH.AssetManager
             return LoadAsset(path, null,  typeof(T), completeHandle);
         }
 
+        /// <summary>
+        /// 资源加载
+        /// 资源加载完成，返回一个关于资源的refrence，记录资源的使用情况。
+        /// 资源使用的三种方式：
+        ///     1.Retain(),使用完成时需要执行Release()。
+        ///     2.Retain(Object),使用完成时可以不用执行Release(Object)，等待UnloadUnuseds清理。
+        ///     3.Monitor(GameObject),当GameObject被删除时，会自动执行Release(Object)。
+        /// 对于手动删除资源最好执行RemoveAsset。
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="tag"></param>
+        /// <param name="type"></param>
+        /// <param name="completeHandle"></param>
+        /// <returns></returns>
         public AssetLoader LoadAsset(string path,string tag, Type type,Action<AssetReference> completeHandle)
         {
             if (!string.IsNullOrEmpty(path))
