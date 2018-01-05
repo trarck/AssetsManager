@@ -67,7 +67,7 @@ namespace YH.AssetManager
             CheckRefCount();
         }
 
-        public virtual void RetainMonitor(GameObject gameObject)
+        public virtual void Monitor(GameObject gameObject)
         {
 
         }

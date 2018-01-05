@@ -79,7 +79,7 @@ public class TestAssetLoad : MonoBehaviour {
         //        Debug.Log(ar.asset);
         //        m_Obj = GameObject.Instantiate(ar.asset);
         //        //ar.Retain(m_Obj);
-        //        ar.RetainMonitor(m_Obj as GameObject);
+        //        ar.Monitor(m_Obj as GameObject);
         //        ar.Release();
         //    }
         //});

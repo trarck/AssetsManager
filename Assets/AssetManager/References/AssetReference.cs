@@ -62,7 +62,7 @@ namespace YH.AssetManager
             base.Release(owner);
         }
 
-        public override void RetainMonitor(GameObject gameObject)
+        public override void Monitor(GameObject gameObject)
         {
             if (gameObject != null)
             {
@@ -128,12 +128,12 @@ namespace YH.AssetManager
             {
                 if (m_AssetReference != null)
                 {
-                    m_AssetReference.Release();
+                    m_AssetReference.Release(gameObject);
                 }
                 m_AssetReference = value;
                 if (m_AssetReference != null)
                 {
-                    m_AssetReference.Retain();
+                    m_AssetReference.Retain(gameObject);
                 }            
             }
         }
@@ -142,7 +142,7 @@ namespace YH.AssetManager
         {
             if (m_AssetReference != null)
             {
-                m_AssetReference.Release();
+                m_AssetReference.Release(gameObject);
             }
         }
     }
