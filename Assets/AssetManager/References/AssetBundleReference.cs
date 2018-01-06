@@ -68,6 +68,85 @@ namespace YH.AssetManager
         {
             base.Reset();
             m_Dependencies= HashSetPool<AssetBundleReference>.Get();
-        }       
+        }
+
+        public override void AddTag(string tag)
+        {
+            base.AddTag(tag);
+            if (m_Dependencies != null)
+            {
+                var iter = m_Dependencies.GetEnumerator();
+                while (iter.MoveNext())
+                {
+                    iter.Current.AddTag(tag);
+                }
+            }
+        }
+
+        public override void AddTags(string[] tags)
+        {
+            base.AddTags(tags);
+            if (m_Dependencies != null)
+            {
+                var iter = m_Dependencies.GetEnumerator();
+                while (iter.MoveNext())
+                {
+                    iter.Current.AddTags(tags);
+                }
+            }
+        }
+
+        public override void AddTags(ICollection<string> tags)
+        {
+            base.AddTags(tags);
+            if (m_Dependencies != null)
+            {
+                var iter = m_Dependencies.GetEnumerator();
+                while (iter.MoveNext())
+                {
+                    iter.Current.AddTags(tags);
+                }
+            }
+        }
+
+        public override void RemoveTag(string tag)
+        {
+            if (m_Dependencies != null)
+            {
+                var iter = m_Dependencies.GetEnumerator();
+                while (iter.MoveNext())
+                {
+                    iter.Current.AddTag(tag);
+                }
+            }
+
+            base.RemoveTag(tag);
+        }
+
+        public override void RemoveTags(string[] tags)
+        {
+            if (m_Dependencies != null)
+            {
+                var iter = m_Dependencies.GetEnumerator();
+                while (iter.MoveNext())
+                {
+                    iter.Current.AddTags(tags);
+                }
+            }
+            base.RemoveTags(tags);
+        }
+
+        public override void RemoveTags(ICollection<string> tags)
+        {
+            if(m_Dependencies != null)
+            {
+                var iter = m_Dependencies.GetEnumerator();
+                while (iter.MoveNext())
+                {
+                    iter.Current.AddTags(tags);
+                }
+            }
+            base.RemoveTags(tags);
+        }
     }
 }

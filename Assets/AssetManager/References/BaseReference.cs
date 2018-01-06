@@ -113,7 +113,7 @@ namespace YH.AssetManager
             m_Tags = HashSetPool<string>.Get();
         }
 
-        public void AddTag(string tag)
+        public virtual void AddTag(string tag)
         {
             if (!string.IsNullOrEmpty(tag))
             {
@@ -121,7 +121,7 @@ namespace YH.AssetManager
             }
         }
 
-        public void AddTags(string[] tags)
+        public virtual void AddTags(string[] tags)
         {
             if (tags != null)
             {
@@ -132,7 +132,7 @@ namespace YH.AssetManager
             }
         }
 
-        public void AddTags(ICollection<string> tags)
+        public virtual void AddTags(ICollection<string> tags)
         {
             if (tags != null)
             {
@@ -144,7 +144,7 @@ namespace YH.AssetManager
             }
         }
 
-        public void RemoveTag(string tag)
+        public virtual void RemoveTag(string tag)
         {
             if (!string.IsNullOrEmpty(tag))
             {
@@ -152,13 +152,25 @@ namespace YH.AssetManager
             }
         }
 
-        public void RemoveTags(string[] tags)
+        public virtual void RemoveTags(string[] tags)
         {
             if (tags != null)
             {
                 for (int i = 0, l = tags.Length; i < l; ++i)
                 {
                     m_Tags.Remove(tags[i]);
+                }
+            }
+        }
+
+        public virtual void RemoveTags(ICollection<string> tags)
+        {
+            if (tags != null)
+            {
+                var iter = tags.GetEnumerator();
+                while (iter.MoveNext())
+                {
+                    m_Tags.Remove(iter.Current);
                 }
             }
         }
