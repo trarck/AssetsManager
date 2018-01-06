@@ -70,28 +70,28 @@ public class TestAssetLoad : MonoBehaviour {
     {
         yield return new WaitForSeconds(2);
 
-        //yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
-        //{
-
-        //    Debug.Log(ar + "," + Time.frameCount);
-        //    if (ar != null)
-        //    {
-        //        Debug.Log(ar.asset);
-        //        m_Obj = GameObject.Instantiate(ar.asset);
-        //        //ar.Retain(m_Obj);
-        //        ar.Monitor(m_Obj as GameObject);
-        //        ar.Release();
-        //    }
-        //});
-
-        yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+        yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
         {
+
             Debug.Log(ar + "," + Time.frameCount);
             if (ar != null)
             {
                 Debug.Log(ar.asset);
+                m_Obj = GameObject.Instantiate(ar.asset);
+                //ar.Retain(m_Obj);
+                ar.Monitor(m_Obj as GameObject);
+                ar.Release();
             }
         });
+
+        //yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+        //{
+        //    Debug.Log(ar + "," + Time.frameCount);
+        //    if (ar != null)
+        //    {
+        //        Debug.Log(ar.asset);
+        //    }
+        //});
 
         //yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
         //{
@@ -105,22 +105,25 @@ public class TestAssetLoad : MonoBehaviour {
         //});
 
 
-        yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
-        {
+        //yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+        //{
 
-            Debug.Log(ar + "," + Time.frameCount);
-            if (ar != null)
-            {
-                Debug.Log(ar.asset);
-            }
-        });
+        //    Debug.Log(ar + "," + Time.frameCount);
+        //    if (ar != null)
+        //    {
+        //        Debug.Log(ar.asset);
+        //    }
+        //});
 
-        Debug.Log("Load complete");
+        Debug.Log("Load complete "+Time.frameCount);
         yield return new WaitForSeconds(2);
+        Debug.Log("start dstroy " + Time.frameCount);
         if (m_Obj != null)
         {
             Destroy(m_Obj);
         }
-        //m_AssetManager.UnloadUnuseds();
+
+        yield return null;
+        m_AssetManager.UnloadUnuseds();
     }
 }

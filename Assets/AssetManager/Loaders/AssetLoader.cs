@@ -123,6 +123,7 @@ namespace YH.AssetManager
 
         protected void DoLoadComplete()
         {
+            //选调用onLoaded再调用onComplete,否则可能收不到Reference的onDispose事件。
             if (onLoaded != null)
             {
                 onLoaded(this);
@@ -153,11 +154,7 @@ namespace YH.AssetManager
                         if (m_LoaderRequest.data != null)
                         {
                             m_Result = new AssetReference(m_LoaderRequest.data, info.fullName);
-                            m_Result.level = paramLevel;
-                            if (!string.IsNullOrEmpty(paramTag))
-                            {
-                                m_Result.AddTag(paramTag);
-                            }
+                            m_Result.AddTags(paramTags);
                             if (assetBundleReference != null)
                             {
                                 m_Result.assetBundleReference = assetBundleReference;

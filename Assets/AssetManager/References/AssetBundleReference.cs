@@ -29,7 +29,19 @@ namespace YH.AssetManager
                 dependency.Retain();
             }
         }
-        
+
+        public void AddDependencies(HashSet<AssetBundleReference> dependencies)
+        {
+            if(dependencies!=null && dependencies.Count > 0)
+            {
+                HashSet<AssetBundleReference>.Enumerator iter = dependencies.GetEnumerator();
+                while (iter.MoveNext())
+                {
+                    AddDependency(iter.Current);
+                }
+            }
+        }
+
         public override void Dispose()
         {
             if (onDispose != null)

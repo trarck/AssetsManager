@@ -20,9 +20,19 @@ namespace YH.AssetManager
         protected State m_State = State.Idle;
         protected bool m_ForceDone = false;
 
+        HashSet<string> m_ParamTags = HashSetPool<string>.Get();
 
-        public int paramLevel { get; set; }
-        public string paramTag { get; set; }
+        public HashSet<string> paramTags
+        {
+            get
+            {
+                return m_ParamTags;
+            }
+            set
+            {
+                m_ParamTags = value;
+            }
+        }
 
         public AssetManager assetManager { get; set; }
 
@@ -67,10 +77,11 @@ namespace YH.AssetManager
 
         }
 
+        
         public virtual void Clean()
         {
-            paramLevel = 0;
-            paramTag = null;
+            HashSetPool<string>.Release(m_ParamTags);
+            m_ParamTags = null;
             assetManager = null;
         }
         //public virtual AssetBundleReference GetResult()
@@ -81,6 +92,11 @@ namespace YH.AssetManager
         protected bool isFinishedState()
         {
             return m_State == State.Completed || m_State == State.Error;
+        }
+
+        public void AddParamTag(string tag)
+        {
+            m_ParamTags.Add(tag);
         }
     }
 }

@@ -14,8 +14,6 @@ namespace YH.AssetManager
 
         HashSet<string> m_Tags = HashSetPool<string>.Get();
 
-        int m_Level;
-
         public string name { get; set; }
 
         public virtual void Retain()
@@ -178,27 +176,6 @@ namespace YH.AssetManager
         public bool HaveTag(string tag)
         {
             return m_Tags.Contains(tag);
-        }
-
-        public bool MatchLevel(int level)
-        {
-            return this.level <= level;
-        }
-
-        public int level
-        {
-            get
-            {
-                return m_Level;
-            }
-
-            set
-            {
-                if (value > m_Level)
-                {
-                    m_Level = value;
-                }
-            }
         }
     }
 }
