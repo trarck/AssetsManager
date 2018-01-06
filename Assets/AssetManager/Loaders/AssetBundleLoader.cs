@@ -149,13 +149,11 @@ namespace YH.AssetManager
                     if (isDone)
                     {
                         m_Result = new AssetBundleReference(m_LoaderRequest.assetBundle, info.fullName);
-
-                        m_Result.AddTags(paramTags);
-
-                        if (m_Dependencies!=null && m_Dependencies.Count > 0)
+                        if (m_Dependencies != null && m_Dependencies.Count > 0)
                         {
                             m_Result.AddDependencies(m_Dependencies);
                         }
+                        m_Result.AddTags(paramTags);
                     }
                 }
                 return m_Result;
