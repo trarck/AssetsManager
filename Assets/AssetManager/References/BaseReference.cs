@@ -8,13 +8,15 @@ namespace YH.AssetManager
 {
     public abstract class BaseReference
     {
-        //默认为1，相当于默认执行Retain
-        int m_RefCount=1;
+        protected int m_RefCount=0;
+
         List<WeakReference> m_Owners=ListPool<WeakReference>.Get();
 
         HashSet<string> m_Tags = HashSetPool<string>.Get();
 
         public string name { get; set; }
+
+
 
         public virtual void Retain()
         {

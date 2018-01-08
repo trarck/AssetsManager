@@ -22,6 +22,9 @@ namespace YH.AssetManager
         Dictionary<string, AssetBundleLoader> m_LoadingAssetBundleLoaders = new Dictionary<string, AssetBundleLoader>();
         Dictionary<string, AssetLoader> m_LoadingAssetLoaders = new Dictionary<string, AssetLoader>();
 
+        //active asset bundles
+        HashSet<string> m_ActiveBundles = HashSetPool<string>.Get();
+
         InfoManager m_InfoManager;
         LoaderManager m_LoaderManager;
 
@@ -62,12 +65,12 @@ namespace YH.AssetManager
             m_Assets.Clear();
         }
 
-        public AssetBundleLoader LoadAssetBundle(string path, Action<AssetBundleReference> completeHandle)
+        public AssetBundleLoader LoadAssetBundle(string path, bool standalone, Action<AssetBundleReference> completeHandle)
         {
-            return LoadAssetBundle(path,null,completeHandle);
+            return LoadAssetBundle(path,null, standalone, completeHandle);
         }
 
-        public AssetBundleLoader LoadAssetBundle(string path,string tag, Action<AssetBundleReference> completeHandle)
+        public AssetBundleLoader LoadAssetBundle(string path,string tag,bool standalone, Action<AssetBundleReference> completeHandle)
         {
             AssetBundleLoader loader = null;
 
@@ -105,6 +108,12 @@ namespace YH.AssetManager
                 }
                 
                 loader.AddParamTag(tag);
+
+                if(loader.standalone==false && standalone)
+                {
+                    loader.standalone = true;
+                }
+
                 loader.onComplete += completeHandle;
 
                 if (loader.state == Loader.State.Idle)
@@ -200,7 +209,7 @@ namespace YH.AssetManager
 
                     if (!string.IsNullOrEmpty(loader.info.bundleName))
                     {
-                        LoadAssetBundle(loader.info.bundleName, (abr) =>
+                        LoadAssetBundle(loader.info.bundleName,false, (abr) =>
                         {
                             loader.assetBundleReference = abr;
                             ActiveLoader(loader);
@@ -423,17 +432,27 @@ namespace YH.AssetManager
                 AssetBundleReference abr = m_AssetBundles[assetBundleName];
                 m_AssetBundles.Remove(assetBundleName);
                 abr.onDispose -= OnAssetBundleDispose;
-                abr.Release();
+
+                if (m_ActiveBundles.Contains(assetBundleName))
+                {
+                    m_ActiveBundles.Remove(assetBundleName);
+                    abr.Release();
+                }
             }
         }
 
         public void RemoveAssetBundle(AssetBundleReference abr)
         {
-            if (m_AssetBundles.ContainsValue(abr))
+            if (m_AssetBundles.ContainsKey(abr.name))
             {
                 m_AssetBundles.Remove(abr.name);
                 abr.onDispose -= OnAssetBundleDispose;
-                abr.Release();
+
+                if (m_ActiveBundles.Contains(abr.name))
+                {
+                    m_ActiveBundles.Remove(abr.name);
+                    abr.Release();
+                }
             }
         }
 
@@ -464,6 +483,13 @@ namespace YH.AssetManager
             if (abr != null)
             {
                 m_AssetBundles[abr.name] = abr;
+
+                if (loader.standalone)
+                {
+                    m_ActiveBundles.Add(abr.name);
+                    abr.Retain();
+                }
+
                 if (m_LoadingAssetBundleLoaders.ContainsKey(abr.name))
                 {
                     m_LoadingAssetBundleLoaders.Remove(abr.name);
@@ -476,6 +502,11 @@ namespace YH.AssetManager
         void OnAssetBundleDispose(AssetBundleReference abr)
         {
             m_AssetBundles.Remove(abr.name);
+
+            if (m_ActiveBundles.Contains(abr.name))
+            {
+                m_ActiveBundles.Remove(abr.name);
+            }
         }
 
         void OnAssetLoaded(AssetLoader loader)
@@ -484,6 +515,9 @@ namespace YH.AssetManager
             if (ar != null)
             {
                 m_Assets[ar.name] = ar;
+                //keep ref
+                ar.Retain();
+
                 if (m_LoadingAssetLoaders.ContainsKey(ar.name))
                 {
                     m_LoadingAssetLoaders.Remove(ar.name);

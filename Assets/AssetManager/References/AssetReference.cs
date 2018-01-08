@@ -8,58 +8,43 @@ namespace YH.AssetManager
 {
     public class AssetReference:BaseReference
     {
-
-        public AssetBundleReference assetBundleReference { get; set; }
+        AssetBundleReference m_AssetBundleReference;
 
         public Object asset { get; set; }
-
 
         public delegate void DisposeHandle(AssetReference abr);
 
         public event DisposeHandle onDispose;
 
+        public AssetBundleReference assetBundleReference
+        {
+            get
+            {
+                return m_AssetBundleReference;
+            }
+            set
+            {
+
+                //retain new
+                if (value != null)
+                {
+                    value.Retain();
+                }
+                
+                //release old
+
+                if (m_AssetBundleReference != null)
+                {
+                    m_AssetBundleReference.Release();
+                }
+                m_AssetBundleReference = value;
+            }
+        }
+
         public AssetReference(Object asset, string assetPath)
         {
             this.asset = asset;
             this.name = assetPath;
-        }
-        
-        public override void Retain()
-        {
-            base.Retain();
-
-            if (assetBundleReference != null)
-            {
-                assetBundleReference.Retain();
-            }
-        }
-
-        public override void Release()
-        {
-            if (assetBundleReference != null)
-            {
-                assetBundleReference.Release();
-            }
-            base.Release();
-        }
-
-        public override void Retain(Object owner)
-        {
-            base.Retain(owner);
-
-            if (assetBundleReference != null)
-            {
-                assetBundleReference.Retain(owner);
-            }
-        }
-
-        public override void Release(Object owner)
-        {
-            if (assetBundleReference != null)
-            {
-                assetBundleReference.Release(owner);
-            }
-            base.Release(owner);
         }
 
         public override void Monitor(GameObject gameObject)

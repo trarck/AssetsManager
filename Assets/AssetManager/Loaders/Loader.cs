@@ -19,6 +19,7 @@ namespace YH.AssetManager
 
         protected State m_State = State.Idle;
         protected bool m_ForceDone = false;
+        protected bool m_Standalone = false;
 
         HashSet<string> m_ParamTags = HashSetPool<string>.Get();
 
@@ -97,6 +98,19 @@ namespace YH.AssetManager
         public void AddParamTag(string tag)
         {
             m_ParamTags.Add(tag);
+        }
+
+        public bool standalone
+        {
+            get
+            {
+                return m_Standalone;
+            }
+
+            set
+            {
+                m_Standalone = value;
+            }
         }
     }
 }

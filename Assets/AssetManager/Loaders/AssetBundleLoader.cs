@@ -82,7 +82,7 @@ namespace YH.AssetManager
             for (int i = 0, l = dependencies.Length;i< l;++i)
             {
                 string dep = dependencies[i];
-                assetManager.LoadAssetBundle(dep, OnDependencyComplete);
+                assetManager.LoadAssetBundle(dep, false,OnDependencyComplete);
             }
         }
 
