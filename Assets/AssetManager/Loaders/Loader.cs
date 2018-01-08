@@ -62,6 +62,8 @@ namespace YH.AssetManager
             }
         }
 
+        public bool autoRelease { get; set; }
+
         public virtual void Start()
         {
 

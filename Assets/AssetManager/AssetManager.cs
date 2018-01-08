@@ -22,6 +22,10 @@ namespace YH.AssetManager
         Dictionary<string, AssetBundleLoader> m_LoadingAssetBundleLoaders = new Dictionary<string, AssetBundleLoader>();
         Dictionary<string, AssetLoader> m_LoadingAssetLoaders = new Dictionary<string, AssetLoader>();
 
+        //auto release pool
+        Dictionary<string, ReferenceAutoRelease> m_AutoReleaseAssetBundles = new Dictionary<string, ReferenceAutoRelease>();
+        Dictionary<string, ReferenceAutoRelease> m_AutoReleaseAssets = new Dictionary<string, ReferenceAutoRelease>();
+
         InfoManager m_InfoManager;
         LoaderManager m_LoaderManager;
 
@@ -67,7 +71,7 @@ namespace YH.AssetManager
             return LoadAssetBundle(path,null,completeHandle);
         }
 
-        public AssetBundleLoader LoadAssetBundle(string path,string tag, Action<AssetBundleReference> completeHandle)
+        public AssetBundleLoader LoadAssetBundle(string path,string tag,bool autoRelease, Action<AssetBundleReference> completeHandle)
         {
             AssetBundleLoader loader = null;
 
@@ -105,6 +109,12 @@ namespace YH.AssetManager
                 }
                 
                 loader.AddParamTag(tag);
+
+                if (loader.autoRelease == false && autoRelease==true)
+                {
+                    loader.autoRelease = autoRelease;
+                }
+
                 loader.onComplete += completeHandle;
 
                 if (loader.state == Loader.State.Idle)
@@ -119,17 +129,17 @@ namespace YH.AssetManager
 
         public AssetLoader LoadAsset(string path, Action<AssetReference> completeHandle)
         {
-            return LoadAsset(path, null,null, completeHandle);
+            return LoadAsset(path, null,null, false,completeHandle);
         }
 
         public AssetLoader LoadAsset<T>(string path, Action<AssetReference> completeHandle)
         {
-            return LoadAsset(path, null,  typeof(T), completeHandle);
+            return LoadAsset(path, null,  typeof(T), false,completeHandle);
         }
 
         public AssetLoader LoadAsset<T>(string path, string tag,Action<AssetReference> completeHandle)
         {
-            return LoadAsset(path, null,  typeof(T), completeHandle);
+            return LoadAsset(path, null,  typeof(T),false, completeHandle);
         }
 
         /// <summary>
@@ -146,7 +156,7 @@ namespace YH.AssetManager
         /// <param name="type"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public AssetLoader LoadAsset(string path,string tag, Type type,Action<AssetReference> completeHandle)
+        public AssetLoader LoadAsset(string path,string tag, Type type,bool autoRelease, Action<AssetReference> completeHandle)
         {
             if (!string.IsNullOrEmpty(path))
             {
@@ -186,12 +196,17 @@ namespace YH.AssetManager
                 }
                 
                 loader.AddParamTag(tag);
-                loader.onComplete += completeHandle;
-
                 if (type != null)
                 {
                     loader.type = type;
                 }
+
+                if (loader.autoRelease == false && autoRelease == true)
+                {
+                    loader.autoRelease = autoRelease;
+                }
+
+                loader.onComplete += completeHandle;
 
                 if (loader.state == Loader.State.Idle)
                 {
@@ -200,7 +215,7 @@ namespace YH.AssetManager
 
                     if (!string.IsNullOrEmpty(loader.info.bundleName))
                     {
-                        LoadAssetBundle(loader.info.bundleName, (abr) =>
+                        LoadAssetBundle(loader.info.bundleName,tag, autoRelease,(abr) =>
                         {
                             loader.assetBundleReference = abr;
                             ActiveLoader(loader);
@@ -216,12 +231,12 @@ namespace YH.AssetManager
             return loader;
         }
 
-        public AssetLoader LoadAssetWithAlias(string alias, string tag, Type type, Action<AssetReference> completeHandle)
+        public AssetLoader LoadAssetWithAlias(string alias, string tag, Type type,bool cached, Action<AssetReference> completeHandle)
         {
             AssetInfo assetInfo = m_InfoManager.FindAssetInfoWithAlias(alias);
             if (assetInfo != null)
             {
-                return LoadAsset(assetInfo.fullName, tag, type, completeHandle);
+                return LoadAsset(assetInfo.fullName, tag, type, cached, completeHandle);
             }
             else
             {
@@ -250,6 +265,9 @@ namespace YH.AssetManager
 
             //check loader 
             CheckLoaderTick();
+
+            //check auto release
+            CheckAutoReleases();
         }
 
         protected void CheckLoaderTick()
@@ -292,6 +310,61 @@ namespace YH.AssetManager
                 }
             }
         }
+
+        protected void CheckAutoReleases()
+        {
+            CheckAutoReleaseAssets();
+            CheckAutoReleaseBundles();
+        }
+
+        public void CheckAutoReleaseAssets()
+        {
+            if (m_AutoReleaseAssets.Count == 0)
+            {
+                return;
+            }
+
+            List<string> keys = ListPool<string>.Get();
+            keys.AddRange(m_AutoReleaseAssets.Keys);
+
+            AutoRelease autoRelease = null;
+            int currentFrame = Time.frameCount;
+            for (int i = 0, l = m_AutoReleaseAssets.Count; i < l; ++i)
+            {
+                autoRelease = m_AutoReleaseAssets[keys[i]];
+                if (autoRelease.IsReleasFrame(currentFrame))
+                {
+                    RemoveAsset(autoRelease.key);
+                    m_AutoReleaseAssets.Remove(keys[i]);
+                }
+            }
+            ListPool<string>.Release(keys);
+        }
+
+        protected void CheckAutoReleaseBundles()
+        {
+            if (m_AutoReleaseAssetBundles.Count == 0)
+            {
+                return;
+            }
+            List<string> keys = ListPool<string>.Get();
+            keys.AddRange(m_AutoReleaseAssetBundles.Keys);
+
+            AutoRelease autoRelease=null;
+            int currentFrame = Time.frameCount;
+            for (int i = 0, l = keys.Count; i < l; ++i)
+            {
+                autoRelease = m_AutoReleaseAssetBundles[keys[i]];
+                if (autoRelease.IsReleasFrame(currentFrame))
+                {
+                    RemoveAssetBundle(autoRelease.key);
+                    m_AutoReleaseAssetBundles.Remove(keys[i]);
+                }
+            }
+            ListPool<string>.Release(keys);
+        }
+
+
 
         void OnLowMemory()
         {
@@ -464,6 +537,15 @@ namespace YH.AssetManager
             if (abr != null)
             {
                 m_AssetBundles[abr.name] = abr;
+
+                if (loader.autoRelease)
+                {
+                    AutoRelease autoRelease = new AutoRelease();
+                    autoRelease.key = abr.name;
+                    autoRelease.ReleaseNextFrame();
+                    m_AutoReleaseAssetBundles[abr.name] = autoRelease;
+                }
+
                 if (m_LoadingAssetBundleLoaders.ContainsKey(abr.name))
                 {
                     m_LoadingAssetBundleLoaders.Remove(abr.name);
@@ -484,6 +566,15 @@ namespace YH.AssetManager
             if (ar != null)
             {
                 m_Assets[ar.name] = ar;
+
+                if (loader.autoRelease)
+                {
+                    AutoRelease autoRelease= new AutoRelease();
+                    autoRelease.key = ar.name;
+                    autoRelease.ReleaseNextFrame();
+                    m_AutoReleaseAssets[ar.name] = autoRelease;
+                }
+
                 if (m_LoadingAssetLoaders.ContainsKey(ar.name))
                 {
                     m_LoadingAssetLoaders.Remove(ar.name);
