@@ -160,5 +160,13 @@ namespace YH.AssetManager
             }
             base.RemoveTags(tags);
         }
+
+        public HashSet<AssetBundleReference> dependencies
+        {
+            get
+            {
+                return m_Dependencies;
+            }
+        }
     }
 }

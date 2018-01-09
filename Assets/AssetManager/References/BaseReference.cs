@@ -10,13 +10,13 @@ namespace YH.AssetManager
     {
         protected int m_RefCount=0;
 
+        protected bool m_InChain = false;
+
         List<WeakReference> m_Owners=ListPool<WeakReference>.Get();
 
         HashSet<string> m_Tags = HashSetPool<string>.Get();
 
         public string name { get; set; }
-
-
 
         public virtual void Retain()
         {
@@ -96,11 +96,13 @@ namespace YH.AssetManager
 
         public bool isUnused()
         {
-            return m_RefCount == 1 && GetOwnersRefCount() == 0;
+            return inChain && m_RefCount == 1 && GetOwnersRefCount() == 0;
         }
 
         public virtual void Dispose()
         {
+            Debug.Log("Asset dispose " + name + "," + Time.frameCount);
+
             ListPool<WeakReference>.Release(m_Owners);
             m_Owners = null;
             HashSetPool<string>.Release(m_Tags);
@@ -178,6 +180,37 @@ namespace YH.AssetManager
         public bool HaveTag(string tag)
         {
             return m_Tags.Contains(tag);
+        }
+
+        public bool inChain
+        {
+            get
+            {
+                return m_InChain;
+            }
+
+            set
+            {
+                m_InChain = value;
+            }
+        }
+
+        public void Chain()
+        {
+            if (!inChain)
+            {
+                inChain = true;
+                Retain();
+            }
+        }
+
+        public void RemoveChain()
+        {
+            if (inChain)
+            {
+                inChain = false;
+                Release();
+            }
         }
     }
 }

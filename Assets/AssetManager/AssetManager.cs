@@ -22,9 +22,6 @@ namespace YH.AssetManager
         Dictionary<string, AssetBundleLoader> m_LoadingAssetBundleLoaders = new Dictionary<string, AssetBundleLoader>();
         Dictionary<string, AssetLoader> m_LoadingAssetLoaders = new Dictionary<string, AssetLoader>();
 
-        //active asset bundles
-        HashSet<string> m_ActiveBundles = HashSetPool<string>.Get();
-
         InfoManager m_InfoManager;
         LoaderManager m_LoaderManager;
 
@@ -80,12 +77,17 @@ namespace YH.AssetManager
                 //asset bundle is loaded
                 AssetBundleReference abr = m_AssetBundles[path];
 
+                //refresh 
+                abr.AddTag(tag);
+
+                if (standalone)
+                {
+                    abr.Chain();
+                }
+
                 loader = m_LoaderManager.CreateAssetBundleLoader(path);
                 loader.forceDone = true;
                 loader.result = abr;
-
-                //refresh 
-                abr.AddTag(tag);
 
                 //call complete callback
                 if (completeHandle != null)
@@ -168,12 +170,16 @@ namespace YH.AssetManager
             {
                 Debug.Log("LoadAsset asset is loaded "+path+","+Time.frameCount);
                 AssetReference ar = m_Assets[path];
-                loader = m_LoaderManager.CreateAssetLoader(path);
-                loader.forceDone = true;
-                loader.result = ar;
 
                 //refresh
                 ar.AddTag(tag);
+
+                //in chain will check is chained.
+                ar.Chain();
+
+                loader = m_LoaderManager.CreateAssetLoader(path);
+                loader.forceDone = true;
+                loader.result = ar;
 
                 if (completeHandle != null)
                 {
@@ -314,10 +320,10 @@ namespace YH.AssetManager
             Resources.UnloadUnusedAssets();
         }
 
-        public void UnloadUnuseds(string tag,bool needRemove = false)
+        public void UnloadUnuseds(string tag)
         {
-            UnloadUnusedAssets(tag, needRemove);
-            UnloadUnusedBundles(tag, needRemove);
+            UnloadUnusedAssets(tag);
+            UnloadUnusedBundles(tag);
             Resources.UnloadUnusedAssets();
         }
 
@@ -327,24 +333,54 @@ namespace YH.AssetManager
             {
                 return;
             }
+
             AssetBundleReference abr=null;
             List<string> keys = ListPool<string>.Get();
             keys.AddRange(m_AssetBundles.Keys);
 
-            for(int i=0,l=keys.Count;i< l;++i)
+            Stack<string> rechecks = StackPool<string>.Get();
+            HashSet<string> checkeds = HashSetPool<string>.Get();
+
+            Action<string> checkFun = (key) =>
             {
-                abr = m_AssetBundles[keys[i]];
-                if (abr.isUnused())
-                {
-                    abr.Dispose();
-                    m_AssetBundles.Remove(keys[i]);
-                }
+                  checkeds.Add(key);
+                  if (abr.isUnused())
+                  {
+                      //check dependencies
+                      if (abr.dependencies != null && abr.dependencies.Count > 0)
+                      {
+                          foreach (AssetBundleReference sub in abr.dependencies)
+                          {
+                              if (sub.inChain && checkeds.Contains(sub.name))
+                              {
+                                  rechecks.Push(sub.name);
+                              }
+                          }
+                      }
+
+                      abr.Dispose();
+                      m_AssetBundles.Remove(key);
+                  }
+            };
+
+            for (int i = 0, l = keys.Count; i < l; ++i)
+            {
+                checkFun(keys[i]);
             }
+
+            //recheck unused asset bundle
+            while(rechecks.Count>0){
+                checkFun(rechecks.Pop());
+            }
+
             ListPool<string>.Release(keys);
+            StackPool<string>.Release(rechecks);
+            HashSetPool<string>.Release(checkeds);
         }
 
-        public void UnloadUnusedBundles(string tag, bool needRemove = false)
+        public void UnloadUnusedBundles(string tag)
         {
+
             if (m_AssetBundles.Count == 0)
             {
                 return;
@@ -354,23 +390,50 @@ namespace YH.AssetManager
             List<string> keys = ListPool<string>.Get();
             keys.AddRange(m_AssetBundles.Keys);
 
-            for (int i = 0, l = keys.Count; i < l; ++i)
+            Stack<string> rechecks = StackPool<string>.Get();
+            HashSet<string> checkeds = HashSetPool<string>.Get();
+
+            Action<string> checkFun = (key) =>
             {
-                abr = m_AssetBundles[keys[i]];
-                if(abr.HaveTag(tag))
+                abr = m_AssetBundles[key];
+                checkeds.Add(key);
+
+                if (abr.HaveTag(tag))
                 {
                     if (abr.isUnused())
                     {
+                        //check dependencies
+                        if (abr.dependencies != null && abr.dependencies.Count > 0)
+                        {
+                            foreach (AssetBundleReference sub in abr.dependencies)
+                            {
+                                if (sub.inChain && checkeds.Contains(sub.name))
+                                {
+                                    rechecks.Push(sub.name);
+                                }
+                            }
+                        }
+
                         abr.Dispose();
-                        m_AssetBundles.Remove(keys[i]);
-                    }
-                    else if (needRemove)
-                    {
-                        abr.RemoveTag(tag);
+                        m_AssetBundles.Remove(key);
                     }
                 }
+            };
+
+            for (int i = 0, l = keys.Count; i < l; ++i)
+            {
+                checkFun(keys[i]);
             }
+
+            //recheck unused asset bundle
+            while (rechecks.Count > 0)
+            {
+                checkFun(rechecks.Pop());
+            }
+
             ListPool<string>.Release(keys);
+            StackPool<string>.Release(rechecks);
+            HashSetPool<string>.Release(checkeds);            
         }
 
         public void UnloadUnusedAssets()
@@ -395,7 +458,7 @@ namespace YH.AssetManager
             ListPool<string>.Release(keys);
         }
 
-        public void UnloadUnusedAssets(string tag,bool needRemove=false)
+        public void UnloadUnusedAssets(string tag)
         {
             if (m_Assets.Count == 0)
             {
@@ -416,10 +479,6 @@ namespace YH.AssetManager
                         ar.Dispose();
                         m_Assets.Remove(keys[i]);
                     }
-                    else if (needRemove)
-                    {
-                        ar.RemoveTag(tag);
-                    }
                 }
             }
             ListPool<string>.Release(keys);
@@ -432,12 +491,7 @@ namespace YH.AssetManager
                 AssetBundleReference abr = m_AssetBundles[assetBundleName];
                 m_AssetBundles.Remove(assetBundleName);
                 abr.onDispose -= OnAssetBundleDispose;
-
-                if (m_ActiveBundles.Contains(assetBundleName))
-                {
-                    m_ActiveBundles.Remove(assetBundleName);
-                    abr.Release();
-                }
+                abr.Dispose();
             }
         }
 
@@ -447,12 +501,24 @@ namespace YH.AssetManager
             {
                 m_AssetBundles.Remove(abr.name);
                 abr.onDispose -= OnAssetBundleDispose;
+                abr.Dispose();
+            }
+        }
 
-                if (m_ActiveBundles.Contains(abr.name))
-                {
-                    m_ActiveBundles.Remove(abr.name);
-                    abr.Release();
-                }
+        public void UnusedAssetBundle(string assetBundleName)
+        {
+            if (m_AssetBundles.ContainsKey(assetBundleName))
+            {
+                AssetBundleReference abr = m_AssetBundles[assetBundleName];
+                abr.RemoveChain();
+            }
+        }
+
+        public void UnusedAssetBundle(AssetBundleReference abr)
+        {
+            if (abr!=null)
+            {
+                abr.RemoveChain();
             }
         }
 
@@ -463,7 +529,7 @@ namespace YH.AssetManager
                 AssetReference ar = m_Assets[assetName];
                 m_Assets.Remove(assetName);
                 ar.onDispose -= OnAssetDispose;
-                ar.Release();
+                ar.Dispose();
             }
         }
 
@@ -473,7 +539,68 @@ namespace YH.AssetManager
             {
                 m_Assets.Remove(ar.name);
                 ar.onDispose -= OnAssetDispose;
-                ar.Release();
+                ar.Dispose();
+            }
+        }
+
+        public void UnusedAsset(string assetName)
+        {
+            if (m_Assets.ContainsKey(assetName))
+            {
+                AssetReference ar = m_Assets[assetName];
+                ar.RemoveChain();
+            }
+        }
+
+        public void UnusedAsset(AssetReference ar)
+        {
+            if (ar!=null)
+            {
+                ar.RemoveChain();
+            }
+        }
+
+        public void RemoveTags(string tag)
+        {
+            RemoveAssetsTag(tag);
+            RemoveAssetBundlesTag(tag);
+        }
+
+        protected void RemoveAssetBundlesTag(string tag)
+        {
+            if (m_AssetBundles.Count == 0)
+            {
+                return;
+            }
+
+            AssetBundleReference abr = null;
+            var iter = m_AssetBundles.GetEnumerator();
+            while (iter.MoveNext())
+            {
+                abr = iter.Current.Value;
+                if (abr.inChain && abr.HaveTag(tag))
+                {
+                    abr.RemoveTag(tag);
+                }
+            }
+        }
+
+        protected void RemoveAssetsTag(string tag)
+        {
+            if (m_Assets.Count == 0)
+            {
+                return;
+            }
+
+            AssetReference ar = null;
+            var iter = m_Assets.GetEnumerator();
+            while (iter.MoveNext())
+            {
+                ar = iter.Current.Value;
+                if (ar.inChain && ar.HaveTag(tag))
+                {
+                    ar.RemoveTag(tag);
+                }
             }
         }
 
@@ -486,8 +613,11 @@ namespace YH.AssetManager
 
                 if (loader.standalone)
                 {
-                    m_ActiveBundles.Add(abr.name);
-                    abr.Retain();
+                    abr.Chain();
+                }
+                else
+                {
+                    abr.inChain = false;
                 }
 
                 if (m_LoadingAssetBundleLoaders.ContainsKey(abr.name))
@@ -502,11 +632,6 @@ namespace YH.AssetManager
         void OnAssetBundleDispose(AssetBundleReference abr)
         {
             m_AssetBundles.Remove(abr.name);
-
-            if (m_ActiveBundles.Contains(abr.name))
-            {
-                m_ActiveBundles.Remove(abr.name);
-            }
         }
 
         void OnAssetLoaded(AssetLoader loader)
@@ -515,8 +640,9 @@ namespace YH.AssetManager
             if (ar != null)
             {
                 m_Assets[ar.name] = ar;
-                //keep ref
-                ar.Retain();
+
+                //asset loader always standalone
+                ar.Chain();
 
                 if (m_LoadingAssetLoaders.ContainsKey(ar.name))
                 {
