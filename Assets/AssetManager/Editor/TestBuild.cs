@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEditor;
+
 
 public class TestBuild {
 
@@ -75,17 +77,7 @@ public class TestBuild {
     [MenuItem("Test/TestOhters")]
     public static void TestOthers()
     {
-        var dataPath = System.IO.Path.GetFullPath(".");
-        AssetBundle ab=AssetBundle.LoadFromFile(dataPath + "/AssetBundles/Test/aaa");
-        Debug.Log(ab);
-        foreach(string n in ab.GetAllAssetNames())
-        {
-            Debug.Log(n);
-        }
-
-        Object o = ab.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
-        Debug.Log(o);
-
-        ab.Unload(false);
+        
+    
     }
 }
