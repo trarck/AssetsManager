@@ -19,7 +19,6 @@ namespace YH.AssetManager
             AssetInfo info = null;
 
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-            loader = new AssetLoader();
             info = m_AssetManager.infoManager.FindAssetInfo(path);
             //can't find asset info
             if (info == null)
@@ -27,6 +26,8 @@ namespace YH.AssetManager
                 info = new AssetInfo();
                 info.fullName = path;
             }
+
+            loader = new AssetLoader();
 #else
             loader = new AssetEditorLoader();
             info = new AssetInfo();
