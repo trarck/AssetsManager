@@ -165,10 +165,30 @@ namespace UnityEngine.AssetBundles.AssetBundleDataSource
         }
 
         public bool BuildAssetBundles (ABBuildInfo info) {
-            var buildManifest = BuildPipeline.BuildAssetBundles(info.outputDirectory, info.options, info.buildTarget);
+
+            List<string> bundleNames = m_Bundles.Keys.ToList();
+
+            List<AssetBundleBuild> builds = new List<AssetBundleBuild>();
+            foreach (string bundleName in bundleNames)
+            {
+                if (m_Bundles[bundleName].Count > 0)
+                {
+                    AssetBundleBuild build = new AssetBundleBuild();
+                    build.assetBundleName = bundleName;
+                    build.assetNames = m_Bundles[bundleName].ToArray();
+                    builds.Add(build);
+                }
+            }
+
+            var buildManifest = BuildPipeline.BuildAssetBundles(info.outputDirectory,builds.ToArray(), info.options, info.buildTarget);
             if (buildManifest == null)
                 return false;
-            foreach(var assetBundleName in buildManifest.GetAllAssetBundles())
+
+            DatabaseUtil.ClearTempManifest(info.outputDirectory);
+
+            DatabaseUtil.SaveBundleManifest(buildManifest, info.outputDirectory);
+
+            foreach (var assetBundleName in buildManifest.GetAllAssetBundles())
             {
                 if (info.onBuild != null)
                 {
