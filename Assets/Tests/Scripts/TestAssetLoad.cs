@@ -83,25 +83,14 @@ public class TestAssetLoad : MonoBehaviour {
             }
         });
 
-        //yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
-        //{
-        //    Debug.Log(ar + "," + Time.frameCount);
-        //    if (ar != null)
-        //    {
-        //        Debug.Log(ar.asset);
-        //    }
-        //});
-
-        //yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
-        //{
-
-        //    Debug.Log(ar + "," + Time.frameCount);
-        //    if (ar != null)
-        //    {
-        //        Debug.Log(ar.asset);
-        //        GameObject.Instantiate(ar.asset);
-        //    }
-        //});
+        yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+        {
+            Debug.Log(ar + "," + Time.frameCount);
+            if (ar != null)
+            {
+                Debug.Log(ar.asset);
+            }
+        });
 
 
         //yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
@@ -124,5 +113,18 @@ public class TestAssetLoad : MonoBehaviour {
 
         yield return null;
         m_AssetManager.UnloadUnuseds();
+        
+        //yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        //{
+
+        //    Debug.Log(ar + "," + Time.frameCount);
+        //    if (ar != null)
+        //    {
+        //        Debug.Log(ar.asset);
+        //        GameObject go = GameObject.Instantiate(ar.asset) as GameObject;
+        //        go.transform.Translate(10, 0, 0);
+        //    }
+        //});
+
     }
 }
