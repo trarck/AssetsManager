@@ -44,6 +44,8 @@ namespace YH.AssetManager
 
         public override void Dispose()
         {
+            Debug.Log("Bundle dispose " + name + "," + Time.frameCount);
+
             if (onDispose != null)
             {
                 onDispose(this);

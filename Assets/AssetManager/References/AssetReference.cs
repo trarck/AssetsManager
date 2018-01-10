@@ -62,6 +62,7 @@ namespace YH.AssetManager
 
         public override void Dispose()
         {
+            Debug.Log("Asset dispose " + name + "," + Time.frameCount);
             if (onDispose != null)
             {
                 onDispose(this);

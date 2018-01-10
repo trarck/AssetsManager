@@ -101,8 +101,6 @@ namespace YH.AssetManager
 
         public virtual void Dispose()
         {
-            Debug.Log("Asset dispose " + name + "," + Time.frameCount);
-
             ListPool<WeakReference>.Release(m_Owners);
             m_Owners = null;
             HashSetPool<string>.Release(m_Tags);
