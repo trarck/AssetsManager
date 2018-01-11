@@ -9,7 +9,7 @@ public class TestResource : MonoBehaviour {
 
     float m_Elapsed;
     int sw = 1;
-    Object m_O;
+    Object m_O=null;
     AssetBundle m_AssetBundle;
 	// Use this for initialization
 	void Start ()
@@ -38,7 +38,7 @@ public class TestResource : MonoBehaviour {
         {
             sw = 3;
             Texture2D texture= m_AssetBundle.LoadAsset("bnt_Blue_S2") as Texture2D;
-            Texture2D tt = m_AssetBundle.LoadAsset<Texture2D>("bnt_blue");
+            m_AssetBundle.LoadAsset<Texture2D>("bnt_blue");
             // MeshRenderer mesh = m_Target.GetComponent<MeshRenderer>();
             //mesh.material.mainTexture = texture;
             m_O = texture;

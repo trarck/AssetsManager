@@ -5,7 +5,7 @@ using Object = UnityEngine.Object;
 
 namespace YH.AssetManager
 {
-    public class AssetManager : MonoBehaviour
+    public class AssetManager : UnitySingleton<AssetManager>
     {
         int m_MaxActiveLoader = 5;
         List<Loader> m_ActivesLoaders = ListPool<Loader>.Get();
@@ -25,7 +25,7 @@ namespace YH.AssetManager
         InfoManager m_InfoManager;
         LoaderManager m_LoaderManager;
 
-        public void Init(Action callback)
+        public void Init(Action<bool> callback)
         {
             Application.lowMemory += OnLowMemory;
 
@@ -245,6 +245,11 @@ namespace YH.AssetManager
             return null;
         }
 
+        public void LoadScene()
+        {
+
+        }
+
         void ActiveLoader(Loader loader)
         {
             if (m_ActivesLoaders.Count < m_MaxActiveLoader)
@@ -271,15 +276,22 @@ namespace YH.AssetManager
         {
             m_TickFinished.Clear();
 
-            Loader loader = null;
-            for (int i = 0, l = m_ActivesLoaders.Count; i < l; ++i)
+            try
             {
-                loader = m_ActivesLoaders[i];
-                if (loader.isDone)
+                Loader loader = null;
+                for (int i = 0, l = m_ActivesLoaders.Count; i < l; ++i)
                 {
-                    m_TickFinished.Add(i);
-                    loader.Complete();
+                    loader = m_ActivesLoaders[i];
+                    if (loader.isDone)
+                    {
+                        m_TickFinished.Add(i);
+                        loader.Complete();
+                    }
                 }
+            }
+            catch(Exception e)
+            {
+                Debug.LogError(e);
             }
 
             //remove finished loader

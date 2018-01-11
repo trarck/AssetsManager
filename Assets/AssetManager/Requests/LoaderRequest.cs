@@ -153,4 +153,15 @@ namespace YH.AssetManager
             }
         }
     }
+
+    public class SceneLoaderRequest : LoaderRequest
+    {
+        public override bool isDone
+        {
+            get
+            {
+                return true;
+            }
+        }
+    }
 }

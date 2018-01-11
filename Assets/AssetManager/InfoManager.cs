@@ -14,7 +14,7 @@ namespace YH.AssetManager
 
         AssetManager m_AssetManager;
 
-        public Action onInitComplete;
+        public Action<bool> onInitComplete;
 
         public InfoManager(AssetManager assetManager)
         {
@@ -42,6 +42,7 @@ namespace YH.AssetManager
         {
             WWW www = new WWW(filePath);
             yield return www;
+            bool success = true;
             if (www.error == null)
             {
                 using (MemoryStream stream = new MemoryStream(www.bytes))
@@ -52,13 +53,15 @@ namespace YH.AssetManager
             else
             {
                 Debug.LogErrorFormat("LoadPackageFile:{0} error: {1} ", filePath, www.error);
+                success = false;
             }
 
-            InitComplete();
+            InitComplete(success);
         }
 
         public void LoadFromFile(string filePath)
         {
+            bool success = true;
             if (File.Exists(filePath))
             {
                 using (FileStream fs = new FileStream(filePath, FileMode.Open))
@@ -66,8 +69,14 @@ namespace YH.AssetManager
                     LoadFromStream(fs);
                 }
             }
+#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
+            else
+            {
+                success = false;
+            }
+#endif
 
-            InitComplete();
+            InitComplete(success);
         }
 
         public void LoadFromStream(Stream steam)
@@ -198,12 +207,12 @@ namespace YH.AssetManager
             return null;
         }
 
-        void InitComplete()
+        void InitComplete(bool result)
         {
             Debug.Log("Info Manager init complete");
             if (onInitComplete != null)
             {
-                onInitComplete();
+                onInitComplete(result);
             }
         }
     }
