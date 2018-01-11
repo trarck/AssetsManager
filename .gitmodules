@@ -1,0 +1,3 @@
+[submodule "Assets/AssetBundlesBrowser"]
+	path = Assets/AssetBundlesBrowser
+	url = git@github.com:trarck/AssetBundles-Browser.git
