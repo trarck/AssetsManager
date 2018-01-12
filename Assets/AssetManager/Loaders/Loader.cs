@@ -95,6 +95,14 @@ namespace YH.AssetManager
             return m_State == State.Completed || m_State == State.Error;
         }
 
+        public override bool haveError
+        {
+            get
+            {
+                return m_State == State.Error;
+            }
+        }
+
         public void AddParamTag(string tag)
         {
             m_ParamTags.Add(tag);

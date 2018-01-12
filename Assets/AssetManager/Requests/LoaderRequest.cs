@@ -42,6 +42,18 @@ namespace YH.AssetManager
         {
             m_Www = www;
         }
+
+        public override bool haveError
+        {
+            get
+            {
+                if (m_Www != null)
+                {
+                    return !string.IsNullOrEmpty(m_Www.error);
+                }
+                return false;
+            }
+        }
     }
 
     public class BundleLoaderRequest : LoaderRequest
@@ -74,6 +86,18 @@ namespace YH.AssetManager
         public BundleLoaderRequest(AssetBundleCreateRequest createRequest)
         {
             m_CreateRequest = createRequest;
+        }
+
+        public override bool haveError
+        {
+            get
+            {
+                if (m_CreateRequest != null && isDone)
+                {
+                    return m_CreateRequest.assetBundle == null;
+                }
+                return false;
+            }
         }
     }
 
@@ -108,6 +132,18 @@ namespace YH.AssetManager
         {
             m_Request = request;
         }
+
+        public override bool haveError
+        {
+            get
+            {
+                if (m_Request != null && isDone)
+                {
+                    return m_Request.asset == null;
+                }
+                return false;
+            }
+        }
     }
 
     public class ResouceLoaderRequest : LoaderRequest
@@ -141,6 +177,18 @@ namespace YH.AssetManager
         {
             m_Request = request;
         }
+
+        public override bool haveError
+        {
+            get
+            {
+                if (m_Request != null && isDone)
+                {
+                    return m_Request.asset == null;
+                }
+                return false;
+            }
+        }
     }
 
     public class SyncLoaderRequest : LoaderRequest
@@ -152,15 +200,31 @@ namespace YH.AssetManager
                 return true;
             }
         }
+
+        public override bool haveError
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 
-    public class SceneLoaderRequest : LoaderRequest
+    public class EmptyLoaderRequest : LoaderRequest
     {
         public override bool isDone
         {
             get
             {
                 return true;
+            }
+        }
+
+        public override bool haveError
+        {
+            get
+            {
+                return false;
             }
         }
     }

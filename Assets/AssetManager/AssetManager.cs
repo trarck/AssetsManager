@@ -71,6 +71,11 @@ namespace YH.AssetManager
         {
             AssetBundleLoader loader = null;
 
+            if (string.IsNullOrEmpty(path))
+            {
+                return loader;
+            }
+
             if (m_AssetBundles.ContainsKey(path))
             {
                 Debug.Log("LoadAssetBundle asset bundle is loaded " + path + "," + Time.frameCount);
@@ -125,6 +130,7 @@ namespace YH.AssetManager
                     ActiveLoader(loader);
                 }                
             }
+
             return loader;
         }
 
@@ -245,9 +251,17 @@ namespace YH.AssetManager
             return null;
         }
 
-        public void LoadScene()
+        public AssetBundleLoader LoadScene(string path, string tag,Action<AssetBundleReference> completeHandle)
         {
-
+            AssetInfo info = m_InfoManager.FindAssetInfo(path);
+            if (info!=null)
+            {
+                return LoadAssetBundle(info.bundleName,tag,true, completeHandle);
+            }
+            else
+            {
+                return LoadAssetBundle(path, tag, true, completeHandle);
+            }            
         }
 
         void ActiveLoader(Loader loader)
@@ -332,10 +346,14 @@ namespace YH.AssetManager
             Resources.UnloadUnusedAssets();
         }
 
-        public void UnloadUnuseds(string tag)
+        public void UnloadUnuseds(string tag,bool removeTag=true)
         {
             UnloadUnusedAssets(tag);
             UnloadUnusedBundles(tag);
+            if (removeTag)
+            {
+                RemoveTags(tag);
+            }
             Resources.UnloadUnusedAssets();
         }
 
@@ -347,105 +365,109 @@ namespace YH.AssetManager
             }
 
             AssetBundleReference abr=null;
-            List<string> keys = ListPool<string>.Get();
-            keys.AddRange(m_AssetBundles.Keys);
 
-            Stack<string> rechecks = StackPool<string>.Get();
-            HashSet<string> checkeds = HashSetPool<string>.Get();
+            Stack<string> checkQueue = StackPool<string>.Get();
+            HashSet<string> checkings = HashSetPool<string>.Get();
+
+            foreach(string key in m_AssetBundles.Keys)
+            {
+                abr = m_AssetBundles[key];
+                if (abr.inChain)
+                {
+                    checkQueue.Push(key);
+                    checkings.Add(key);
+                }
+            }
 
             Action<string> checkFun = (key) =>
             {
-                  checkeds.Add(key);
-                  if (abr.isUnused())
-                  {
-                      //check dependencies
-                      if (abr.dependencies != null && abr.dependencies.Count > 0)
-                      {
-                          foreach (AssetBundleReference sub in abr.dependencies)
-                          {
-                              if (sub.inChain && checkeds.Contains(sub.name))
-                              {
-                                  rechecks.Push(sub.name);
-                              }
-                          }
-                      }
+                abr = m_AssetBundles[key];
+                checkings.Remove(key);
 
-                      abr.Dispose();
-                      m_AssetBundles.Remove(key);
-                  }
+                if (abr.isUnused())
+                {
+                    //check dependencies
+                    if (abr.dependencies != null && abr.dependencies.Count > 0)
+                    {
+                        foreach (AssetBundleReference sub in abr.dependencies)
+                        {
+                            if (sub.inChain && !checkings.Contains(sub.name))
+                            {
+                                checkQueue.Push(sub.name);
+                            }
+                        }
+                    }
+
+                    abr.Dispose();
+                    m_AssetBundles.Remove(key);
+                }
             };
 
-            for (int i = 0, l = keys.Count; i < l; ++i)
-            {
-                checkFun(keys[i]);
-            }
-
             //recheck unused asset bundle
-            while(rechecks.Count>0){
-                checkFun(rechecks.Pop());
+            while(checkQueue.Count>0){
+                checkFun(checkQueue.Pop());
             }
 
-            ListPool<string>.Release(keys);
-            StackPool<string>.Release(rechecks);
-            HashSetPool<string>.Release(checkeds);
+            StackPool<string>.Release(checkQueue);
+            HashSetPool<string>.Release(checkings);
         }
 
         public void UnloadUnusedBundles(string tag)
         {
-
             if (m_AssetBundles.Count == 0)
             {
                 return;
             }
 
             AssetBundleReference abr = null;
-            List<string> keys = ListPool<string>.Get();
-            keys.AddRange(m_AssetBundles.Keys);
 
-            Stack<string> rechecks = StackPool<string>.Get();
-            HashSet<string> checkeds = HashSetPool<string>.Get();
+            Stack<string> checkQueue = StackPool<string>.Get();
+            HashSet<string> checkings = HashSetPool<string>.Get();
+
 
             Action<string> checkFun = (key) =>
             {
                 abr = m_AssetBundles[key];
-                checkeds.Add(key);
+                checkings.Remove(key);
 
-                if (abr.HaveTag(tag))
+                if (abr.isUnused())
                 {
-                    if (abr.isUnused())
+                    //check dependencies
+                    if (abr.dependencies != null && abr.dependencies.Count > 0)
                     {
-                        //check dependencies
-                        if (abr.dependencies != null && abr.dependencies.Count > 0)
+                        foreach (AssetBundleReference sub in abr.dependencies)
                         {
-                            foreach (AssetBundleReference sub in abr.dependencies)
+                            //只有同样tag和空tag的ref才需要重新检查。
+                            if (sub.inChain && (sub.tagCount == 0 || sub.HaveTag(tag)) && !checkings.Contains(sub.name))
                             {
-                                if (sub.inChain && checkeds.Contains(sub.name))
-                                {
-                                    rechecks.Push(sub.name);
-                                }
+                                checkQueue.Push(sub.name);
                             }
                         }
-
-                        abr.Dispose();
-                        m_AssetBundles.Remove(key);
                     }
+
+                    abr.Dispose();
+                    m_AssetBundles.Remove(key);
                 }
             };
 
-            for (int i = 0, l = keys.Count; i < l; ++i)
+            foreach (string key in m_AssetBundles.Keys)
             {
-                checkFun(keys[i]);
+                abr = m_AssetBundles[key];
+                if (abr.HaveTag(tag) && abr.inChain)
+                {
+                    checkQueue.Push(key);
+                    checkings.Add(key);
+                }
             }
 
             //recheck unused asset bundle
-            while (rechecks.Count > 0)
+            while (checkQueue.Count > 0)
             {
-                checkFun(rechecks.Pop());
+                checkFun(checkQueue.Pop());
             }
 
-            ListPool<string>.Release(keys);
-            StackPool<string>.Release(rechecks);
-            HashSetPool<string>.Release(checkeds);            
+            StackPool<string>.Release(checkQueue);
+            HashSetPool<string>.Release(checkings);            
         }
 
         public void UnloadUnusedAssets()

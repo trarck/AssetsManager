@@ -180,6 +180,14 @@ namespace YH.AssetManager
             return m_Tags.Contains(tag);
         }
 
+        public int tagCount
+        {
+            get
+            {
+                return m_Tags.Count;
+            }
+        }
+
         public bool inChain
         {
             get

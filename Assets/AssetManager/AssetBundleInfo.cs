@@ -27,6 +27,8 @@ namespace YH.AssetManager
     {
         public string fullName;
         public string shortName;
+        //random name for bundle name.normaly hashName=Hash(fullName)
+        //public string hashName;
         public int size;
         public string hash;
         public AssetBundleType type;

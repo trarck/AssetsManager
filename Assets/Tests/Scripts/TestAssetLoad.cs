@@ -16,7 +16,7 @@ public class TestAssetLoad : MonoBehaviour {
         Debug.Log(o+","+ o.GetType() );
 
         m_AssetManager.Init((r)=>{
-            StartCoroutine(Test2());
+            StartCoroutine(Test3());
 
         });
     }
@@ -128,5 +128,26 @@ public class TestAssetLoad : MonoBehaviour {
         //    }
         //});
 
+    }
+
+    IEnumerator Test3()
+    {
+
+        yield return m_AssetManager.LoadAssetBundle("myprefab","My",true,(abr) =>
+        {
+            Debug.Log(abr + "," + Time.frameCount);
+        });
+
+        yield return m_AssetManager.LoadAssetBundle("myprefab", "They", true, (abr) =>
+        {
+            Debug.Log(abr + "," + Time.frameCount);
+        });
+
+        Debug.Log("UnloadUnused " + Time.frameCount);
+
+        m_AssetManager.UnloadUnuseds("My");
+        yield return new WaitForSeconds(1);
+
+        m_AssetManager.UnloadUnuseds("They");
     }
 }

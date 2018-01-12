@@ -34,20 +34,28 @@ namespace YH.AssetManager
             {
                 state = State.Loading;
 
-                if (assetBundleReference != null)
+                //正常加载Scene，不使用LoadAsset，而使用LoadAssetBundle。
+                //这里加入判断防止用错。
+                if (AssetIsScene())
                 {
-                    LoadFromAssetBundle();
+                    LoadScene();
                 }
                 else
                 {
-                    LoadFromResources();
+                    if (assetBundleReference != null)
+                    {
+                        LoadFromAssetBundle();
+                    }
+                    else
+                    {
+                        LoadFromResources();
+                    }
                 }
             }
             else if (isFinishedState())
             {
                 DoLoadComplete();
             }
-            
         }
 
         void LoadFromAssetBundle()
@@ -97,10 +105,25 @@ namespace YH.AssetManager
             }
         }
 
+        bool AssetIsScene()
+        {
+            if (info != null)
+            {
+                return Path.GetExtension(info.fullName).Equals(".unity", System.StringComparison.CurrentCultureIgnoreCase);
+            }
+            return false;
+        }
+
+        void LoadScene()
+        {
+            //do nothing.scene just need load dependencies
+            m_LoaderRequest = new EmptyLoaderRequest();
+        }
+
         public override void Complete()
         {
             //check success or fail
-            if(m_LoaderRequest!=null && m_LoaderRequest.data != null)
+            if(m_LoaderRequest!=null && !m_LoaderRequest.haveError)
             {
                 state = State.Completed;
                 DoLoadComplete();
@@ -151,15 +174,12 @@ namespace YH.AssetManager
                 {
                     if (isDone)
                     {
-                        if (m_LoaderRequest.data != null)
+                        m_Result = new AssetReference(m_LoaderRequest.data, info.fullName);
+                        m_Result.AddTags(paramTags);
+                        if (assetBundleReference != null)
                         {
-                            m_Result = new AssetReference(m_LoaderRequest.data, info.fullName);
-                            m_Result.AddTags(paramTags);
-                            if (assetBundleReference != null)
-                            {
-                                m_Result.assetBundleReference = assetBundleReference;
-                            }
-                        }                        
+                            m_Result.assetBundleReference = assetBundleReference;
+                        }
                     }
                 }
                 return m_Result;
@@ -174,5 +194,6 @@ namespace YH.AssetManager
         {
             m_Result = ar;
         }
+
     }
 }

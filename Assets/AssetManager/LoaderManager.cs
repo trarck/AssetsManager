@@ -40,17 +40,26 @@ namespace YH.AssetManager
 
         public AssetBundleLoader CreateAssetBundleLoader(string path)
         {
-            AssetBundleInfo info = m_AssetManager.infoManager.FindAssetBundleInfo(path);
-            if (info != null)
-            {
-                AssetBundleLoader loader = new AssetBundleLoader();
-                loader.info = info;
-                loader.assetManager = m_AssetManager;
-                return loader;
-            }
+            AssetBundleLoader loader = null;
+            AssetBundleInfo info = null;
+#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
+            loader = new AssetBundleLoader();
 
-            return null;
+            info = m_AssetManager.infoManager.FindAssetBundleInfo(path);
+            if (info == null)
+            {
+                Debug.LogErrorFormat("Can't find asset bundle info {0}", path);
+            }
+#else
+            loader = new AssetBundleEmptyLoader();
+            //just for message
+            info = new AssetBundleInfo();
+            info.fullName = path;
+#endif
+
+            loader.info = info;
+            loader.assetManager = m_AssetManager;
+            return loader;
         }
-        
     }
 }

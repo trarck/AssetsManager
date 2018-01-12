@@ -7,7 +7,7 @@ namespace YH.AssetManager
 {
     public class AssetBundleLoader : Loader
     {
-        LoaderRequest m_LoaderRequest;
+        protected LoaderRequest m_LoaderRequest;
 
         AssetBundleReference m_Result;
 
@@ -49,7 +49,6 @@ namespace YH.AssetManager
                 else
                 {
                     Error();
-                    Debug.LogError("AssetBundleLoader can't start without info");
                 }
             }
             else if (isFinishedState())
@@ -97,19 +96,20 @@ namespace YH.AssetManager
 
         public override void Complete()
         {
-            if (m_LoaderRequest != null && m_LoaderRequest.assetBundle != null)
+            if (m_LoaderRequest != null && !m_LoaderRequest.haveError)
             {
                 state = State.Completed;
                 DoLoadComplete();
             }
             else
             {
+                Debug.LogError("AssetBundleLoader fail load "+info.fullName);
                 Error();
             }
         }
 
         public override void Error()
-        {
+        {           
             state = State.Error;
             DoLoadComplete();
         }
@@ -144,11 +144,11 @@ namespace YH.AssetManager
         {
             get
             {
-                if (m_Result == null)
+                if (m_Result == null && state == State.Completed)
                 {
                     if (isDone)
                     {
-                        m_Result = new AssetBundleReference(m_LoaderRequest.assetBundle, info.fullName);
+                        m_Result = new AssetBundleReference(m_LoaderRequest.assetBundle,info!=null ? info.fullName:"");
                         if (m_Dependencies != null && m_Dependencies.Count > 0)
                         {
                             m_Result.AddDependencies(m_Dependencies);

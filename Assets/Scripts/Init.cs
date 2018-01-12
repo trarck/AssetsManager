@@ -22,10 +22,16 @@ public class Init : MonoBehaviour {
 
     void GotoMain()
     {
-        AssetManager.Instance.LoadAsset("Scenes/Main.unity", (ar) =>
+        //AssetManager.Instance.LoadAsset("Scenes/Main.unity", (ar) =>
+        //{
+        //    Debug.Log("LoadCompete");
+        //    Debug.Log(ar.asset);
+        //    SceneManager.LoadScene("Scenes/Main");
+        //});
+
+        AssetManager.Instance.LoadScene("Scenes/Main.unity","Main", (abr) =>
         {
             Debug.Log("LoadCompete");
-            Debug.Log(ar.asset);
             SceneManager.LoadScene("Scenes/Main");
         });
     }
