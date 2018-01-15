@@ -2,30 +2,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 using YH.AssetManager;
-public class TestAssetLoad : MonoBehaviour {
+public class TestAssetLoad : MonoBehaviour
+{
     [SerializeField]
     AssetManager m_AssetManager;
 
     Object m_Obj;
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start()
     {
         YH.AssetsMonitor.Instance.CheckAssets();
 
-        Object o=Resources.Load("Main");
-        Debug.Log(o+","+ o.GetType() );
+        Object o = Resources.Load("Main");
+        Debug.Log(o + "," + o.GetType());
 
-        m_AssetManager.Init((r)=>{
-            StartCoroutine(Test3());
-
+        m_AssetManager.Init((r) =>
+        {
+            StartCoroutine(Test4());
         });
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    // Update is called once per frame
+    void Update()
     {
-		
-	}
+
+    }
 
     void OnDestroy()
     {
@@ -35,7 +36,8 @@ public class TestAssetLoad : MonoBehaviour {
     IEnumerator Test()
     {
         yield return new WaitForSeconds(2);
-        m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab",(ar)=> {
+        m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        {
 
             Debug.Log(ar + "," + Time.frameCount);
             if (ar != null)
@@ -105,7 +107,7 @@ public class TestAssetLoad : MonoBehaviour {
         //    }
         //});
 
-        Debug.Log("Load complete "+Time.frameCount);
+        Debug.Log("Load complete " + Time.frameCount);
         yield return new WaitForSeconds(2);
         Debug.Log("start dstroy " + Time.frameCount);
         if (m_Obj != null)
@@ -115,7 +117,7 @@ public class TestAssetLoad : MonoBehaviour {
 
         yield return null;
         m_AssetManager.UnloadUnuseds();
-        
+
         //yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
         //{
 
@@ -132,22 +134,45 @@ public class TestAssetLoad : MonoBehaviour {
 
     IEnumerator Test3()
     {
+        AssetReference assetRef = null;
 
-        yield return m_AssetManager.LoadAssetBundle("myprefab","My",true,(abr) =>
+        yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
         {
-            Debug.Log(abr + "," + Time.frameCount);
+            Debug.Log(ar + "," + Time.frameCount);
+            if (ar != null)
+            {
+                assetRef = ar;
+            }
         });
-
-        yield return m_AssetManager.LoadAssetBundle("myprefab", "They", true, (abr) =>
-        {
-            Debug.Log(abr + "," + Time.frameCount);
-        });
-
-        Debug.Log("UnloadUnused " + Time.frameCount);
-
-        m_AssetManager.UnloadUnuseds("My");
+        //资源已经在LoadAsset时已经被加载出来，后面删除AssetBundle也没有关系。
         yield return new WaitForSeconds(1);
+        Debug.Log("Remove bundle," + Time.frameCount);
+        assetRef.assetBundleReference = null;
 
-        m_AssetManager.UnloadUnuseds("They");
+        yield return new WaitForSeconds(1);
+        Debug.Log("Instance," + Time.frameCount);
+        GameObject.Instantiate(assetRef.asset);
+    }
+
+    IEnumerator Test4()
+    {
+        yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+        {
+            Debug.Log(ar + "," + Time.frameCount);
+            if (ar != null)
+            {
+                Debug.Log(ar.asset);
+                ar.assetBundleReference = null;
+            }
+        });
+
+        yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        {
+            Debug.Log(ar + "," + Time.frameCount);
+            if (ar != null)
+            {
+                GameObject.Instantiate(ar.asset);
+            }
+        });
     }
 }

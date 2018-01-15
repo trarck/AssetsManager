@@ -638,6 +638,54 @@ namespace YH.AssetManager
             }
         }
 
+        /// <summary>
+        /// remove asset's asset bundle reference
+        /// </summary>
+        public void BreakBundleReferenceOfAssets()
+        {
+            if (m_Assets.Count == 0)
+            {
+                return;
+            }
+
+            AssetReference ar = null;
+            var iter = m_Assets.GetEnumerator();
+            while (iter.MoveNext())
+            {
+                ar = iter.Current.Value;
+                if (ar.inChain)
+                {
+                    ar.assetBundleReference = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// remove asset's asset bundle reference
+        /// when asset is loaded from asset bundle,normally asset bundle can be unload(false).
+        /// this can be reduce memory used.
+        /// 如果asset bunlde被多个asset引用，而同时加载这些asset的时候，不能一个一个删除，可以在加载完成后集中删除。
+        /// </summary>
+        /// <param name="tag"></param>
+        public void BreakBundleReferenceOfAssets(string tag)
+        {
+            if (m_Assets.Count == 0)
+            {
+                return;
+            }
+
+            AssetReference ar = null;
+            var iter = m_Assets.GetEnumerator();
+            while (iter.MoveNext())
+            {
+                ar = iter.Current.Value;
+                if (ar.inChain && ar.HaveTag(tag))
+                {
+                    ar.assetBundleReference = null;
+                }
+            }
+        }
+
         void OnAssetBundleLoaded(AssetBundleLoader loader)
         {
             AssetBundleReference abr = loader.result;

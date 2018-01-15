@@ -62,6 +62,7 @@ namespace YH.AssetManager
         {
             if (assetBundle != null)
             {
+                Debug.Log("AssetBundle unload " + name);
                 assetBundle.Unload(false);
                 assetBundle = null;
             }
