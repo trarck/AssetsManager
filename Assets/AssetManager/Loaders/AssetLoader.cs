@@ -16,7 +16,7 @@ namespace YH.AssetManager
 
         public AssetInfo info { get; set; }
 
-        public Type type{get; set;}
+        public Type type { get; set; }
 
         public AssetBundleReference assetBundleReference { get; set; }
 
@@ -33,28 +33,43 @@ namespace YH.AssetManager
             if (m_State == State.Inited)
             {
                 state = State.Loading;
-
-                //正常加载Scene，不使用LoadAsset，而使用LoadAssetBundle。
-                //这里加入判断防止用错。
-                if (AssetIsScene())
+                if (!string.IsNullOrEmpty(info.bundleName))
                 {
-                    LoadScene();
+                    assetManager.LoadAssetBundle(info.bundleName, false, (abr) =>
+                    {
+                        assetBundleReference = abr;
+                        LoadAsset();
+                    });
                 }
                 else
                 {
-                    if (assetBundleReference != null)
-                    {
-                        LoadFromAssetBundle();
-                    }
-                    else
-                    {
-                        LoadFromResources();
-                    }
+                    LoadAsset();
                 }
             }
             else if (isFinishedState())
             {
                 DoLoadComplete();
+            }
+        }
+
+        void LoadAsset()
+        {
+            //正常加载Scene，不使用LoadAsset，而使用LoadAssetBundle。
+            //这里加入判断防止用错。
+            if (AssetIsScene())
+            {
+                LoadScene();
+            }
+            else
+            {
+                if (assetBundleReference != null)
+                {
+                    LoadFromAssetBundle();
+                }
+                else
+                {
+                    LoadFromResources();
+                }
             }
         }
 
@@ -74,7 +89,7 @@ namespace YH.AssetManager
                 else
                 {
                     m_LoaderRequest = new AssetLoaderRequest(assetBundleReference.assetBundle.LoadAssetAsync(assetName, type));
-                }                
+                }
             }
             else
             {
@@ -96,7 +111,7 @@ namespace YH.AssetManager
                 else
                 {
                     m_LoaderRequest = new ResouceLoaderRequest(Resources.LoadAsync(resourcePath, type));
-                }                
+                }
             }
             else
             {
@@ -123,7 +138,7 @@ namespace YH.AssetManager
         public override void Complete()
         {
             //check success or fail
-            if(m_LoaderRequest!=null && !m_LoaderRequest.haveError)
+            if (m_LoaderRequest != null && !m_LoaderRequest.haveError)
             {
                 state = State.Completed;
                 DoLoadComplete();
@@ -170,7 +185,12 @@ namespace YH.AssetManager
         {
             get
             {
-                if (m_Result == null && state==State.Completed)
+                if (state == State.Error)
+                {
+                    return null;
+                }
+
+                if (m_Result == null && state == State.Completed)
                 {
                     if (isDone)
                     {

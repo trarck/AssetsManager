@@ -219,18 +219,7 @@ namespace YH.AssetManager
                     loader.onLoaded += OnAssetLoaded;
                     loader.state = Loader.State.Inited;
 
-                    if (!string.IsNullOrEmpty(loader.info.bundleName))
-                    {
-                        LoadAssetBundle(loader.info.bundleName,false, (abr) =>
-                        {
-                            loader.assetBundleReference = abr;
-                            ActiveLoader(loader);
-                        });
-                    }
-                    else
-                    {
-                        ActiveLoader(loader);
-                    }
+                    ActiveLoader(loader);
                 }
             }
 
@@ -332,6 +321,16 @@ namespace YH.AssetManager
                     loader.Start();
                 }
             }
+        }
+
+        public AssetBundleReference LoadAssetBundleSync(string path, bool standalone)
+        {
+            return null;
+        }
+
+        public AssetReference LoadAssetSync(string path, string tag, Type type)
+        {
+            return null;
         }
 
         void OnLowMemory()
