@@ -6,6 +6,8 @@ namespace YH.AssetManager
 {
     public class AssetSyncLoader : AssetLoader
     {
+        UnityEngine.Object asset { get; set; }
+
         public override bool isDone
         {
             get
@@ -27,13 +29,13 @@ namespace YH.AssetManager
 
                 LoadAsset();
             }
-            else if (isFinishedState())
+            else if (isFinishedState)
             {
                 DoLoadComplete();
             }
         }
 
-        protected override void LoadAsset()
+        void LoadAsset()
         {
             //正常加载Scene，不使用LoadAsset，而使用LoadAssetBundle。
             //这里加入判断防止用错。
@@ -61,12 +63,13 @@ namespace YH.AssetManager
 #endif
                 if (type == null)
                 {
-                    data = assetBundleReference.assetBundle.LoadAsset(assetName);
+                    asset = assetBundleReference.assetBundle.LoadAsset(assetName);
                 }
                 else
                 {
-                    data = assetBundleReference.assetBundle.LoadAsset(assetName, type);
+                    asset = assetBundleReference.assetBundle.LoadAsset(assetName, type);
                 }
+                Complete();
             }
             else
             {
@@ -83,23 +86,19 @@ namespace YH.AssetManager
                 resourcePath = AssetPaths.RemoveAssetPrev(resourcePath);
                 if (type == null)
                 {
-                    data = Resources.Load(resourcePath);
+                    asset = Resources.Load(resourcePath);
                 }
                 else
                 {
-                    data = Resources.Load(resourcePath, type);
+                    asset = Resources.Load(resourcePath, type);
                 }
+                Complete();
             }
             else
             {
                 Error();
                 Debug.LogError("Load Asset with no info");
             }
-        }
-
-        public override void Complete()
-        {
-            state = State.Completed;
         }
 
         public override void Error()
@@ -109,12 +108,6 @@ namespace YH.AssetManager
             {
                 Debug.LogErrorFormat("Load asset {0} fail", info.fullName);
             }
-        }
-
-        public override void Clean()
-        {
-            m_Result = null;
-            base.Clean();
         }
 
         public override AssetReference result
@@ -129,7 +122,7 @@ namespace YH.AssetManager
                 if (m_Result == null && state == State.Completed)
                 {
 
-                    m_Result = new AssetReference(data, info.fullName);
+                    m_Result = new AssetReference(asset, info.fullName);
                     m_Result.AddTags(paramTags);
                     if (assetBundleReference != null)
                     {

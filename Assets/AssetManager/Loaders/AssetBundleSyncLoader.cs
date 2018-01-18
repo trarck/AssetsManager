@@ -7,6 +7,8 @@ namespace YH.AssetManager
 {
     public class AssetBundleSyncLoader : AssetBundleLoader
     {
+        AssetBundle assetBundle { get; set; }
+
         public override bool isDone
         {
             get
@@ -35,13 +37,13 @@ namespace YH.AssetManager
                     Error();
                 }
             }
-            else if (isFinishedState())
+            else if (isFinishedState)
             {
                 DoLoadComplete();
             }
         }
 
-        protected override void LoadDependencies()
+        void LoadDependencies()
         {
             string[] dependencies = info.dependencies;
 
@@ -56,27 +58,18 @@ namespace YH.AssetManager
             }
         }
 
-        protected override void LoadBundle()
+        void LoadBundle()
         {
             string assetPath = AssetPaths.GetFullPath(info.fullName);
             Debug.Log("LoadBundle " + assetPath + "," + Time.frameCount);
             LoadFromFileSync(assetPath);
+            Complete();
         }
 
         protected void LoadFromFileSync(string path)
         {
             assetBundle = AssetBundle.LoadFromFile(path);
         }
-
-        public override void Complete()
-        {
-            state = State.Completed;
-        }
-
-        public override void Error()
-        {           
-            state = State.Error;
-         }
 
         public override AssetBundleReference result
         {
@@ -102,14 +95,6 @@ namespace YH.AssetManager
             {
                 m_Result = value;
             }
-        }
-
-        public override void Clean()
-        {
-            m_Result = null;
-            HashSetPool<AssetBundleReference>.Release(m_Dependencies);
-            m_Dependencies = null;
-            base.Clean();
         }
     }
 }

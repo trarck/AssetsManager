@@ -13,7 +13,7 @@ namespace YH.AssetManager
             m_AssetManager = assetManager;
         }
 
-        public AssetLoader CreateAssetLoader(string path)
+        public AssetLoader CreateAssetAsyncLoader(string path)
         { 
             AssetLoader loader = null;
             AssetInfo info = null;
@@ -27,7 +27,7 @@ namespace YH.AssetManager
                 info.fullName = path;
             }
 
-            loader = new AssetLoader();
+            loader = new AssetAsyncLoader();
 #else
             loader = new AssetEditorLoader();
             info = new AssetInfo();
@@ -38,12 +38,12 @@ namespace YH.AssetManager
             return loader;
         }
 
-        public AssetBundleLoader CreateAssetBundleLoader(string path)
+        public AssetBundleLoader CreateAssetBundleAsyncLoader(string path)
         {
             AssetBundleLoader loader = null;
             AssetBundleInfo info = null;
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-            loader = new AssetBundleLoader();
+            loader = new AssetBundleAsyncLoader();
 
             info = m_AssetManager.infoManager.FindAssetBundleInfo(path);
             if (info == null)

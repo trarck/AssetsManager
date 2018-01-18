@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace YH.AssetManager
 {
-    public abstract class Loader : DataEnumerator
+    public abstract class Loader : IEnumerator
     {
         //public Action<AssetBundleReference> onComplete;
 
@@ -22,6 +22,8 @@ namespace YH.AssetManager
         protected bool m_Standalone = false;
 
         HashSet<string> m_ParamTags = HashSetPool<string>.Get();
+
+        public abstract bool isDone { get; }
 
         public HashSet<string> paramTags
         {
@@ -70,12 +72,12 @@ namespace YH.AssetManager
 
         public virtual void Complete()
         {
-
+            state = State.Completed;
         }
 
         public virtual void Error()
         {
-
+            state = State.Error;
         }
 
         
@@ -86,12 +88,15 @@ namespace YH.AssetManager
             assetManager = null;
         }
 
-        protected bool isFinishedState()
+        protected bool isFinishedState
         {
-            return m_State == State.Completed || m_State == State.Error;
+            get
+            {
+                return m_State == State.Completed || m_State == State.Error;
+            }
         }
 
-        public override bool haveError
+        public virtual bool haveError
         {
             get
             {
@@ -104,6 +109,8 @@ namespace YH.AssetManager
             m_ParamTags.Add(tag);
         }
 
+      
+
         public bool standalone
         {
             get
@@ -114,6 +121,23 @@ namespace YH.AssetManager
             set
             {
                 m_Standalone = value;
+            }
+        }
+
+        public bool MoveNext()
+        {
+            return !isDone || !isFinishedState;
+        }
+
+        public void Reset()
+        {
+        }
+
+        public object Current
+        {
+            get
+            {
+                return null;
             }
         }
     }

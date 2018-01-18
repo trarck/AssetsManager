@@ -210,7 +210,7 @@ namespace YH.AssetManager
             }
         }
 
-        public void RemoveChain()
+        public void UnChain()
         {
             if (inChain)
             {
