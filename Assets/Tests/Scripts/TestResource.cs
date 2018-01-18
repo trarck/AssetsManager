@@ -9,11 +9,13 @@ public class TestResource : MonoBehaviour {
 
     float m_Elapsed;
     int sw = 1;
-    Object m_O=null;
+    [SerializeField]
+    Object m_O;
     AssetBundle m_AssetBundle;
 	// Use this for initialization
 	void Start ()
     {
+        m_O = null;
         YH.AssetsMonitor.Instance.CheckAssets();
         //List<YH.AssetsMonitor.AssetItem> assets = YH.AssetsMonitor.Instance.assets;
         //for (int i = 0, l = assets.Count; i < l; ++i)

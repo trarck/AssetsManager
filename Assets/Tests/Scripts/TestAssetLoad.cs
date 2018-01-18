@@ -15,7 +15,7 @@ public class TestAssetLoad : MonoBehaviour
 
         m_AssetManager.Init((r) =>
         {
-            StartCoroutine(Test4());
+            StartCoroutine(Test2());
         });
     }
 
