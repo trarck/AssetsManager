@@ -85,10 +85,6 @@ namespace YH.AssetManager
             m_ParamTags = null;
             assetManager = null;
         }
-        //public virtual AssetBundleReference GetResult()
-        //{
-        //    return null;
-        //}
 
         protected bool isFinishedState()
         {

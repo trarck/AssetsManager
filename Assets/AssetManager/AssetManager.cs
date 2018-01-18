@@ -323,9 +323,46 @@ namespace YH.AssetManager
             }
         }
 
-        public AssetBundleReference LoadAssetBundleSync(string path, bool standalone)
+        public AssetBundleReference LoadAssetBundleSync(string path, string tag,bool standalone)
         {
-            return null;
+            if (string.IsNullOrEmpty(path))
+            {
+                return null;
+            }
+            AssetBundleReference abr = null;
+
+            if (m_AssetBundles.ContainsKey(path))
+            {
+                abr = m_AssetBundles[path];
+                //refresh 
+                abr.AddTag(tag);
+
+                if (standalone)
+                {
+                    abr.Chain();
+                }
+            }
+            else
+            {
+                if (m_LoadingAssetBundleLoaders.ContainsKey(path))
+                {
+                    Debug.LogErrorFormat("LoadAssetBundleSync async loader is active.{0},{1}", path ,Time.frameCount);
+                    //TODO Stop async
+                    return null;
+                }
+                else
+                {
+                    AssetBundleSyncLoader loader = m_LoaderManager.CreateAssetBundleSyncLoader(path);
+                    if (loader!=null)
+                    {
+                        loader.Start();
+                        abr = loader.result;
+                        OnAssetBundleLoaded(loader);
+                    }
+                }
+            }
+
+            return abr;
         }
 
         public AssetReference LoadAssetSync(string path, string tag, Type type)

@@ -52,7 +52,7 @@ namespace YH.AssetManager
             }
         }
 
-        void LoadAsset()
+        protected virtual void LoadAsset()
         {
             //正常加载Scene，不使用LoadAsset，而使用LoadAssetBundle。
             //这里加入判断防止用错。
@@ -120,7 +120,7 @@ namespace YH.AssetManager
             }
         }
 
-        bool AssetIsScene()
+        protected bool AssetIsScene()
         {
             if (info != null)
             {
@@ -181,7 +181,7 @@ namespace YH.AssetManager
             base.Clean();
         }
 
-        public AssetReference result
+        public virtual AssetReference result
         {
             get
             {
@@ -209,11 +209,5 @@ namespace YH.AssetManager
                 m_Result = value;
             }
         }
-
-        public void SetResult(AssetReference ar)
-        {
-            m_Result = ar;
-        }
-
     }
 }

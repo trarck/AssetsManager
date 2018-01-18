@@ -14,10 +14,5 @@ namespace YH.AssetManager
                 return true;
             }
         }
-
-        public override void Start()
-        {
-
-        }
     }
 }

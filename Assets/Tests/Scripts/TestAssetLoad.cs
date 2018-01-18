@@ -13,9 +13,6 @@ public class TestAssetLoad : MonoBehaviour
     {
         YH.AssetsMonitor.Instance.CheckAssets();
 
-        Object o = Resources.Load("Main");
-        Debug.Log(o + "," + o.GetType());
-
         m_AssetManager.Init((r) =>
         {
             StartCoroutine(Test4());

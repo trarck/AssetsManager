@@ -9,11 +9,11 @@ namespace YH.AssetManager
     {
         protected LoaderRequest m_LoaderRequest;
 
-        AssetBundleReference m_Result;
+        protected AssetBundleReference m_Result;
 
         int m_activeDependencyLoader = 0;
 
-        HashSet<AssetBundleReference> m_Dependencies = HashSetPool<AssetBundleReference>.Get();
+        protected HashSet<AssetBundleReference> m_Dependencies = HashSetPool<AssetBundleReference>.Get();
 
         public Action<AssetBundleReference> onComplete;
 
@@ -57,21 +57,21 @@ namespace YH.AssetManager
             }
         }
 
-        protected void LoadBundle()
+        protected virtual void LoadBundle()
         {
             string assetPath = AssetPaths.GetFullPath(info.fullName);
             Debug.Log("LoadBundle " + assetPath + "," + Time.frameCount);
             if (assetPath.Contains("://"))
             {
-                this.LoadFromPackage(assetPath);
+                LoadFromPackage(assetPath);
             }
             else
             {
-                this.LoadFromFile(assetPath);
+                LoadFromFile(assetPath);
             }
         }
 
-        protected void LoadDependencies()
+        protected virtual void LoadDependencies()
         {
             string[] dependencies = info.dependencies;
             m_activeDependencyLoader = dependencies.Length;
@@ -140,10 +140,15 @@ namespace YH.AssetManager
             return m_LoaderRequest;
         }
 
-        public AssetBundleReference result
+        public virtual AssetBundleReference result
         {
             get
             {
+                if (state == State.Error)
+                {
+                    return null;
+                }
+
                 if (m_Result == null && state == State.Completed)
                 {
                     if (isDone)
