@@ -8,7 +8,7 @@ using UnityEditor;
 
 public class TestBuild {
 
-    [MenuItem("Test/TestBuildIos")]
+    [MenuItem("Test/Test")]
     public static void Test()
     {
         List<AssetBundleBuild> builds = new List<AssetBundleBuild>();
@@ -25,19 +25,19 @@ public class TestBuild {
 
         builds.Add(build);
 
-        build = new AssetBundleBuild();
-        assets = new string[1];
-        assets[0] = "Assets/ArtResources/Materials/MyMaterial.mat";
-        build.assetBundleName = "bbbbbb";
-        build.assetNames = assets;
-        builds.Add(build);
+        //build = new AssetBundleBuild();
+        //assets = new string[1];
+        //assets[0] = "Assets/ArtResources/Materials/MyMaterial.mat";
+        //build.assetBundleName = "bbbbbb";
+        //build.assetNames = assets;
+        //builds.Add(build);
 
-        build = new AssetBundleBuild();
-        assets = new string[1];
-        assets[0] = "Assets/ArtResources/Textures/bnt_Blue_S.png";
-        build.assetBundleName = "ccccc";
-        build.assetNames = assets;
-        builds.Add(build);
+        //build = new AssetBundleBuild();
+        //assets = new string[1];
+        //assets[0] = "Assets/ArtResources/Textures/bnt_Blue_S.png";
+        //build.assetBundleName = "ccccc";
+        //build.assetNames = assets;
+        //builds.Add(build);
 
 
         string outDir = Path.Combine(Application.dataPath, "../AssetBundles/Test");
