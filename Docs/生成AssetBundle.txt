@@ -1,0 +1,4 @@
+1.哪些会生成到同一个AssetBundle中。
+	a.在同一个AssetBundleBuild定义的资源会被生成到同一个AssetBundle中。
+	b.在AssetBundleBuild中的资源的Dependencies,如果没有定义在任何AssetBundleBuild中，则会一同打进AssetBundle中。就算Dependencies中的资源之前已经生成了AssetBundle也不行，必须在同一次BuildPipeline.BuildAssetBundles中。
+	
