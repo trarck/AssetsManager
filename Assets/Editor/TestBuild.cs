@@ -254,7 +254,54 @@ public class TestBuild {
     [MenuItem("Test/TestOhters")]
     public static void TestOthers()
     {
-        
-    
+        Debug.Log(Relative("c:\\a\\b\\c", "d:\\e\\f\\g"));
+        Debug.Log(Relative("c:\\a\\b\\c", "c:\\a\\b\\c\\d\\e\\f"));
+        Debug.Log(Relative("c:\\a\\b\\c", "c:\\a\\b\\d\\e\\f"));
+
+        Debug.Log(Relative("/a/b/c", "/e/f/g"));
+        Debug.Log(Relative("/a/b/c", "/a/b/c/d/e/f"));
+        Debug.Log(Relative("/a/b/c", "/a/b/d/e/f"));
+    }
+
+    public static string Relative(string from,string to)
+    {
+        string[] froms = from.Replace("\\", "/").Split('/');
+        string[] tos = to.Replace("\\", "/").Split('/');
+
+        int i = 0;
+        //look for same part
+        for(; i < froms.Length; ++i)
+        {
+            if (froms[i] != tos[i])
+            {
+                break;
+            }
+        }
+
+        if (i == 0)
+        {
+            //just windows. eg.from=c:\a\b\c,to=d:\e\f\g
+            //if linux the first is empty always same. eg. from=/a/b/c,to=/d/e/f
+            return to;
+        }
+        else
+        {
+            System.Text.StringBuilder result = new System.Text.StringBuilder();
+
+            for (int j=i; j < froms.Length; ++j)
+            {
+                result.Append("../");
+            }
+
+            for (int j = i; j < tos.Length; ++j)
+            {
+                result.Append(tos[j]);
+                if (j < tos.Length - 1)
+                {
+                    result.Append("/");
+                }
+            }            
+            return result.ToString();
+        }
     }
 }
