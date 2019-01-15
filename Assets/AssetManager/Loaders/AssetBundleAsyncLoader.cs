@@ -7,15 +7,26 @@ namespace YH.AssetManager
 {
     public class AssetBundleAsyncLoader : AssetBundleLoader
     {
+        public Action<AssetBundleLoader> onAssetBundleLoaded;
+
         LoaderRequest m_LoaderRequest;
 
-        int m_activeDependencyLoader = 0;
+        int m_ActiveDependencyLoader = 0;
+        bool m_DependenciesIsDone = false;
 
         public override bool isDone
         {
             get
             {
-                return forceDone || m_LoaderRequest != null && m_LoaderRequest.isDone;
+                return forceDone || (m_LoaderRequest != null && m_LoaderRequest.isDone && m_DependenciesIsDone);
+            }
+        }
+
+        public bool isLoaded
+        {
+            get
+            {
+                return m_LoaderRequest != null && m_LoaderRequest.isDone;
             }
         }
 
@@ -29,12 +40,15 @@ namespace YH.AssetManager
 
                     if (info.dependencies.Length>0)
                     {
+                        m_DependenciesIsDone = false;
                         LoadDependencies();
                     }
                     else
                     {
-                        LoadBundle();
+                        m_DependenciesIsDone = true;
                     }
+                    //AssetBundle不需要等待，依赖资源加载完成。
+                    LoadBundle();
                 }
                 else
                 {
@@ -44,6 +58,27 @@ namespace YH.AssetManager
             else if (isFinishedState)
             {
                 DoLoadComplete();
+            }
+        }
+
+        public override void Update()
+        {
+            switch (m_State)
+            {
+                case State.Loading:
+                    if (isLoaded)
+                    {
+                        m_State = State.Loaded;
+
+          
+                    }
+                    break;
+                case State.Loaded:
+                    if (isDone)
+                    {
+                        Complete();
+                    }
+                    break;
             }
         }
 
@@ -64,23 +99,45 @@ namespace YH.AssetManager
         void LoadDependencies()
         {
             string[] dependencies = info.dependencies;
-            m_activeDependencyLoader = dependencies.Length;
+            m_ActiveDependencyLoader = dependencies.Length;
 
-            Debug.Log("Load Dependencies " + m_activeDependencyLoader+","+Time.frameCount);
+            Debug.Log("Load Dependencies " + m_ActiveDependencyLoader+","+Time.frameCount);
 
             for (int i = 0, l = dependencies.Length;i< l;++i)
             {
                 string dep = dependencies[i];
-                assetManager.LoadAssetBundle(dep, false,OnDependencyComplete);
-            }
+                AssetBundleAsyncLoader depLoader=assetManager.LoadAssetBundle(dep, false, OnDependencyComplete) as AssetBundleAsyncLoader;
+                //if (depLoader != null)
+                //{
+                //    depLoader.onAssetBundleLoaded += OnDependencyComplete;
+                //}
+
+            }    
         }
 
         protected void OnDependencyComplete(AssetBundleReference abr)
         {
             m_Dependencies.Add(abr);
-            if (--m_activeDependencyLoader == 0)
+            if (--m_ActiveDependencyLoader == 0)
             {
-                LoadBundle();
+                m_DependenciesIsDone = true;
+            }
+        }
+
+        public void Loaded()
+        {
+            if (m_LoaderRequest != null && !m_LoaderRequest.haveError)
+            {
+                state = State.Loaded;
+                if (onAssetBundleLoaded != null)
+                {
+                    onAssetBundleLoaded(this);
+                }
+            }
+            else
+            {
+                Debug.LogError("AssetBundleLoader fail load " + info.fullName);
+                Error();
             }
         }
 

@@ -123,11 +123,14 @@ namespace YH.AssetManager
                     loader.standalone = true;
                 }
 
-                loader.onComplete += completeHandle;
+                if (completeHandle != null)
+                {
+                    loader.onComplete += completeHandle;
+                }
 
                 if (loader.state == Loader.State.Idle)
                 {
-                    loader.onLoaded += OnAssetBundleLoaded;
+                    loader.onBeforeComplete += OnAssetBundleLoaded;
                     loader.state = Loader.State.Inited;
                     ActiveLoader(loader);
                 }                
@@ -271,7 +274,7 @@ namespace YH.AssetManager
 
                 if (loader.state == Loader.State.Idle)
                 {
-                    loader.onLoaded += OnAssetLoaded;
+                    loader.onBeforeComplete += OnAssetLoaded;
                     loader.state = Loader.State.Inited;
 
                     ActiveLoader(loader);

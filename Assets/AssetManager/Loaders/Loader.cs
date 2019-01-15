@@ -13,6 +13,7 @@ namespace YH.AssetManager
             Idle,
             Inited,
             Loading,
+            Loaded,
             Completed,
             Error
         }
@@ -66,6 +67,11 @@ namespace YH.AssetManager
         }
 
         public virtual void Start()
+        {
+
+        }
+
+        public virtual void Update()
         {
 
         }

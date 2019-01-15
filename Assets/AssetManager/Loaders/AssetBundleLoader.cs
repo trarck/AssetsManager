@@ -10,10 +10,10 @@ namespace YH.AssetManager
         protected AssetBundleReference m_Result;
 
         protected HashSet<AssetBundleReference> m_Dependencies = HashSetPool<AssetBundleReference>.Get();
-
+        //拆分onComplete和onBeforeComplete，要保证onBeforeComplete和onComplete的执行顺序。
         public Action<AssetBundleReference> onComplete;
 
-        public Action<AssetBundleLoader> onLoaded;
+        public Action<AssetBundleLoader> onBeforeComplete;
 
         public AssetBundleInfo info { get; set; }
 
@@ -31,10 +31,10 @@ namespace YH.AssetManager
 
         protected void DoLoadComplete()
         {
-            //选调用onLoaded再调用onComplete,否则可能收不到Reference的onDispose事件。
-            if (onLoaded != null)
+            //先调用onBeforeComplete再调用onComplete,否则可能收不到Reference的onDispose事件。
+            if (onBeforeComplete != null)
             {
-                onLoaded(this);
+                onBeforeComplete(this);
             }
 
             if (onComplete != null)
