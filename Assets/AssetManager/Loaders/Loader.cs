@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace YH.AssetManager
 {
-    public abstract class Loader : IEnumerator
+    public abstract class Loader
     {
         //public Action<AssetBundleReference> onComplete;
 
@@ -21,10 +21,13 @@ namespace YH.AssetManager
         protected State m_State = State.Idle;
         protected bool m_ForceDone = false;
         protected bool m_Standalone = false;
+        protected bool m_AutoRelease = true;
 
         HashSet<string> m_ParamTags = HashSetPool<string>.Get();
 
         public abstract bool isDone { get; }
+
+        public bool autoRelease { get { return m_AutoRelease; } set { m_AutoRelease = value; } }
 
         public HashSet<string> paramTags
         {
@@ -51,7 +54,7 @@ namespace YH.AssetManager
                 m_ForceDone = value;
                 state = State.Completed;
             }
-        }        
+        }
 
         public State state
         {
@@ -86,7 +89,7 @@ namespace YH.AssetManager
             state = State.Error;
         }
 
-        
+
         public virtual void Clean()
         {
             state = State.Idle;
@@ -116,8 +119,6 @@ namespace YH.AssetManager
             m_ParamTags.Add(tag);
         }
 
-      
-
         public bool standalone
         {
             get
@@ -128,24 +129,6 @@ namespace YH.AssetManager
             set
             {
                 m_Standalone = value;
-            }
-        }
-
-        public bool MoveNext()
-        {
-            return !isDone || !isFinishedState;
-        }
-
-        public void Reset()
-        {
-            UnityEngine.Debug.Log("####3Reset");
-        }
-
-        public object Current
-        {
-            get
-            {
-                return null;
             }
         }
     }

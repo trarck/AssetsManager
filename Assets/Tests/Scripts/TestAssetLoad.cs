@@ -2,6 +2,68 @@
 using System.Collections.Generic;
 using UnityEngine;
 using YH.AssetManager;
+
+public class TestOperation : IEnumerator,System.IDisposable
+{
+
+    public object Current
+    {
+        get
+        {
+            Debug.Log("#### current");
+            return null;
+        }
+    }
+
+    public bool MoveNext()
+    {
+        Debug.Log("#### MoveNext");
+        return false;
+    }
+
+    public void Reset()
+    {
+        Debug.Log("#### Reset");
+    }
+
+    #region IDisposable Support
+    private bool disposedValue = false; // 要检测冗余调用
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                Debug.Log("# dispose 1");
+                // TODO: 释放托管状态(托管对象)。
+            }
+            Debug.Log("# dispose 2");
+            // TODO: 释放未托管的资源(未托管的对象)并在以下内容中替代终结器。
+            // TODO: 将大型字段设置为 null。
+
+            disposedValue = true;
+        }
+    }
+
+    // TODO: 仅当以上 Dispose(bool disposing) 拥有用于释放未托管资源的代码时才替代终结器。
+    // ~TestOperation() {
+    //   // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+    //   Dispose(false);
+    // }
+
+    // 添加此代码以正确实现可处置模式。
+    public void Dispose()
+    {
+        Debug.Log("# dispose");
+        // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+        Dispose(true);
+        // TODO: 如果在以上内容中替代了终结器，则取消注释以下行。
+        // GC.SuppressFinalize(this);
+    }
+    #endregion
+}
+
 public class TestAssetLoad : MonoBehaviour
 {
     [SerializeField]
@@ -65,13 +127,19 @@ public class TestAssetLoad : MonoBehaviour
                 GameObject.Instantiate(ar.asset);
             }
         });
+        Debug.Log("start " + Time.frameCount);
+        using(TestOperation tt= new TestOperation())
+        {
+            yield return tt;
+        }
+        Debug.Log("end " + Time.frameCount);
     }
 
     IEnumerator Test2()
     {
         yield return new WaitForSeconds(2);
-
-        yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        Debug.Log("Load prefab " + Time.frameCount);
+        yield return m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
         {
 
             Debug.Log(ar + "," + Time.frameCount);
@@ -83,8 +151,8 @@ public class TestAssetLoad : MonoBehaviour
                 ar.Monitor(m_Obj as GameObject);
             }
         });
-
-        yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+        Debug.Log("Load mat " + Time.frameCount);
+        yield return m_AssetManager.YieldLoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
         {
             Debug.Log(ar + "," + Time.frameCount);
             if (ar != null)
@@ -133,7 +201,7 @@ public class TestAssetLoad : MonoBehaviour
     {
         AssetReference assetRef = null;
 
-        yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        yield return m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
         {
             Debug.Log(ar + "," + Time.frameCount);
             if (ar != null)
@@ -153,7 +221,7 @@ public class TestAssetLoad : MonoBehaviour
 
     IEnumerator Test4()
     {
-        yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+        yield return m_AssetManager.YieldLoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
         {
             Debug.Log(ar + "," + Time.frameCount);
             if (ar != null)
@@ -163,7 +231,7 @@ public class TestAssetLoad : MonoBehaviour
             }
         });
 
-        yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        yield return m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
         {
             Debug.Log(ar + "," + Time.frameCount);
             if (ar != null)

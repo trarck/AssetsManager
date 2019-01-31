@@ -27,7 +27,7 @@ namespace YH.AssetManager
         {
             get
             {
-                return forceDone || (isLoaded && m_DependenciesIsLoaded);
+                return forceDone || (isLoaded && isDependenciesComplete);
             }
         }
 
@@ -45,11 +45,14 @@ namespace YH.AssetManager
             {
                 if (m_DependenciesIsLoaded)
                 {
-                    foreach(AssetBundleAsyncLoader loader in m_DependencyLoaders)
+                    if (m_DependencyLoaders != null)
                     {
-                        if (!loader.isDependenciesComplete)
+                        foreach (AssetBundleAsyncLoader loader in m_DependencyLoaders)
                         {
-                            return false;
+                            if (!loader.isDependenciesComplete)
+                            {
+                                return false;
+                            }
                         }
                     }
                     return true;

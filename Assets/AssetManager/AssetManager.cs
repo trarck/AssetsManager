@@ -361,6 +361,54 @@ namespace YH.AssetManager
 
         #endregion
 
+        #region Yield Load Asset Bundle
+        public LoaderEnumerator YieldLoadAssetBundle(string path, bool standalone, Action<AssetBundleReference> completeHandle = null)
+        {
+            return YieldLoadAssetBundle(path, null, standalone,  completeHandle);
+        }
+
+        public LoaderEnumerator YieldLoadAssetBundle(string path, string tag, bool standalone, Action<AssetBundleReference> completeHandle = null)
+        {
+            AssetBundleLoader loader = LoadAssetBundle(path, tag, standalone, completeHandle);
+            if (loader != null)
+            {
+                loader.autoRelease = false;
+                return new LoaderEnumerator(loader);
+            }
+            return null;
+        }
+
+        #endregion
+
+        #region Yield Load Asset
+        public LoaderEnumerator YieldLoadAsset(string path, Action<AssetReference> completeHandle = null)
+        {
+            return YieldLoadAsset(path, null, null, completeHandle);
+        }
+
+        public LoaderEnumerator YieldLoadAsset<T>(string path, Action<AssetReference> completeHandle = null)
+        {
+            return YieldLoadAsset(path, null, typeof(T), completeHandle);
+        }
+
+        public LoaderEnumerator YieldLoadAsset<T>(string path, string tag, Action<AssetReference> completeHandle = null)
+        {
+            return YieldLoadAsset(path, null, typeof(T), completeHandle);
+        }
+
+        public LoaderEnumerator YieldLoadAsset(string path, string tag, Type type, Action<AssetReference> completeHandle = null)
+        {
+            AssetLoader loader = LoadAsset(path, tag, type, completeHandle);
+            if (loader != null)
+            {
+                loader.autoRelease = false;
+                return new LoaderEnumerator(loader);
+            }
+            return null;
+        }
+
+        #endregion
+
         #region loader manage
         void ActiveLoader(Loader loader)
         {
@@ -858,13 +906,16 @@ namespace YH.AssetManager
 
                 if (m_LoadingAssetBundleLoaders.ContainsKey(abr.name))
                 {
-                    if(loader is AssetBundleAsyncLoader)
+                    if (loader.autoRelease)
                     {
-                        LoaderPool.AssetBundleAsyncLoader.Release(loader as AssetBundleAsyncLoader);
-                    }
-                    else
-                    {
-                        loader.Clean();
+                        if (loader is AssetBundleAsyncLoader)
+                        {
+                            LoaderPool.AssetBundleAsyncLoader.Release(loader as AssetBundleAsyncLoader);
+                        }
+                        else
+                        {
+                            loader.Clean();
+                        }
                     }
                     m_LoadingAssetBundleLoaders.Remove(abr.name);
                 }
@@ -890,14 +941,18 @@ namespace YH.AssetManager
 
                 if (m_LoadingAssetLoaders.ContainsKey(ar.name))
                 {
-                    if(loader is AssetAsyncLoader)
+                    if (loader.autoRelease)
                     {
-                        LoaderPool.AssetAsyncLoader.Release(loader as AssetAsyncLoader);
+                        if (loader is AssetAsyncLoader)
+                        {
+                            LoaderPool.AssetAsyncLoader.Release(loader as AssetAsyncLoader);
+                        }
+                        else
+                        {
+                            loader.Clean();
+                        }
                     }
-                    else
-                    {
-                        loader.Clean();
-                    }                    
+
                     m_LoadingAssetLoaders.Remove(ar.name);
                 }
 
