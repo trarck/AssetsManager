@@ -12,6 +12,8 @@ namespace YH.AssetManager
 
         public Action<AssetLoader> onBeforeComplete;
 
+        public Action<AssetLoader> onAfterComplete;
+
         public AssetInfo info { get; set; }
 
         public Type type { get; set; }
@@ -38,6 +40,11 @@ namespace YH.AssetManager
             if (onComplete != null)
             {
                 onComplete(result);
+            }
+
+            if (onAfterComplete != null)
+            {
+                onAfterComplete(this);
             }
         }
 

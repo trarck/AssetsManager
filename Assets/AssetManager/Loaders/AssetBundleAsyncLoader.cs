@@ -5,20 +5,29 @@ using UnityEngine;
 
 namespace YH.AssetManager
 {
+    /// <summary>
+    /// 异步加载AssetBundle
+    /// AssetBundle和依赖项同时加载，判断一个AssetBundle是加载完成，要检查自己是否加载和所有依赖是否完成。
+    /// </summary>
     public class AssetBundleAsyncLoader : AssetBundleLoader
     {
-        public Action<AssetBundleLoader> onAssetBundleLoaded;
+        public Action<AssetBundleAsyncLoader> onAssetBundleLoaded;
 
         LoaderRequest m_LoaderRequest;
 
         int m_ActiveDependencyLoader = 0;
+        bool m_DependenciesIsLoaded = false;
         bool m_DependenciesIsDone = false;
 
+        List<AssetBundleAsyncLoader> m_DependencyLoaders=null;
+        /// <summary>
+        /// AssetBundle和所有依赖都加载完成。
+        /// </summary>
         public override bool isDone
         {
             get
             {
-                return forceDone || (m_LoaderRequest != null && m_LoaderRequest.isDone && m_DependenciesIsDone);
+                return forceDone || (isLoaded && m_DependenciesIsLoaded);
             }
         }
 
@@ -27,6 +36,28 @@ namespace YH.AssetManager
             get
             {
                 return m_LoaderRequest != null && m_LoaderRequest.isDone;
+            }
+        }
+
+        public bool isDependenciesComplete
+        {
+            get
+            {
+                if (m_DependenciesIsLoaded)
+                {
+                    foreach(AssetBundleAsyncLoader loader in m_DependencyLoaders)
+                    {
+                        if (!loader.isDependenciesComplete)
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 
@@ -46,6 +77,7 @@ namespace YH.AssetManager
                     else
                     {
                         m_DependenciesIsDone = true;
+                        m_DependenciesIsLoaded = true;
                     }
                     //AssetBundle不需要等待，依赖资源加载完成。
                     LoadBundle();
@@ -68,9 +100,7 @@ namespace YH.AssetManager
                 case State.Loading:
                     if (isLoaded)
                     {
-                        m_State = State.Loaded;
-
-          
+                        Loaded();          
                     }
                     break;
                 case State.Loaded:
@@ -103,16 +133,19 @@ namespace YH.AssetManager
 
             Debug.Log("Load Dependencies " + m_ActiveDependencyLoader+","+Time.frameCount);
 
+            m_DependencyLoaders = ListPool<AssetBundleAsyncLoader>.Get();
+            m_DependenciesIsLoaded = false;
+
             for (int i = 0, l = dependencies.Length;i< l;++i)
             {
                 string dep = dependencies[i];
-                AssetBundleAsyncLoader depLoader=assetManager.LoadAssetBundle(dep, false, OnDependencyComplete) as AssetBundleAsyncLoader;
-                //if (depLoader != null)
-                //{
-                //    depLoader.onAssetBundleLoaded += OnDependencyComplete;
-                //}
-
-            }    
+                AssetBundleAsyncLoader depLoader=assetManager.LoadAssetBundle(dep, false, null) as AssetBundleAsyncLoader;
+                if (depLoader != null)
+                {
+                    depLoader.onAssetBundleLoaded += OnDependencyLoaded;
+                }
+                m_DependencyLoaders.Add(depLoader);
+            }
         }
 
         protected void OnDependencyComplete(AssetBundleReference abr)
@@ -121,6 +154,14 @@ namespace YH.AssetManager
             if (--m_ActiveDependencyLoader == 0)
             {
                 m_DependenciesIsDone = true;
+            }
+        }
+
+        protected void OnDependencyLoaded(AssetBundleAsyncLoader loader)
+        {
+            if (--m_ActiveDependencyLoader == 0)
+            {
+                m_DependenciesIsLoaded = true;
             }
         }
 
@@ -143,6 +184,7 @@ namespace YH.AssetManager
 
         public override void Complete()
         {
+            Debug.Log("Load AssetBundle Complete " + info.fullName + "," + Time.frameCount);
             if (m_LoaderRequest != null && !m_LoaderRequest.haveError)
             {
                 state = State.Completed;

@@ -15,6 +15,8 @@ namespace YH.AssetManager
 
         public Action<AssetBundleLoader> onBeforeComplete;
 
+        public Action<AssetBundleLoader> onAfterComplete;
+
         public AssetBundleInfo info { get; set; }
 
         //public override void Complete()
@@ -40,6 +42,11 @@ namespace YH.AssetManager
             if (onComplete != null)
             {
                 onComplete(result);
+            }
+
+            if (onAfterComplete != null)
+            {
+                onAfterComplete(this);
             }
         }
 

@@ -40,6 +40,19 @@ namespace YH.AssetManager
             }
         }
 
+        public override void Update()
+        {
+            switch (m_State)
+            {
+                case State.Loading:
+                    if (isDone)
+                    {
+                        Complete();
+                    }
+                    break;
+            }
+        }
+
         void LoadAsset()
         {
             //正常加载Scene，不使用LoadAsset，而使用LoadAssetBundle。

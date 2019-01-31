@@ -130,7 +130,7 @@ namespace YH.AssetManager
 
                 if (loader.state == Loader.State.Idle)
                 {
-                    loader.onBeforeComplete += OnAssetBundleLoaded;
+                    loader.onAfterComplete += OnAssetBundleLoaded;
                     loader.state = Loader.State.Inited;
                     ActiveLoader(loader);
                 }                
@@ -274,7 +274,7 @@ namespace YH.AssetManager
 
                 if (loader.state == Loader.State.Idle)
                 {
-                    loader.onBeforeComplete += OnAssetLoaded;
+                    loader.onAfterComplete += OnAssetLoaded;
                     loader.state = Loader.State.Inited;
 
                     ActiveLoader(loader);
@@ -394,10 +394,11 @@ namespace YH.AssetManager
                 for (int i = 0, l = m_ActivesLoaders.Count; i < l; ++i)
                 {
                     loader = m_ActivesLoaders[i];
-                    if (loader.isDone)
+                    loader.Update();
+                    if (loader.state==Loader.State.Completed)
                     {
                         m_TickFinished.Add(i);
-                        loader.Complete();
+                        //loader.Complete();
                     }
                 }
             }
@@ -857,6 +858,14 @@ namespace YH.AssetManager
 
                 if (m_LoadingAssetBundleLoaders.ContainsKey(abr.name))
                 {
+                    if(loader is AssetBundleAsyncLoader)
+                    {
+                        LoaderPool.AssetBundleAsyncLoader.Release(loader as AssetBundleAsyncLoader);
+                    }
+                    else
+                    {
+                        loader.Clean();
+                    }
                     m_LoadingAssetBundleLoaders.Remove(abr.name);
                 }
 
@@ -881,6 +890,14 @@ namespace YH.AssetManager
 
                 if (m_LoadingAssetLoaders.ContainsKey(ar.name))
                 {
+                    if(loader is AssetAsyncLoader)
+                    {
+                        LoaderPool.AssetAsyncLoader.Release(loader as AssetAsyncLoader);
+                    }
+                    else
+                    {
+                        loader.Clean();
+                    }                    
                     m_LoadingAssetLoaders.Remove(ar.name);
                 }
 

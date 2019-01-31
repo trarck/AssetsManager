@@ -27,7 +27,7 @@ namespace YH.AssetManager
                 info.fullName = path;
             }
 
-            loader = new AssetAsyncLoader();
+            loader = LoaderPool.AssetAsyncLoader.Get();// new AssetAsyncLoader();
 #else
             loader = new AssetEditorLoader();
             info = new AssetInfo();
@@ -43,7 +43,7 @@ namespace YH.AssetManager
             AssetBundleLoader loader = null;
             AssetBundleInfo info = null;
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-            loader = new AssetBundleAsyncLoader();
+            loader = LoaderPool.AssetBundleAsyncLoader.Get();//new AssetBundleAsyncLoader();
 
             info = m_AssetManager.infoManager.FindAssetBundleInfo(path);
             if (info == null)

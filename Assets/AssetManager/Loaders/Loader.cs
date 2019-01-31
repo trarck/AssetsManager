@@ -89,6 +89,7 @@ namespace YH.AssetManager
         
         public virtual void Clean()
         {
+            state = State.Idle;
             HashSetPool<string>.Release(m_ParamTags);
             m_ParamTags = null;
             assetManager = null;
@@ -137,6 +138,7 @@ namespace YH.AssetManager
 
         public void Reset()
         {
+            UnityEngine.Debug.Log("####3Reset");
         }
 
         public object Current
