@@ -34,6 +34,7 @@ namespace YH.AssetManager
 
         void IDisposable.Dispose()
         {
+            Debug.Log("#### Dispose " + Time.frameCount);
             if (m_Loader!=null)
             {
                 m_Loader.Clean();

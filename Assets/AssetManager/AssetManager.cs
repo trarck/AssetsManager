@@ -362,11 +362,26 @@ namespace YH.AssetManager
         #endregion
 
         #region Yield Load Asset Bundle
+        /// <summary>
+        /// 使用yield要注意loader的释放。使用using或手动调用dispose
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="standalone"></param>
+        /// <param name="completeHandle"></param>
+        /// <returns></returns>
         public LoaderEnumerator YieldLoadAssetBundle(string path, bool standalone, Action<AssetBundleReference> completeHandle = null)
         {
             return YieldLoadAssetBundle(path, null, standalone,  completeHandle);
         }
 
+        /// <summary>
+        /// 使用yield要注意loader的释放。使用using或手动调用dispose
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="tag"></param>
+        /// <param name="standalone"></param>
+        /// <param name="completeHandle"></param>
+        /// <returns></returns>
         public LoaderEnumerator YieldLoadAssetBundle(string path, string tag, bool standalone, Action<AssetBundleReference> completeHandle = null)
         {
             AssetBundleLoader loader = LoadAssetBundle(path, tag, standalone, completeHandle);
@@ -381,21 +396,50 @@ namespace YH.AssetManager
         #endregion
 
         #region Yield Load Asset
+        /// <summary>
+        /// 使用yield要注意loader的释放。使用using或手动调用dispose
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="completeHandle"></param>
+        /// <returns></returns>
         public LoaderEnumerator YieldLoadAsset(string path, Action<AssetReference> completeHandle = null)
         {
             return YieldLoadAsset(path, null, null, completeHandle);
         }
 
+        /// <summary>
+        /// 使用yield要注意loader的释放。使用using或手动调用dispose
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="path"></param>
+        /// <param name="completeHandle"></param>
+        /// <returns></returns>
         public LoaderEnumerator YieldLoadAsset<T>(string path, Action<AssetReference> completeHandle = null)
         {
             return YieldLoadAsset(path, null, typeof(T), completeHandle);
         }
 
+        /// <summary>
+        /// 使用yield要注意loader的释放。使用using或手动调用dispose
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="path"></param>
+        /// <param name="tag"></param>
+        /// <param name="completeHandle"></param>
+        /// <returns></returns>
         public LoaderEnumerator YieldLoadAsset<T>(string path, string tag, Action<AssetReference> completeHandle = null)
         {
             return YieldLoadAsset(path, null, typeof(T), completeHandle);
         }
 
+        /// <summary>
+        /// 使用yield要注意loader的释放。使用using或手动调用dispose
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="tag"></param>
+        /// <param name="type"></param>
+        /// <param name="completeHandle"></param>
+        /// <returns></returns>
         public LoaderEnumerator YieldLoadAsset(string path, string tag, Type type, Action<AssetReference> completeHandle = null)
         {
             AssetLoader loader = LoadAsset(path, tag, type, completeHandle);

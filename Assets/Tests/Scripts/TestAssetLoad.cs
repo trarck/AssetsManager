@@ -139,28 +139,34 @@ public class TestAssetLoad : MonoBehaviour
     {
         yield return new WaitForSeconds(2);
         Debug.Log("Load prefab " + Time.frameCount);
-        yield return m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
-        {
+        using (LoaderEnumerator loader = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+          {
 
-            Debug.Log(ar + "," + Time.frameCount);
-            if (ar != null)
-            {
-                Debug.Log(ar.asset);
-                m_Obj = GameObject.Instantiate(ar.asset);
+              Debug.Log(ar + "," + Time.frameCount);
+              if (ar != null)
+              {
+                  Debug.Log(ar.asset);
+                  m_Obj = GameObject.Instantiate(ar.asset);
                 //ar.Retain(m_Obj);
                 ar.Monitor(m_Obj as GameObject);
-            }
-        });
-        Debug.Log("Load mat " + Time.frameCount);
-        yield return m_AssetManager.YieldLoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+              }
+          }))
         {
-            Debug.Log(ar + "," + Time.frameCount);
-            if (ar != null)
-            {
-                Debug.Log(ar.asset);
-            }
-        });
+            yield return loader;
+        }
 
+        Debug.Log("Load mat " + Time.frameCount);
+        using (LoaderEnumerator loader = m_AssetManager.YieldLoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+          {
+              Debug.Log(ar + "," + Time.frameCount);
+              if (ar != null)
+              {
+                  Debug.Log(ar.asset);
+              }
+          }))
+        {
+            yield return loader;
+        }
 
         //yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
         //{
