@@ -19,7 +19,7 @@ namespace YH.AssetManager
         int m_WaitDependencyCompleteCount = 0;
         bool m_DependenciesIsDone = false;
 
-        List<AssetBundleAsyncLoader> m_DependencyLoaders=null;
+        List<AssetBundleAsyncLoader> m_DependencyLoaders = null;
         /// <summary>
         /// AssetBundle和所有依赖都加载完成。
         /// </summary>
@@ -35,7 +35,7 @@ namespace YH.AssetManager
         {
             get
             {
-                return m_State==State.Loaded || m_State==State.Completed;
+                return m_State == State.Loaded || m_State == State.Completed;
             }
         }
 
@@ -72,7 +72,7 @@ namespace YH.AssetManager
                 {
                     state = State.Loading;
 
-                    if (info.dependencies.Length>0)
+                    if (info.dependencies.Length > 0)
                     {
                         LoadDependencies();
                     }
@@ -100,7 +100,7 @@ namespace YH.AssetManager
             switch (m_State)
             {
                 case State.Loaded:
-                    Debug.LogFormat("{0},{1},{2}", info.fullName, m_WaitDependencyLoadCount,isDone);
+                    Debug.LogFormat("{0},{1},{2}", info.fullName, m_WaitDependencyLoadCount, isDone);
                     if (isDone)
                     {
                         //Complete();
@@ -129,7 +129,7 @@ namespace YH.AssetManager
             m_WaitDependencyLoadCount = dependencies.Length;
             m_WaitDependencyCompleteCount = dependencies.Length;
 
-            Debug.Log("Load Dependencies " + dependencies.Length + ","+Time.frameCount);
+            Debug.Log("Load Dependencies " + dependencies.Length + "," + Time.frameCount);
 
             m_DependencyLoaders = ListPool<AssetBundleAsyncLoader>.Get();
             m_DependenciesIsLoaded = false;
@@ -181,7 +181,7 @@ namespace YH.AssetManager
                 {
                     m_Result.AddDependencies(m_Dependencies);
                     Complete();
-                }                
+                }
             }
         }
 
@@ -215,7 +215,7 @@ namespace YH.AssetManager
                 Error();
             }
         }
-        
+
         public override void Complete()
         {
             state = State.Completed;
@@ -223,7 +223,7 @@ namespace YH.AssetManager
         }
 
         public override void Error()
-        {           
+        {
             state = State.Error;
             DoLoadComplete();
         }
@@ -238,7 +238,7 @@ namespace YH.AssetManager
 
         Request LoadFromPackage(string path)
         {
-            Request request=RequestManager.CreateBundleWebRequest(path);
+            Request request = RequestManager.CreateBundleWebRequest(path);
             request.onComplete += OnBundleRequestComplete;
             assetManager.requestManager.ActiveRequest(request);
             return request;
@@ -246,6 +246,13 @@ namespace YH.AssetManager
 
         public override void Clean()
         {
+            onAssetBundleLoaded = null;
+            m_WaitDependencyLoadCount = 0;
+            m_DependenciesIsLoaded = false;
+            m_WaitDependencyCompleteCount = 0;
+            m_DependenciesIsDone = false;
+            m_DependencyLoaders = null;
+
             base.Clean();
         }
 

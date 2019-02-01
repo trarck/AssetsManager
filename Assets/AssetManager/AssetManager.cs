@@ -7,11 +7,6 @@ namespace YH.AssetManager
 {
     public class AssetManager : UnitySingleton<AssetManager>
     {
-        int m_MaxActiveLoader = 5;
-        List<Loader> m_ActivesLoaders = ListPool<Loader>.Get();
-        List<int> m_TickFinished = ListPool<int>.Get();
-        List<Loader> m_PrepareLoaders = ListPool<Loader>.Get();
-
         //all loaded  asset bundles
         Dictionary<string, AssetBundleReference> m_AssetBundles = new Dictionary<string, AssetBundleReference>();
 
@@ -57,11 +52,10 @@ namespace YH.AssetManager
 
         public void Clean()
         {
-            ListPool<Loader>.Release(m_ActivesLoaders);
-            ListPool<int>.Release(m_TickFinished);
-            ListPool<Loader>.Release(m_PrepareLoaders);
             m_AssetBundles.Clear();
             m_Assets.Clear();
+            m_LoadingAssetBundleLoaders.Clear();
+            m_LoadingAssetLoaders.Clear();
         }
 
         #region load asset bundle
@@ -134,7 +128,7 @@ namespace YH.AssetManager
                 {
                     loader.onAfterComplete += OnAssetBundleLoaded;
                     loader.state = Loader.State.Inited;
-                    m_LoaderManager.ActiveLoader(loader);
+                    m_LoaderManager.ActiveLoader(loader);                    
                 }                
             }
 
@@ -457,7 +451,6 @@ namespace YH.AssetManager
 
         void Update()
         {
-            m_LoaderManager.Update();
             m_RequestManager.Update();
         }
 

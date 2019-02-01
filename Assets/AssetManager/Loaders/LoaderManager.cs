@@ -126,15 +126,16 @@ namespace YH.AssetManager
         #region request operate
         public void ActiveLoader(Loader loader)
         {
-            if (m_ActiveLoaders.Count < m_MaxActiveLoader)
-            {
-                m_ActiveLoaders.Add(loader);
-                loader.Start();
-            }
-            else
-            {
-                m_PrepareLoaders.Push(loader);
-            }
+            loader.Start();
+            //if (m_ActiveLoaders.Count < m_MaxActiveLoader)
+            //{
+            //    m_ActiveLoaders.Add(loader);
+            //    loader.Start();
+            //}
+            //else
+            //{
+            //    m_PrepareLoaders.Push(loader);
+            //}
         }
 
         public void Update()
