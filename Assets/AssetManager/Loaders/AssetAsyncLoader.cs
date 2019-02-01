@@ -6,8 +6,6 @@ namespace YH.AssetManager
 {
     public class AssetAsyncLoader : AssetLoader
     {
-        protected Request m_Request;
-
         public override bool isDone
         {
             get
@@ -142,20 +140,6 @@ namespace YH.AssetManager
             }
         }
 
-        public override void Complete()
-        {
-            //check success or fail
-            if (m_Request != null && !m_Request.haveError)
-            {
-                state = State.Completed;
-                DoLoadComplete();
-            }
-            else
-            {
-                Error();
-            }
-        }
-
         public override void Error()
         {
             state = State.Error;
@@ -168,7 +152,6 @@ namespace YH.AssetManager
 
         public override void Clean()
         {
-            m_Request = null;
             base.Clean();
         }
 
