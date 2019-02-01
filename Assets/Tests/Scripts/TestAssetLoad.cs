@@ -77,7 +77,7 @@ public class TestAssetLoad : MonoBehaviour
 
         m_AssetManager.Init((r) =>
         {
-            StartCoroutine(Test2());
+            StartCoroutine(Test());
         });
     }
 
@@ -127,12 +127,12 @@ public class TestAssetLoad : MonoBehaviour
                 GameObject.Instantiate(ar.asset);
             }
         });
-        Debug.Log("start " + Time.frameCount);
-        using(TestOperation tt= new TestOperation())
-        {
-            yield return tt;
-        }
-        Debug.Log("end " + Time.frameCount);
+        //Debug.Log("start " + Time.frameCount);
+        //using(TestOperation tt= new TestOperation())
+        //{
+        //    yield return tt;
+        //}
+        //Debug.Log("end " + Time.frameCount);
     }
 
     IEnumerator Test2()
@@ -238,6 +238,18 @@ public class TestAssetLoad : MonoBehaviour
         });
 
         yield return m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        {
+            Debug.Log(ar + "," + Time.frameCount);
+            if (ar != null)
+            {
+                GameObject.Instantiate(ar.asset);
+            }
+        });
+    }
+
+    IEnumerator Testloop()
+    {
+        yield return m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/APreab.prefab", (ar) =>
         {
             Debug.Log(ar + "," + Time.frameCount);
             if (ar != null)

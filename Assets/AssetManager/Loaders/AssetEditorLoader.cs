@@ -9,13 +9,13 @@ namespace YH.AssetManager
 {
     public class AssetEditorLoader : AssetLoader
     {
-        protected LoaderRequest m_LoaderRequest;
+        protected Request m_Request;
 
         public override bool isDone
         {
             get
             {
-                return forceDone || m_LoaderRequest != null && m_LoaderRequest.isDone;
+                return forceDone || m_Request != null && m_Request.isDone;
             }
         }
 
@@ -41,13 +41,13 @@ namespace YH.AssetManager
                 string resPath = AssetPaths.AddAssetPrev(info.fullName);
                 if (type == null)
                 {
-                    m_LoaderRequest = new SyncLoaderRequest();
-                    m_LoaderRequest.data= AssetDatabase.LoadMainAssetAtPath(resPath);
+                    m_Request = new SyncLoaderRequest();
+                    m_Request.data= AssetDatabase.LoadMainAssetAtPath(resPath);
                 }
                 else
                 {
-                    m_LoaderRequest = new SyncLoaderRequest();
-                    m_LoaderRequest.data = AssetDatabase.LoadAssetAtPath(resPath, type);
+                    m_Request = new SyncLoaderRequest();
+                    m_Request.data = AssetDatabase.LoadAssetAtPath(resPath, type);
                 }                
             }
             else
@@ -81,7 +81,7 @@ namespace YH.AssetManager
                 {
                     if (isDone)
                     {
-                        m_Result = new AssetReference(m_LoaderRequest.data, info.fullName);
+                        m_Result = new AssetReference(m_Request.data, info.fullName);
                         m_Result.AddTags(paramTags);
                         if (assetBundleReference != null)
                         {

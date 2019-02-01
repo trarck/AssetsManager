@@ -49,4 +49,19 @@ namespace YH.AssetManager
             m_QueuePool.Release(toRelease);
         }
     }
+
+    internal static class LinkedListPool<T>
+    {
+        private static readonly ObjectPool<LinkedList<T>> m_LinkedListPool = new ObjectPool<LinkedList< T>>(null, l => l.Clear());
+
+        public static LinkedList<T> Get()
+        {
+            return m_LinkedListPool.Get();
+        }
+
+        public static void Release(LinkedList<T> toRelease)
+        {
+            m_LinkedListPool.Release(toRelease);
+        }
+    }
 }

@@ -6,13 +6,13 @@ namespace YH.AssetManager
 {
     public class AssetAsyncLoader : AssetLoader
     {
-        protected LoaderRequest m_LoaderRequest;
+        protected Request m_Request;
 
         public override bool isDone
         {
             get
             {
-                return forceDone || m_LoaderRequest != null && m_LoaderRequest.isDone;
+                return forceDone || state==State.Loaded || state==State.Completed;
             }
         }
 
@@ -47,7 +47,7 @@ namespace YH.AssetManager
                 case State.Loading:
                     if (isDone)
                     {
-                        Complete();
+                        //Complete();
                     }
                     break;
             }
@@ -83,14 +83,11 @@ namespace YH.AssetManager
 #else
                 string assetName = AssetPaths.AddAssetPrev(info.fullName);
 #endif
-                if (type == null)
-                {
-                    m_LoaderRequest = new AssetLoaderRequest(assetBundleReference.assetBundle.LoadAssetAsync(assetName));
-                }
-                else
-                {
-                    m_LoaderRequest = new AssetLoaderRequest(assetBundleReference.assetBundle.LoadAssetAsync(assetName, type));
-                }
+                Debug.LogFormat("Load asset {0}", assetName);
+
+                Request request=RequestManager.CreateAssetLoaderRequest(assetBundleReference.assetBundle, assetName, type);
+                request.onComplete += OnRequestComplete;
+                assetManager.requestManager.ActiveRequest(request);
             }
             else
             {
@@ -105,14 +102,9 @@ namespace YH.AssetManager
             {
                 string resourcePath = Path.Combine(Path.GetDirectoryName(info.fullName), Path.GetFileNameWithoutExtension(info.fullName));
                 resourcePath = AssetPaths.RemoveAssetPrev(resourcePath);
-                if (type == null)
-                {
-                    m_LoaderRequest = new ResouceLoaderRequest(Resources.LoadAsync(resourcePath));
-                }
-                else
-                {
-                    m_LoaderRequest = new ResouceLoaderRequest(Resources.LoadAsync(resourcePath, type));
-                }
+                Request request = RequestManager.CreateResouceLoaderRequest(resourcePath, type);
+                request.onComplete += OnRequestComplete;
+                assetManager.requestManager.ActiveRequest(request);
             }
             else
             {
@@ -124,13 +116,36 @@ namespace YH.AssetManager
         void LoadScene()
         {
             //do nothing.scene just need load dependencies
-            m_LoaderRequest = new EmptyLoaderRequest();
+            Request request = new EmptyLoaderRequest();
+            request.onComplete += OnRequestComplete;
+            assetManager.requestManager.ActiveRequest(request);
+        }
+
+        protected void OnRequestComplete(Request request)
+        {
+            if (!request.haveError)
+            {
+                state = State.Completed;
+
+                m_Result = new AssetReference(request.data, info.fullName);
+                m_Result.AddTags(paramTags);
+                if (assetBundleReference != null)
+                {
+                    m_Result.assetBundleReference = assetBundleReference;
+                }
+
+                DoLoadComplete();
+            }
+            else
+            {
+                Error();
+            }
         }
 
         public override void Complete()
         {
             //check success or fail
-            if (m_LoaderRequest != null && !m_LoaderRequest.haveError)
+            if (m_Request != null && !m_Request.haveError)
             {
                 state = State.Completed;
                 DoLoadComplete();
@@ -153,7 +168,7 @@ namespace YH.AssetManager
 
         public override void Clean()
         {
-            m_LoaderRequest = null;
+            m_Request = null;
             base.Clean();
         }
 
@@ -166,18 +181,6 @@ namespace YH.AssetManager
                     return null;
                 }
 
-                if (m_Result == null && state == State.Completed)
-                {
-                    if (isDone)
-                    {
-                        m_Result = new AssetReference(m_LoaderRequest.data, info.fullName);
-                        m_Result.AddTags(paramTags);
-                        if (assetBundleReference != null)
-                        {
-                            m_Result.assetBundleReference = assetBundleReference;
-                        }
-                    }
-                }
                 return m_Result;
             }
             set

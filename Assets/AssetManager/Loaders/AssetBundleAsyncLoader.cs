@@ -13,10 +13,10 @@ namespace YH.AssetManager
     {
         public Action<AssetBundleAsyncLoader> onAssetBundleLoaded;
 
-        LoaderRequest m_LoaderRequest;
-
-        int m_ActiveDependencyLoader = 0;
+        int m_WaitDependencyLoadCount = 0;
         bool m_DependenciesIsLoaded = false;
+
+        int m_WaitDependencyCompleteCount = 0;
         bool m_DependenciesIsDone = false;
 
         List<AssetBundleAsyncLoader> m_DependencyLoaders=null;
@@ -27,7 +27,7 @@ namespace YH.AssetManager
         {
             get
             {
-                return forceDone || (isLoaded && isDependenciesComplete);
+                return forceDone || (isLoaded && m_DependenciesIsDone);
             }
         }
 
@@ -35,7 +35,7 @@ namespace YH.AssetManager
         {
             get
             {
-                return m_LoaderRequest != null && m_LoaderRequest.isDone;
+                return m_State==State.Loaded || m_State==State.Completed;
             }
         }
 
@@ -74,7 +74,6 @@ namespace YH.AssetManager
 
                     if (info.dependencies.Length>0)
                     {
-                        m_DependenciesIsDone = false;
                         LoadDependencies();
                     }
                     else
@@ -100,16 +99,11 @@ namespace YH.AssetManager
         {
             switch (m_State)
             {
-                case State.Loading:
-                    if (isLoaded)
-                    {
-                        Loaded();          
-                    }
-                    break;
                 case State.Loaded:
+                    Debug.LogFormat("{0},{1},{2}", info.fullName, m_WaitDependencyLoadCount,isDone);
                     if (isDone)
                     {
-                        Complete();
+                        //Complete();
                     }
                     break;
             }
@@ -132,50 +126,87 @@ namespace YH.AssetManager
         void LoadDependencies()
         {
             string[] dependencies = info.dependencies;
-            m_ActiveDependencyLoader = dependencies.Length;
+            m_WaitDependencyLoadCount = dependencies.Length;
+            m_WaitDependencyCompleteCount = dependencies.Length;
 
-            Debug.Log("Load Dependencies " + m_ActiveDependencyLoader+","+Time.frameCount);
+            Debug.Log("Load Dependencies " + dependencies.Length + ","+Time.frameCount);
 
             m_DependencyLoaders = ListPool<AssetBundleAsyncLoader>.Get();
             m_DependenciesIsLoaded = false;
+            m_DependenciesIsDone = false;
 
-            for (int i = 0, l = dependencies.Length;i< l;++i)
+            for (int i = 0, l = dependencies.Length; i < l; ++i)
             {
                 string dep = dependencies[i];
-                AssetBundleAsyncLoader depLoader=assetManager.LoadAssetBundle(dep, false, null) as AssetBundleAsyncLoader;
+
+                //if (dep.Contains("blue_s"))
+                //{
+                //    assetManager.StartCoroutine(testLoader(dep));
+                //    continue;
+                //}
+
+                AssetBundleAsyncLoader depLoader = assetManager.LoadAssetBundle(dep, false, OnDependencyComplete) as AssetBundleAsyncLoader;
                 if (depLoader != null)
                 {
+                    depLoader.autoRelease = false;
                     depLoader.onAssetBundleLoaded += OnDependencyLoaded;
                 }
                 m_DependencyLoaders.Add(depLoader);
             }
         }
 
+        IEnumerator testLoader(string dep)
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            AssetBundleAsyncLoader depLoader = assetManager.LoadAssetBundle(dep, false, OnDependencyComplete) as AssetBundleAsyncLoader;
+            if (depLoader != null)
+            {
+                depLoader.autoRelease = false;
+                depLoader.onAssetBundleLoaded += OnDependencyLoaded;
+            }
+            m_DependencyLoaders.Add(depLoader);
+        }
+
         protected void OnDependencyComplete(AssetBundleReference abr)
         {
             m_Dependencies.Add(abr);
-            if (--m_ActiveDependencyLoader == 0)
+
+            Debug.Log("DependencyComplete " + abr.name + "," + Time.frameCount);
+
+            if (--m_WaitDependencyCompleteCount == 0)
             {
                 m_DependenciesIsDone = true;
+                if (m_Result != null)
+                {
+                    m_Result.AddDependencies(m_Dependencies);
+                    Complete();
+                }                
             }
         }
 
         protected void OnDependencyLoaded(AssetBundleAsyncLoader loader)
         {
-            if (--m_ActiveDependencyLoader == 0)
+            Debug.Log("DependencyLoaded " + loader.info.fullName + "," + Time.frameCount);
+            if (--m_WaitDependencyLoadCount == 0)
             {
                 m_DependenciesIsLoaded = true;
             }
         }
 
-        public void Loaded()
+        protected void OnBundleRequestComplete(Request request)
         {
-            if (m_LoaderRequest != null && !m_LoaderRequest.haveError)
+            Debug.Log("BundleRequestComplete " + info.fullName + "," + Time.frameCount);
+            if (!request.haveError)
             {
                 state = State.Loaded;
-                if (onAssetBundleLoaded != null)
+                //Create result
+                m_Result = new AssetBundleReference(request.assetBundle, info != null ? info.fullName : "");
+                m_Result.AddTags(paramTags);
+                if (m_DependenciesIsDone)
                 {
-                    onAssetBundleLoaded(this);
+                    m_Result.AddDependencies(m_Dependencies);
+                    Complete();
                 }
             }
             else
@@ -184,20 +215,11 @@ namespace YH.AssetManager
                 Error();
             }
         }
-
+        
         public override void Complete()
         {
-            Debug.Log("Load AssetBundle Complete " + info.fullName + "," + Time.frameCount);
-            if (m_LoaderRequest != null && !m_LoaderRequest.haveError)
-            {
-                state = State.Completed;
-                DoLoadComplete();
-            }
-            else
-            {
-                Debug.LogError("AssetBundleLoader fail load "+info.fullName);
-                Error();
-            }
+            state = State.Completed;
+            DoLoadComplete();
         }
 
         public override void Error()
@@ -206,21 +228,24 @@ namespace YH.AssetManager
             DoLoadComplete();
         }
 
-        LoaderRequest LoadFromFile(string path)
+        Request LoadFromFile(string path)
         {
-            m_LoaderRequest =new BundleLoaderRequest(AssetBundle.LoadFromFileAsync(path));
-            return m_LoaderRequest;
+            Request request = RequestManager.CreateBundleCreateRequest(path);
+            request.onComplete += OnBundleRequestComplete;
+            assetManager.requestManager.ActiveRequest(request);
+            return request;
         }
 
-        LoaderRequest LoadFromPackage(string path)
+        Request LoadFromPackage(string path)
         {
-            m_LoaderRequest = new WWWRequest(new WWW(path));
-            return m_LoaderRequest;
+            Request request=RequestManager.CreateBundleWebRequest(path);
+            request.onComplete += OnBundleRequestComplete;
+            assetManager.requestManager.ActiveRequest(request);
+            return request;
         }
 
         public override void Clean()
         {
-            m_LoaderRequest = null;
             base.Clean();
         }
 
@@ -231,19 +256,6 @@ namespace YH.AssetManager
                 if (state == State.Error)
                 {
                     return null;
-                }
-
-                if (m_Result == null && state == State.Completed)
-                {
-                    if (isDone)
-                    {
-                        m_Result = new AssetBundleReference(m_LoaderRequest.assetBundle,info!=null ? info.fullName:"");
-                        if (m_Dependencies != null && m_Dependencies.Count > 0)
-                        {
-                            m_Result.AddDependencies(m_Dependencies);
-                        }
-                        m_Result.AddTags(paramTags);
-                    }
                 }
                 return m_Result;
             }
