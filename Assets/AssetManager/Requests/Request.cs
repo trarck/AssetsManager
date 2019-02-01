@@ -52,7 +52,7 @@ namespace YH.AssetManager
 
         public virtual void Update()
         {
-            Debug.LogFormat("{0},{1}", this, isDone);
+            Debug.LogFormat("{0},{1},{2}", this, isDone,Time.frameCount);
         }
 
         public virtual void Complete()

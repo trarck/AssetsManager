@@ -8,6 +8,7 @@ namespace YH.AssetManager
     /// <summary>
     /// 异步加载AssetBundle
     /// AssetBundle和依赖项同时加载，判断一个AssetBundle是加载完成，要检查自己是否加载和所有依赖是否完成。
+    /// 不要有循环依赖的AssetBundle
     /// </summary>
     public class AssetBundleAsyncLoader : AssetBundleLoader
     {
@@ -27,7 +28,15 @@ namespace YH.AssetManager
         {
             get
             {
-                return forceDone || (isLoaded && m_DependenciesIsDone);
+                return forceDone || m_State == State.Completed || m_State == State.Error;//(isLoaded && m_DependenciesIsDone);
+            }
+        }
+
+        public bool isComplete
+        {
+            get
+            {
+                return m_State == State.Completed || m_State == State.Error;
             }
         }
 
@@ -35,33 +44,49 @@ namespace YH.AssetManager
         {
             get
             {
-                return m_State == State.Loaded || m_State == State.Completed;
+                return m_State == State.Loaded || m_State == State.Completed || m_State == State.Error;
             }
         }
 
-        public bool isDependenciesComplete
+        /// <summary>
+        /// 深度检查所有的子依赖都在完成状态，虽然可以检查带循环引用的，但是不推荐有循环引用，可以在生成AssetBundle的时候进行检查。
+        /// 循环引用不仅引响加载，还引响回收。
+        /// </summary>
+        /// <param name="checkeds"></param>
+        /// <returns></returns>
+        public bool DeepCheckDependenciesComplete(HashSet<AssetBundleAsyncLoader> checkeds=null)
         {
-            get
+            if (m_DependenciesIsLoaded)
             {
-                if (m_DependenciesIsLoaded)
+                if (checkeds == null)
                 {
-                    if (m_DependencyLoaders != null)
-                    {
-                        foreach (AssetBundleAsyncLoader loader in m_DependencyLoaders)
-                        {
-                            if (!loader.isDependenciesComplete)
-                            {
-                                return false;
-                            }
-                        }
-                    }
+                    checkeds = new HashSet<AssetBundleAsyncLoader>();
+                }
+
+                if (checkeds.Contains(this))
+                {
                     return true;
                 }
-                else
+
+                checkeds.Add(this);
+
+                if (m_DependencyLoaders != null)
                 {
-                    return false;
+                    foreach (AssetBundleAsyncLoader loader in m_DependencyLoaders)
+                    {
+    
+                        if (!loader.isComplete && !loader.DeepCheckDependenciesComplete(checkeds))
+                        {
+                            return false;
+                        }
+                    }
                 }
+                return true;
             }
+            else
+            {
+                return false;
+            }            
         }
 
         public override void Start()
@@ -139,11 +164,11 @@ namespace YH.AssetManager
             {
                 string dep = dependencies[i];
 
-                //if (dep.Contains("blue_s"))
-                //{
-                //    assetManager.StartCoroutine(testLoader(dep));
-                //    continue;
-                //}
+                if (dep.Contains("blue_s"))
+                {
+                    assetManager.StartCoroutine(testLoader(dep));
+                    continue;
+                }
 
                 AssetBundleAsyncLoader depLoader = assetManager.LoadAssetBundle(dep, false, OnDependencyComplete) as AssetBundleAsyncLoader;
                 if (depLoader != null)
@@ -172,12 +197,12 @@ namespace YH.AssetManager
         {
             m_Dependencies.Add(abr);
 
-            Debug.Log("DependencyComplete " + abr.name + "," + Time.frameCount);
+            Debug.Log("DependencyComplete "+info.fullName+ "=>" + abr.name + "," + Time.frameCount+",("+ m_WaitDependencyCompleteCount+")");
 
             if (--m_WaitDependencyCompleteCount == 0)
             {
                 m_DependenciesIsDone = true;
-                if (m_Result != null)
+                if (m_State==State.Loaded && m_Result!=null)
                 {
                     m_Result.AddDependencies(m_Dependencies);
                     Complete();
@@ -187,7 +212,7 @@ namespace YH.AssetManager
 
         protected void OnDependencyLoaded(AssetBundleAsyncLoader loader)
         {
-            Debug.Log("DependencyLoaded " + loader.info.fullName + "," + Time.frameCount);
+            Debug.Log("DependencyLoaded " + info.fullName + "->" + loader.info.fullName + "," + Time.frameCount);
             if (--m_WaitDependencyLoadCount == 0)
             {
                 m_DependenciesIsLoaded = true;
@@ -200,10 +225,15 @@ namespace YH.AssetManager
             if (!request.haveError)
             {
                 state = State.Loaded;
+                if (onAssetBundleLoaded != null)
+                {
+                    onAssetBundleLoaded(this);
+                }
+                
                 //Create result
                 m_Result = new AssetBundleReference(request.assetBundle, info != null ? info.fullName : "");
                 m_Result.AddTags(paramTags);
-                if (m_DependenciesIsDone)
+                if (m_DependenciesIsDone )//|| (m_DependenciesIsLoaded && DeepCheckDependenciesComplete()))
                 {
                     m_Result.AddDependencies(m_Dependencies);
                     Complete();
