@@ -9,8 +9,8 @@ namespace YH.AssetManager
     public class InfoManager
     {
         BundleManifest m_BundleManifest;
-        Dictionary<string, AssetInfo> m_AssetInfos;
-        Dictionary<string, AssetBundleInfo> m_AssetBundleInfos;
+        Dictionary<string, AssetInfo> m_AssetInfos=new Dictionary<string, AssetInfo>();
+        Dictionary<string, AssetBundleInfo> m_AssetBundleInfos=new Dictionary<string, AssetBundleInfo>();
 
         AssetManager m_AssetManager;
 
@@ -92,7 +92,7 @@ namespace YH.AssetManager
                 LoadFromTextStream(steam);
             }
 
-            InitManifest();
+            UpdateManifest();
         }
 
         public void LoadFromTextStream(Stream steam)
@@ -132,15 +132,12 @@ namespace YH.AssetManager
             }
         }
 
-        void InitManifest()
+        void UpdateManifest()
         {
             if (m_BundleManifest==null)
             {
                 return;
             }
-
-            m_AssetBundleInfos = new Dictionary<string, AssetBundleInfo>();
-            m_AssetInfos = new Dictionary<string, AssetInfo>();
 
             //create asset bundle map
             AssetBundleInfo bundleInfo = null;
@@ -205,6 +202,12 @@ namespace YH.AssetManager
                 return m_AssetBundleInfos[key]; 
             }
             return null;
+        }
+
+        public void Clear()
+        {
+            m_AssetInfos.Clear();
+            m_AssetBundleInfos.Clear();
         }
 
         void InitComplete(bool result)
