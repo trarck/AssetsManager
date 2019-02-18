@@ -48,7 +48,8 @@ namespace YH.AssetManager
                 {
                     m_Request = new SyncLoaderRequest();
                     m_Request.data = AssetDatabase.LoadAssetAtPath(resPath, type);
-                }                
+                }
+                Complete();
             }
             else
             {
