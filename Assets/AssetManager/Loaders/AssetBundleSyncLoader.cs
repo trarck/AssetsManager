@@ -71,6 +71,12 @@ namespace YH.AssetManager
             assetBundle = AssetBundle.LoadFromFile(path);
         }
 
+        public override void Clean()
+        {
+            assetBundle = null;
+            base.Clean();
+        }
+
         public override AssetBundleReference result
         {
             get

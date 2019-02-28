@@ -51,6 +51,12 @@ namespace YH.AssetManager
         public override void Clean()
         {
             onComplete = null;
+            onBeforeComplete = null;
+            onAfterComplete = null;
+            info = null;
+            type = null;
+            assetBundleReference = null;
+
             m_Result = null;
             base.Clean();
         }

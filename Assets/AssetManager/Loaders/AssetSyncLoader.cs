@@ -110,6 +110,12 @@ namespace YH.AssetManager
             }
         }
 
+        public override void Clean()
+        {
+            asset = null;
+            base.Clean();
+        }
+
         public override AssetReference result
         {
             get

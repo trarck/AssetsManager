@@ -89,10 +89,10 @@ namespace YH.AssetManager
 
         public override void Reset()
         {
-            base.Reset();
             asset = null;
             assetBundleReference = null;
-            name = null;
+            onDispose = null;
+            base.Reset();
         }      
     }
 

@@ -150,11 +150,6 @@ namespace YH.AssetManager
             DoLoadComplete();
         }
 
-        public override void Clean()
-        {
-            base.Clean();
-        }
-
         public override AssetReference result
         {
             get

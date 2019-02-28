@@ -53,10 +53,29 @@ namespace YH.AssetManager
         public override void Clean()
         {
             onComplete = null;
+            onBeforeComplete = null;
+            onAfterComplete = null;
+
             m_Result = null;
-            HashSetPool<AssetBundleReference>.Release(m_Dependencies);
-            m_Dependencies = null;
+
+            info = null;
+
+            if (m_Dependencies != null)
+            {                
+                m_Dependencies.Clear();
+            }
             base.Clean();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            Clean();
+            if (m_Dependencies != null)
+            {
+                HashSetPool<AssetBundleReference>.Release(m_Dependencies);
+                m_Dependencies = null;
+            }
+            base.Dispose(disposing);
         }
 
         public virtual AssetBundleReference result

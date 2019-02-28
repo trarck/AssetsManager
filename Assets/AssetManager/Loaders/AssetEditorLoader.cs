@@ -69,6 +69,12 @@ namespace YH.AssetManager
             DoLoadComplete();
         }
 
+        public override void Clean()
+        {
+            m_Request = null;
+            base.Clean();
+        }
+
         public override AssetReference result
         {
             get

@@ -81,8 +81,10 @@ namespace YH.AssetManager
 
         public override void Reset()
         {
+            m_Dependencies.Clear();
+            assetBundle = null;
+            onDispose = null;
             base.Reset();
-            m_Dependencies= HashSetPool<AssetBundleReference>.Get();
         }
 
         public HashSet<AssetBundleReference> dependencies

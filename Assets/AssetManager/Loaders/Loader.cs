@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace YH.AssetManager
 {
-    public abstract class Loader
+    public abstract class Loader:IDisposable
     {
         //public Action<AssetBundleReference> onComplete;
 
@@ -23,7 +23,7 @@ namespace YH.AssetManager
         protected bool m_Standalone = false;
         protected bool m_AutoRelease = true;
 
-        HashSet<string> m_ParamTags = HashSetPool<string>.Get();
+        HashSet<string> m_ParamTags = null;
 
         public abstract bool isDone { get; }
 
@@ -33,6 +33,10 @@ namespace YH.AssetManager
         {
             get
             {
+                if (m_ParamTags == null)
+                {
+                    m_ParamTags = new HashSet<string>();
+                }
                 return m_ParamTags;
             }
             set
@@ -93,10 +97,56 @@ namespace YH.AssetManager
         public virtual void Clean()
         {
             state = State.Idle;
-            HashSetPool<string>.Release(m_ParamTags);
-            m_ParamTags = null;
+            m_ForceDone = false;
+            m_Standalone = false;
+            m_AutoRelease = true;
+            m_ParamTags.Clear();
             assetManager = null;
         }
+
+        #region IDisposable Support
+        protected bool m_Disposed = false; // 要检测冗余调用
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!m_Disposed)
+            {
+                if (disposing)
+                {
+                    //释放托管状态(托管对象)。
+                    if (m_ParamTags != null)
+                    {
+                        m_ParamTags = null;
+                    }
+
+                    if (assetManager != null)
+                    {
+                        assetManager = null;
+                    }
+                }
+
+                // 释放未托管的资源(未托管的对象)并在以下内容中替代终结器。
+                // 将大型字段设置为 null。
+
+                m_Disposed = true;
+            }
+        }
+
+        ~Loader()
+        {
+            // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+            Dispose(false);
+        }
+
+        // 添加此代码以正确实现可处置模式。
+        public void Dispose()
+        {
+            // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+            Dispose(true);
+            // 如果在以上内容中替代了终结器，则取消注释以下行。
+            GC.SuppressFinalize(this);
+        }
+        #endregion
 
         protected bool isFinishedState
         {
@@ -116,7 +166,7 @@ namespace YH.AssetManager
 
         public void AddParamTag(string tag)
         {
-            m_ParamTags.Add(tag);
+            paramTags.Add(tag);
         }
 
         public bool standalone

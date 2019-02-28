@@ -108,9 +108,11 @@ namespace YH.AssetManager
 
         public virtual void Reset()
         {
-            m_RefCount = 1;
-            m_Owners= ListPool<WeakReference>.Get();
-            m_Tags = HashSetPool<string>.Get();
+            m_RefCount = 0;
+            m_InChain = false;
+            m_Owners.Clear();
+            m_Tags.Clear();
+            name = null;
         }
 
         public virtual void AddTag(string tag)
