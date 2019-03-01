@@ -23,13 +23,17 @@ namespace YH.AssetManager
         {
             if (m_State == State.Inited)
             {
+#if ASSETMANAGER_LOG
                 Debug.Log("EditorLoader load from resource" + "," + Time.frameCount);
+#endif
                 state = State.Loading;
                 LoadFromResources();
             }
             else if (isFinishedState)
-            { 
+            {
+#if ASSETMANAGER_LOG
                 Debug.Log("EditorLoader director complete" + "," + Time.frameCount);
+#endif
                 DoLoadComplete();
             }
         }
@@ -42,7 +46,7 @@ namespace YH.AssetManager
                 if (type == null)
                 {
                     m_Request = new SyncLoaderRequest();
-                    m_Request.data= AssetDatabase.LoadMainAssetAtPath(resPath);
+                    m_Request.data = AssetDatabase.LoadMainAssetAtPath(resPath);
                 }
                 else
                 {

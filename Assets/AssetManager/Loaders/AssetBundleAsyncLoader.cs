@@ -137,7 +137,9 @@ namespace YH.AssetManager
         void LoadBundle()
         {
             string assetPath = AssetPaths.GetFullPath(info.fullName);
+#if ASSETMANAGER_LOG
             Debug.Log("LoadBundle " + assetPath + "," + Time.frameCount);
+#endif
             if (assetPath.Contains("://"))
             {
                 LoadFromPackage(assetPath);
@@ -153,9 +155,9 @@ namespace YH.AssetManager
             string[] dependencies = info.dependencies;
             m_WaitDependencyLoadCount = dependencies.Length;
             m_WaitDependencyCompleteCount = dependencies.Length;
-
+#if ASSETMANAGER_LOG
             Debug.Log("Load Dependencies " + dependencies.Length + "," + Time.frameCount);
-
+#endif
             m_DependencyLoaders = ListPool<AssetBundleAsyncLoader>.Get();
             m_DependenciesIsLoaded = false;
             m_DependenciesIsDone = false;
@@ -196,13 +198,13 @@ namespace YH.AssetManager
         protected void OnDependencyComplete(AssetBundleReference abr)
         {
             m_Dependencies.Add(abr);
-
+#if ASSETMANAGER_LOG
             Debug.Log("DependencyComplete "+info.fullName+ "=>" + abr.name + "," + Time.frameCount+",("+ m_WaitDependencyCompleteCount+")");
-
+#endif
             if (--m_WaitDependencyCompleteCount == 0)
             {
                 m_DependenciesIsDone = true;
-                if (m_State==State.Loaded && m_Result!=null)
+                if (m_State == State.Loaded && m_Result != null)
                 {
                     m_Result.AddDependencies(m_Dependencies);
                     Complete();
@@ -212,7 +214,9 @@ namespace YH.AssetManager
 
         protected void OnDependencyLoaded(AssetBundleAsyncLoader loader)
         {
+#if ASSETMANAGER_LOG
             Debug.Log("DependencyLoaded " + info.fullName + "->" + loader.info.fullName + "," + Time.frameCount);
+#endif
             if (--m_WaitDependencyLoadCount == 0)
             {
                 m_DependenciesIsLoaded = true;
@@ -221,7 +225,9 @@ namespace YH.AssetManager
 
         protected void OnBundleRequestComplete(Request request)
         {
+#if ASSETMANAGER_LOG
             Debug.Log("BundleRequestComplete " + info.fullName + "," + Time.frameCount);
+#endif
             if (!request.haveError)
             {
                 state = State.Loaded;

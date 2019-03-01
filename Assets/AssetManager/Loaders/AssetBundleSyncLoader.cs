@@ -50,7 +50,7 @@ namespace YH.AssetManager
             for (int i = 0, l = dependencies.Length; i < l; ++i)
             {
                 string dep = dependencies[i];
-                AssetBundleReference abr = assetManager.LoadAssetBundleSync(dep, null,false);
+                AssetBundleReference abr = assetManager.LoadAssetBundleSync(dep, null, false);
                 if (abr != null)
                 {
                     m_Dependencies.Add(abr);
@@ -61,7 +61,9 @@ namespace YH.AssetManager
         void LoadBundle()
         {
             string assetPath = AssetPaths.GetFullPath(info.fullName);
+#if ASSETMANAGER_LOG
             Debug.Log("LoadBundle " + assetPath + "," + Time.frameCount);
+#endif
             LoadFromFileSync(assetPath);
             Complete();
         }

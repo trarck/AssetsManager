@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace YH.AssetManager
 {
-    public class AssetReference:BaseReference
+    public class AssetReference : BaseReference
     {
         AssetBundleReference m_AssetBundleReference;
 
@@ -30,7 +30,7 @@ namespace YH.AssetManager
                 {
                     value.Retain();
                 }
-                
+
                 //release old
 
                 if (m_AssetBundleReference != null)
@@ -62,7 +62,9 @@ namespace YH.AssetManager
 
         public override void Dispose()
         {
+#if ASSETMANAGER_LOG
             Debug.Log("Asset dispose " + name + "," + Time.frameCount);
+#endif
             if (onDispose != null)
             {
                 onDispose(this);
@@ -75,7 +77,7 @@ namespace YH.AssetManager
                 {
                     Resources.UnloadAsset(asset);
                 }
-                
+
                 asset = null;
             }
 
@@ -93,7 +95,7 @@ namespace YH.AssetManager
             assetBundleReference = null;
             onDispose = null;
             base.Reset();
-        }      
+        }
     }
 
 
@@ -118,7 +120,7 @@ namespace YH.AssetManager
                 if (m_AssetReference != null)
                 {
                     m_AssetReference.Retain(gameObject);
-                }            
+                }
             }
         }
 

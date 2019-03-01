@@ -21,6 +21,11 @@ namespace YH.AssetManager
         LoaderManager m_LoaderManager;
         RequestManager m_RequestManager;
 
+        //void Awake()
+        //{
+        //    Init();    
+        //}
+
         public void Init(Action<bool> callback=null)
         {
             Application.lowMemory += OnLowMemory;
@@ -76,7 +81,9 @@ namespace YH.AssetManager
 
             if (m_AssetBundles.ContainsKey(path))
             {
+                #if ASSETMANAGER_LOG
                 Debug.Log("LoadAssetBundle asset bundle is loaded " + path + "," + Time.frameCount);
+                #endif
                 //asset bundle is loaded
                 AssetBundleReference abr = m_AssetBundles[path];
 
@@ -102,12 +109,16 @@ namespace YH.AssetManager
             {
                 if (m_LoadingAssetBundleLoaders.ContainsKey(path))
                 {
+                    #if ASSETMANAGER_LOG
                     Debug.Log("LoadAssetBundle using loading loader " + path + "," + Time.frameCount);
+                    #endif
                     loader = m_LoadingAssetBundleLoaders[path];
                 }
                 else
                 {
+                    #if ASSETMANAGER_LOG
                     Debug.Log("LoadAssetBundle create new loader " + path + "," + Time.frameCount);
+                    #endif
                     loader = m_LoaderManager.CreateAssetBundleAsyncLoader(path);
                     m_LoadingAssetBundleLoaders[path] = loader;
                 }
@@ -151,7 +162,9 @@ namespace YH.AssetManager
 
             if (m_AssetBundles.ContainsKey(path))
             {
+                #if ASSETMANAGER_LOG
                 Debug.LogFormat("LoadAssetBundleSync bundle is loaded {0},{1}", path, Time.frameCount);
+                #endif
                 abr = m_AssetBundles[path];
                 //refresh 
                 abr.AddTag(tag);
@@ -171,7 +184,9 @@ namespace YH.AssetManager
                 }
                 else
                 {
+                    #if ASSETMANAGER_LOG
                     Debug.LogFormat("LoadAssetBundleSync create new loader {0},{1}", path, Time.frameCount);
+                    #endif
                     AssetBundleSyncLoader loader = m_LoaderManager.CreateAssetBundleSyncLoader(path);
                     if (loader != null)
                     {
@@ -185,9 +200,9 @@ namespace YH.AssetManager
 
             return abr;
         }
-        #endregion
+#endregion
 
-        #region load asset
+#region load asset
         public AssetLoader LoadAsset(string path, Action<AssetReference> completeHandle=null)
         {
             return LoadAsset(path, null,null, completeHandle);
@@ -228,7 +243,9 @@ namespace YH.AssetManager
 
             if (m_Assets.ContainsKey(path))
             {
+                #if ASSETMANAGER_LOG
                 Debug.Log("LoadAsset asset is loaded "+path+","+Time.frameCount);
+                #endif
                 AssetReference ar = m_Assets[path];
 
                 //refresh
@@ -250,12 +267,16 @@ namespace YH.AssetManager
             {
                 if (m_LoadingAssetLoaders.ContainsKey(path))
                 {
+#if ASSETMANAGER_LOG
                     Debug.Log("LoadAsset using loading loader " + path + "," + Time.frameCount);
+#endif
                     loader = m_LoadingAssetLoaders[path];
                 }
                 else
                 {
+#if ASSETMANAGER_LOG
                     Debug.Log("LoadAsset create new loader " + path + "," + Time.frameCount);
+#endif
                     loader = m_LoaderManager.CreateAssetAsyncLoader(path);
                     m_LoadingAssetLoaders[path] = loader;
                 }
@@ -317,7 +338,9 @@ namespace YH.AssetManager
 
             if (m_Assets.ContainsKey(path))
             {
+#if ASSETMANAGER_LOG
                 Debug.Log("LoadAssetSync asset is loaded " + path + "," + Time.frameCount);
+#endif
                 ar = m_Assets[path];
 
                 //refresh
@@ -330,13 +353,17 @@ namespace YH.AssetManager
             {
                 if (m_LoadingAssetLoaders.ContainsKey(path))
                 {
+#if ASSETMANAGER_LOG
                     Debug.Log("LoadAssetSync async load staring " + path + "," + Time.frameCount);
+#endif
                     //TODO Stop async loader
                     return null;
                 }
                 else
                 {
+#if ASSETMANAGER_LOG
                     Debug.Log("LoadAssetSync create new loader " + path + "," + Time.frameCount);
+#endif
                     loader = m_LoaderManager.CreateAssetSyncLoader(path);
                 }
 
@@ -355,9 +382,9 @@ namespace YH.AssetManager
             return ar;
         }
 
-        #endregion
+#endregion
 
-        #region Yield Load Asset Bundle
+#region Yield Load Asset Bundle
         /// <summary>
         /// 使用yield要注意loader的释放。使用using或手动调用dispose
         /// </summary>
@@ -389,9 +416,9 @@ namespace YH.AssetManager
             return null;
         }
 
-        #endregion
+#endregion
 
-        #region Yield Load Asset
+#region Yield Load Asset
         /// <summary>
         /// 使用yield要注意loader的释放。使用using或手动调用dispose
         /// </summary>
@@ -447,14 +474,14 @@ namespace YH.AssetManager
             return null;
         }
 
-        #endregion
+#endregion
 
         void Update()
         {
             m_RequestManager.Update();
         }
 
-        #region exter function
+#region exter function
         public AssetBundleLoader LoadScene(string path, string tag, Action<AssetBundleReference> completeHandle)
         {
             AssetInfo info = m_InfoManager.FindAssetInfo(path);
@@ -468,14 +495,14 @@ namespace YH.AssetManager
             }
         }
 
-        #endregion
+#endregion
 
         void OnLowMemory()
         {
             UnloadUnuseds();
         }
 
-        #region unload unused
+#region unload unused
         public void UnloadUnuseds()
         {
             UnloadUnusedAssets();
@@ -655,9 +682,9 @@ namespace YH.AssetManager
             ListPool<string>.Release(keys);
         }
 
-        #endregion
+#endregion
 
-        #region unused
+#region unused
         void UnusedAllAssetBundles()
         {
             foreach(var iter in m_AssetBundles)
@@ -720,7 +747,7 @@ namespace YH.AssetManager
             }
         }
 
-        #endregion
+#endregion
 
         //public void RemoveAssetBundle(string assetBundleName)
         //{
@@ -764,7 +791,7 @@ namespace YH.AssetManager
         //    }
         //}
 
-        #region remove tags
+#region remove tags
         public void RemoveTags(string tag)
         {
             RemoveAssetsTag(tag);
@@ -808,7 +835,7 @@ namespace YH.AssetManager
                 }
             }
         }
-        #endregion
+#endregion
 
         /// <summary>
         /// remove asset's asset bundle reference
@@ -858,7 +885,7 @@ namespace YH.AssetManager
             }
         }
 
-        #region loaded manage
+#region loaded manage
         void OnAssetBundleLoaded(AssetBundleLoader loader)
         {
             AssetBundleReference abr = loader.result;
@@ -936,7 +963,7 @@ namespace YH.AssetManager
             m_Assets.Remove(ar.name);
         }
 
-        #endregion
+#endregion
 
         public InfoManager infoManager
         {

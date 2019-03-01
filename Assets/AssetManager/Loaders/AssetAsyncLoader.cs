@@ -81,7 +81,9 @@ namespace YH.AssetManager
 #else
                 string assetName = AssetPaths.AddAssetPrev(info.fullName);
 #endif
+#if ASSETMANAGER_LOG
                 Debug.LogFormat("Load asset {0}", assetName);
+#endif
 
                 Request request=RequestManager.CreateAssetLoaderRequest(assetBundleReference.assetBundle, assetName, type);
                 request.onComplete += OnRequestComplete;

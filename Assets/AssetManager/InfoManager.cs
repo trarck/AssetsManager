@@ -9,8 +9,8 @@ namespace YH.AssetManager
     public class InfoManager
     {
         BundleManifest m_BundleManifest;
-        Dictionary<string, AssetInfo> m_AssetInfos=new Dictionary<string, AssetInfo>();
-        Dictionary<string, AssetBundleInfo> m_AssetBundleInfos=new Dictionary<string, AssetBundleInfo>();
+        Dictionary<string, AssetInfo> m_AssetInfos = new Dictionary<string, AssetInfo>();
+        Dictionary<string, AssetBundleInfo> m_AssetBundleInfos = new Dictionary<string, AssetBundleInfo>();
 
         AssetManager m_AssetManager;
 
@@ -83,7 +83,7 @@ namespace YH.AssetManager
         {
             BinaryReader reader = new BinaryReader(steam);
 
-            if(reader.ReadChar()=='A'&& reader.ReadChar() == 'B' && reader.ReadChar()=='M' && reader.ReadChar()=='I')
+            if (reader.ReadChar() == 'A' && reader.ReadChar() == 'B' && reader.ReadChar() == 'M' && reader.ReadChar() == 'I')
             {
                 LoadFromBinaryStream(steam);
             }
@@ -106,7 +106,7 @@ namespace YH.AssetManager
         public void LoadFromBinaryStream(Stream steam)
         {
             BinaryReader reader = new BinaryReader(steam);
-            
+
             //skip head sign
             //reader.ReadInt32();
             steam.Position = 4;
@@ -134,7 +134,7 @@ namespace YH.AssetManager
 
         void UpdateManifest()
         {
-            if (m_BundleManifest==null)
+            if (m_BundleManifest == null)
             {
                 return;
             }
@@ -164,7 +164,7 @@ namespace YH.AssetManager
 
         public AssetInfo FindAssetInfo(string key)
         {
-            if (m_AssetInfos!=null && !string.IsNullOrEmpty(key))
+            if (m_AssetInfos != null && !string.IsNullOrEmpty(key))
             {
                 if (m_AssetInfos.ContainsKey(key))
                 {
@@ -197,9 +197,9 @@ namespace YH.AssetManager
 
         public AssetBundleInfo FindAssetBundleInfo(string key)
         {
-            if (m_AssetBundleInfos!=null && m_AssetBundleInfos.ContainsKey(key))
+            if (m_AssetBundleInfos != null && m_AssetBundleInfos.ContainsKey(key))
             {
-                return m_AssetBundleInfos[key]; 
+                return m_AssetBundleInfos[key];
             }
             return null;
         }
@@ -212,7 +212,9 @@ namespace YH.AssetManager
 
         void InitComplete(bool result)
         {
+#if ASSETMANAGER_LOG
             Debug.Log("Info Manager init complete");
+#endif
             if (onInitComplete != null)
             {
                 onInitComplete(result);

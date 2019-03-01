@@ -6,9 +6,9 @@ using Object = UnityEngine.Object;
 
 namespace YH.AssetManager
 {
-    public class AssetBundleReference:BaseReference
+    public class AssetBundleReference : BaseReference
     {
-        HashSet<AssetBundleReference> m_Dependencies=HashSetPool<AssetBundleReference>.Get();
+        HashSet<AssetBundleReference> m_Dependencies = HashSetPool<AssetBundleReference>.Get();
 
         public AssetBundle assetBundle { get; set; }
 
@@ -16,7 +16,7 @@ namespace YH.AssetManager
 
         public event DisposeHandle onDispose;
 
-        public AssetBundleReference(AssetBundle assetBundle,string assetBundleName)
+        public AssetBundleReference(AssetBundle assetBundle, string assetBundleName)
         {
             this.assetBundle = assetBundle;
             this.name = assetBundleName;
@@ -24,7 +24,7 @@ namespace YH.AssetManager
 
         public void AddDependency(AssetBundleReference dependency)
         {
-            if(dependency!=null && m_Dependencies.Add(dependency))
+            if (dependency != null && m_Dependencies.Add(dependency))
             {
                 dependency.Retain();
             }
@@ -32,7 +32,7 @@ namespace YH.AssetManager
 
         public void AddDependencies(HashSet<AssetBundleReference> dependencies)
         {
-            if(dependencies!=null && dependencies.Count > 0)
+            if (dependencies != null && dependencies.Count > 0)
             {
                 HashSet<AssetBundleReference>.Enumerator iter = dependencies.GetEnumerator();
                 while (iter.MoveNext())
@@ -44,7 +44,9 @@ namespace YH.AssetManager
 
         public override void Dispose()
         {
+#if ASSETMANAGER_LOG
             Debug.Log("Bundle dispose " + name + "," + Time.frameCount);
+#endif
 
             if (onDispose != null)
             {
@@ -62,7 +64,9 @@ namespace YH.AssetManager
         {
             if (assetBundle != null)
             {
+#if ASSETMANAGER_LOG
                 Debug.Log("AssetBundle unload " + name);
+#endif
                 assetBundle.Unload(false);
                 assetBundle = null;
             }

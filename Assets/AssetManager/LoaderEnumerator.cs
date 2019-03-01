@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace YH.AssetManager
 {
-    public class LoaderEnumerator : IEnumerator,IDisposable
+    public class LoaderEnumerator : IEnumerator, IDisposable
     {
         Loader m_Loader;
 
@@ -34,8 +34,10 @@ namespace YH.AssetManager
 
         void IDisposable.Dispose()
         {
+#if ASSETMANAGER_LOG
             Debug.Log("#### Dispose " + Time.frameCount);
-            if (m_Loader!=null)
+#endif
+            if (m_Loader != null)
             {
                 m_Loader.Clean();
             }
