@@ -47,6 +47,10 @@ namespace YH.AssetManager
             this.name = assetPath;
         }
 
+        /// <summary>
+        /// 直接监视资源
+        /// </summary>
+        /// <param name="gameObject"></param>
         public override void Monitor(GameObject gameObject)
         {
             if (gameObject != null)
@@ -57,6 +61,24 @@ namespace YH.AssetManager
                     monitor = gameObject.AddComponent<AssetRefercenceMonitor>();
                 }
                 monitor.assetReference = this;
+            }
+        }
+
+        /// <summary>
+        /// 按tag来监视资源
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="tag"></param>
+        public override void Monitor(GameObject gameObject,int tag)
+        {
+            if (gameObject != null)
+            {
+                AssetRefercenceMonitor monitor = gameObject.GetComponent<AssetRefercenceMonitor>();
+                if (monitor == null)
+                {
+                    monitor = gameObject.AddComponent<AssetRefercenceMonitor>();
+                }
+                monitor.AddAssetReference(this, tag);
             }
         }
 
@@ -103,6 +125,8 @@ namespace YH.AssetManager
     {
         AssetReference m_AssetReference;
 
+        Dictionary<int, AssetReference> m_TagReferences=null;
+
         public AssetReference assetReference
         {
             get
@@ -112,14 +136,96 @@ namespace YH.AssetManager
 
             set
             {
+                if (value != null)
+                {
+                    value.Retain(gameObject);
+                }
+
                 if (m_AssetReference != null)
                 {
                     m_AssetReference.Release(gameObject);
                 }
                 m_AssetReference = value;
-                if (m_AssetReference != null)
+            }
+        }
+
+        /// <summary>
+        /// 按tag来保存资源引用
+        /// </summary>
+        /// <param name="assetRef"></param>
+        /// <param name="tag"></param>
+        public void AddAssetReference(AssetReference assetRef,int tag)
+        {
+            //检查参数
+            if (assetRef == null)
+            {
+                return;
+            }
+
+            //检查字典
+            if (m_TagReferences == null)
+            {
+                m_TagReferences = new Dictionary<int, AssetReference>();
+            }
+
+            //先增加引用
+            assetRef.Retain();
+
+            //再释放旧引用
+            AssetReference oldRef;
+            if (m_TagReferences.TryGetValue(tag, out oldRef))
+            {
+                if (oldRef != null)
                 {
-                    m_AssetReference.Retain(gameObject);
+                    oldRef.Release();
+                }
+            }
+            //保存
+            m_TagReferences[tag] = assetRef;
+        }
+
+        /// <summary>
+        /// 移除某个tag的资源引用
+        /// </summary>
+        /// <param name="tag"></param>
+        public void RemoveAssetReference(int tag)
+        {
+
+            if (m_TagReferences == null)
+            {
+                return;
+            }
+            //释放引用
+            AssetReference assetRef;
+            if (m_TagReferences.TryGetValue(tag, out assetRef))
+            {
+                m_TagReferences.Remove(tag);
+                if (assetRef != null)
+                {
+                    assetRef.Release();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 从资源tag字典中移除引用。
+        /// </summary>
+        /// <param name="assetRef"></param>
+        public void RemoveAssetReference(AssetReference assetRef)
+        {
+
+            if (m_TagReferences == null)
+            {
+                return;
+            }
+
+            foreach (var iter in m_TagReferences)
+            {
+                if(iter.Value== assetRef)
+                {
+                    m_TagReferences.Remove(iter.Key);
+                    assetRef.Release();
+                    break;
                 }
             }
         }
@@ -129,6 +235,15 @@ namespace YH.AssetManager
             if (m_AssetReference != null)
             {
                 m_AssetReference.Release(gameObject);
+            }
+
+            if (m_TagReferences != null)
+            {
+                foreach(var iter in m_TagReferences)
+                {
+                    iter.Value.Release();
+                }
+                m_TagReferences = null;
             }
         }
     }
