@@ -291,7 +291,8 @@ namespace YH.AssetManager
 
                 if (loader.state == Loader.State.Idle)
                 {
-                    loader.onAfterComplete += OnAssetLoaded;
+                    loader.onBeforeComplete += OnAssetBeforeLoaded;
+                    loader.onAfterComplete += OnAssetAfterLoaded;
                     loader.state = Loader.State.Inited;
 
                     m_LoaderManager.ActiveLoader(loader);
@@ -376,7 +377,8 @@ namespace YH.AssetManager
                 loader.state = Loader.State.Inited;
                 loader.Start();
                 ar = loader.result;
-                OnAssetLoaded(loader);
+                OnAssetBeforeLoaded(loader);
+                OnAssetAfterLoaded(loader);
             }
 
             return ar;
@@ -392,7 +394,7 @@ namespace YH.AssetManager
         /// <param name="standalone"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public LoaderEnumerator YieldLoadAssetBundle(string path, bool standalone, Action<AssetBundleReference> completeHandle = null)
+        public BundleLoaderEnumerator YieldLoadAssetBundle(string path, bool standalone, Action<AssetBundleReference> completeHandle = null)
         {
             return YieldLoadAssetBundle(path, null, standalone,  completeHandle);
         }
@@ -405,13 +407,13 @@ namespace YH.AssetManager
         /// <param name="standalone"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public LoaderEnumerator YieldLoadAssetBundle(string path, string tag, bool standalone, Action<AssetBundleReference> completeHandle = null)
+        public BundleLoaderEnumerator YieldLoadAssetBundle(string path, string tag, bool standalone, Action<AssetBundleReference> completeHandle = null)
         {
             AssetBundleLoader loader = LoadAssetBundle(path, tag, standalone, completeHandle);
             if (loader != null)
             {
                 loader.autoRelease = false;
-                return new LoaderEnumerator(loader);
+                return new BundleLoaderEnumerator(loader);
             }
             return null;
         }
@@ -425,7 +427,7 @@ namespace YH.AssetManager
         /// <param name="path"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public LoaderEnumerator YieldLoadAsset(string path, Action<AssetReference> completeHandle = null)
+        public AssetLoaderEnumerator YieldLoadAsset(string path, Action<AssetReference> completeHandle = null)
         {
             return YieldLoadAsset(path, null, null, completeHandle);
         }
@@ -437,7 +439,7 @@ namespace YH.AssetManager
         /// <param name="path"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public LoaderEnumerator YieldLoadAsset<T>(string path, Action<AssetReference> completeHandle = null)
+        public AssetLoaderEnumerator YieldLoadAsset<T>(string path, Action<AssetReference> completeHandle = null)
         {
             return YieldLoadAsset(path, null, typeof(T), completeHandle);
         }
@@ -450,7 +452,7 @@ namespace YH.AssetManager
         /// <param name="tag"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public LoaderEnumerator YieldLoadAsset<T>(string path, string tag, Action<AssetReference> completeHandle = null)
+        public AssetLoaderEnumerator YieldLoadAsset<T>(string path, string tag, Action<AssetReference> completeHandle = null)
         {
             return YieldLoadAsset(path, null, typeof(T), completeHandle);
         }
@@ -463,13 +465,13 @@ namespace YH.AssetManager
         /// <param name="type"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public LoaderEnumerator YieldLoadAsset(string path, string tag, Type type, Action<AssetReference> completeHandle = null)
+        public AssetLoaderEnumerator YieldLoadAsset(string path, string tag, Type type, Action<AssetReference> completeHandle = null)
         {
             AssetLoader loader = LoadAsset(path, tag, type, completeHandle);
             if (loader != null)
             {
                 loader.autoRelease = false;
-                return new LoaderEnumerator(loader);
+                return new AssetLoaderEnumerator(loader);
             }
             return null;
         }
@@ -902,6 +904,7 @@ namespace YH.AssetManager
                     abr.inChain = false;
                 }
 
+
                 if (m_LoadingAssetBundleLoaders.ContainsKey(abr.name))
                 {
                     if (loader.autoRelease)
@@ -927,34 +930,38 @@ namespace YH.AssetManager
             m_AssetBundles.Remove(abr.name);
         }
 
-        void OnAssetLoaded(AssetLoader loader)
+        void OnAssetBeforeLoaded(AssetLoader loader)
         {
             AssetReference ar = loader.result;
             if (ar != null)
             {
                 m_Assets[ar.name] = ar;
-
                 //asset loader always standalone
                 ar.Chain();
-
+                ar.onDispose += OnAssetDispose;
                 if (m_LoadingAssetLoaders.ContainsKey(ar.name))
                 {
-                    if (loader.autoRelease)
-                    {
-                        if (loader is AssetAsyncLoader)
-                        {
-                            LoaderPool.AssetAsyncLoader.Release(loader as AssetAsyncLoader);
-                        }
-                        else
-                        {
-                            loader.Clean();
-                        }
-                    }
-
                     m_LoadingAssetLoaders.Remove(ar.name);
                 }
+            }
+        }
 
-                ar.onDispose += OnAssetDispose;
+        void OnAssetAfterLoaded(AssetLoader loader)
+        {
+            AssetReference ar = loader.result;
+            if (ar != null)
+            {
+                if (loader.autoRelease)
+                {
+                    if (loader is AssetAsyncLoader)
+                    {
+                        LoaderPool.AssetAsyncLoader.Release(loader as AssetAsyncLoader);
+                    }
+                    else
+                    {
+                        loader.Clean();
+                    }
+                }
             }
         }
 

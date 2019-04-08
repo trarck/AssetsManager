@@ -13,7 +13,7 @@ namespace YH.AssetManager
         internal static readonly ObjectPool<AssetLoaderRequest> AssetLoaderRequestPool = new ObjectPool<AssetLoaderRequest>(null, l => l.Clean());
         internal static readonly ObjectPool<ResouceLoaderRequest> ResouceLoaderRequestPool = new ObjectPool<ResouceLoaderRequest>(null, l => l.Clean());
 
-        int m_MaxActiveRequest = 5;
+        int m_MaxActiveRequest = 20;
         List<Request> m_ActiveRequests = ListPool<Request>.Get();
         List<int> m_FinishedIndexs = ListPool<int>.Get();
         Stack<Request> m_PrepareRequests = StackPool<Request>.Get();

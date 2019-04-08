@@ -31,19 +31,31 @@ namespace YH.AssetManager
 
         protected void DoLoadComplete()
         {
+#if ASSETMANAGER_LOG
+            Debug.Log("EditorLoader DoLoadComplete" + "," + Time.frameCount);
+#endif
             //先调用onBeforeComplete再调用onComplete,否则可能收不到Reference的onDispose事件。
             if (onBeforeComplete != null)
             {
+#if ASSETMANAGER_LOG
+                Debug.Log("EditorLoader onBeforeComplete" + "," + Time.frameCount);
+#endif
                 onBeforeComplete(this);
             }
 
             if (onComplete != null)
             {
+#if ASSETMANAGER_LOG
+                Debug.Log("EditorLoader onComplete" + "," + Time.frameCount);
+#endif
                 onComplete(result);
             }
 
             if (onAfterComplete != null)
             {
+#if ASSETMANAGER_LOG
+                Debug.Log("EditorLoader onAfterComplete" + "," + Time.frameCount);
+#endif
                 onAfterComplete(this);
             }
         }

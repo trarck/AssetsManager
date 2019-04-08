@@ -90,7 +90,7 @@ namespace YH.AssetManager
 
                 if (m_Result == null && state == State.Completed)
                 {
-                    if (isDone)
+                    if (isDone && m_Request.data!=null)
                     {
                         m_Result = new AssetReference(m_Request.data, info.fullName);
                         m_Result.AddTags(paramTags);

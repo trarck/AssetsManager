@@ -7,7 +7,7 @@ namespace YH.AssetManager
 {
     public class LoaderEnumerator : IEnumerator, IDisposable
     {
-        Loader m_Loader;
+        protected Loader m_Loader;
 
         public object Current
         {
@@ -40,6 +40,48 @@ namespace YH.AssetManager
             if (m_Loader != null)
             {
                 m_Loader.Clean();
+            }
+        }
+    }
+
+    public class AssetLoaderEnumerator: LoaderEnumerator
+    {
+        public AssetLoaderEnumerator(AssetLoader loader):base(loader)
+        {
+
+        }
+
+        public AssetReference assetReference
+        {
+            get
+            {
+                AssetLoader loader = m_Loader as AssetLoader;
+                if (loader!=null)
+                {
+                    return loader.result;
+                }
+                return null;
+            }
+        }
+    }
+
+    public class BundleLoaderEnumerator : LoaderEnumerator
+    {
+        public BundleLoaderEnumerator(AssetBundleLoader loader) : base(loader)
+        {
+
+        }
+
+        public AssetBundleReference bundleReference
+        {
+            get
+            {
+                AssetBundleLoader loader = m_Loader as AssetBundleLoader;
+                if (loader != null)
+                {
+                    return loader.result;
+                }
+                return null;
             }
         }
     }
