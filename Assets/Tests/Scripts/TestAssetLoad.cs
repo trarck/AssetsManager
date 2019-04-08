@@ -77,7 +77,7 @@ public class TestAssetLoad : MonoBehaviour
 
         m_AssetManager.Init((r) =>
         {
-            StartCoroutine(Testloop());
+            StartCoroutine(Testloop2());
         });
     }
 
@@ -257,5 +257,25 @@ public class TestAssetLoad : MonoBehaviour
                 GameObject.Instantiate(ar.asset);
             }
         });
+    }
+
+    IEnumerator Testloop2()
+    {
+        string[] assets = new string[] { "ArtResources/Materials/MyMaterial.mat", "ArtResources/Prefabs/MyPrefab.prefab" , "ArtResources/Prefabs/APreab.prefab" };
+        for(int i = 0; i < assets.Length; ++i)
+        {
+            Debug.Log("load:" + assets[i]);
+            int j = i;
+            string path = assets[i];
+            m_AssetManager.LoadAsset(path, (ar) =>
+            {
+                Debug.Log(ar + ",:"+j+","+i+":"+ path);
+                if (ar != null)
+                {
+                    GameObject.Instantiate(ar.asset);
+                }
+            });
+        }
+        yield return null;
     }
 }
