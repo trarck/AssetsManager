@@ -53,7 +53,14 @@ namespace YH.AssetManager
                     m_Request = new SyncLoaderRequest();
                     m_Request.data = AssetDatabase.LoadAssetAtPath(resPath, type);
                 }
-                Complete();
+                if (m_Request.data != null)
+                {
+                    Complete();
+                }
+                else
+                {
+                    Error();
+                }
             }
             else
             {
@@ -70,6 +77,10 @@ namespace YH.AssetManager
         public override void Error()
         {
             base.Error();
+            if (info != null)
+            {
+                Debug.LogErrorFormat("Load asset {0} fail", info.fullName);
+            }
             DoLoadComplete();
         }
 
