@@ -8,8 +8,6 @@ namespace YH.AssetManager
     {
         UnityWebRequest m_Www;
         UnityWebRequestAsyncOperation m_WebRequestAsyncOperation;
-        private bool m_Disposed = false;
-
         public string bundleUrl { get; set; }
 
         public override bool isDone
@@ -81,8 +79,9 @@ namespace YH.AssetManager
                     m_Www = null;
                     m_WebRequestAsyncOperation = null;
                 }
-                m_Disposed = true;
             }
+
+            base.Dispose(disposing);
         }
     }
 
@@ -147,6 +146,19 @@ namespace YH.AssetManager
             m_CreateRequest = null;
             bundlePath = null;
             base.Clean();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!m_Disposed)
+            {
+                if (disposing)
+                {
+                    m_CreateRequest = null;
+                }
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

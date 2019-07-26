@@ -384,9 +384,41 @@ namespace YH.AssetManager
             return ar;
         }
 
-#endregion
+        public void LoadAssets(List<string> assets, Action<Dictionary<string, AssetReference>> callback)
+        {
+            Dictionary<string, AssetReference> assetReferences = new Dictionary<string, AssetReference>();
+            int needCount = assets.Count;
+            bool needCallback = true;
 
-#region Yield Load Asset Bundle
+            for (int i=0,l=assets.Count;i<l;++i)
+            {
+                var asset = assets[i];
+                if (!string.IsNullOrEmpty(asset))
+                {
+                    needCallback = false;
+                    AssetManager.Instance.LoadAsset(asset, (assetReference) => {
+                        assetReferences[asset] = assetReference;
+                        //all finished
+                        if (--needCount <= 0)
+                        {
+                            callback(assetReferences);
+                        }
+                    });
+                }
+                else
+                {
+                    --needCount;
+                }
+            }
+
+            if (needCount == 0 && needCallback)
+            {
+                callback(null);
+            }
+        }
+        #endregion
+
+        #region Yield Load Asset Bundle
         /// <summary>
         /// 使用yield要注意loader的释放。使用using或手动调用dispose
         /// </summary>

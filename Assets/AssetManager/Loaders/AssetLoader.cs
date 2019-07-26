@@ -73,6 +73,29 @@ namespace YH.AssetManager
             base.Clean();
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (!m_Disposed)
+            {
+                if (disposing)
+                {
+                    //释放托管状态(托管对象)。
+                    onComplete = null;
+                    onBeforeComplete = null;
+                    onAfterComplete = null;
+                    info = null;
+                    type = null;
+                    assetBundleReference = null;
+
+                    m_Result = null;
+                }
+
+                // 释放未托管的资源(未托管的对象)并在以下内容中替代终结器。
+                // 将大型字段设置为 null。
+            }
+            base.Dispose(disposing);
+        }
+
         public virtual AssetReference result
         {
             get

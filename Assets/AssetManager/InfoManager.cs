@@ -64,7 +64,7 @@ namespace YH.AssetManager
             bool success = true;
             if (File.Exists(filePath))
             {
-                using (FileStream fs = new FileStream(filePath, FileMode.Open))
+                using (FileStream fs = File.OpenRead(filePath))//  new FileStream(filePath, FileMode.Open))
                 {
                     LoadFromStream(fs);
                 }
@@ -116,7 +116,7 @@ namespace YH.AssetManager
 
         public void SaveToBinary(string fileName)
         {
-            using (FileStream fs = new FileStream(fileName, FileMode.Create))
+            using (FileStream fs = File.OpenWrite(fileName))// new FileStream(fileName, FileMode.Create))
             {
                 SaveToStream(fs);
             }

@@ -11,7 +11,7 @@ namespace YH.AssetManager
         public bool autoRelease = true;
 
         #region IDisposable Support
-        private bool m_Disposed = false; // 要检测冗余调用
+        protected bool m_Disposed = false; // 要检测冗余调用
 
         protected virtual void Dispose(bool disposing)
         {

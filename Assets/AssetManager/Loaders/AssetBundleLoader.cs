@@ -69,12 +69,27 @@ namespace YH.AssetManager
 
         protected override void Dispose(bool disposing)
         {
-            Clean();
-            if (m_Dependencies != null)
+            if (!m_Disposed)
             {
-                HashSetPool<AssetBundleReference>.Release(m_Dependencies);
-                m_Dependencies = null;
+                if (disposing)
+                {
+                    //释放托管状态(托管对象)。
+                    onComplete = null;
+                    onBeforeComplete = null;
+                    onAfterComplete = null;
+
+                    m_Result = null;
+
+                    info = null;
+
+                    if (m_Dependencies != null)
+                    {
+                        HashSetPool<AssetBundleReference>.Release(m_Dependencies);
+                        m_Dependencies = null;
+                    }
+                }
             }
+
             base.Dispose(disposing);
         }
 
