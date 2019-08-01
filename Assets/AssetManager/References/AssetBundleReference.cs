@@ -42,7 +42,7 @@ namespace YH.AssetManager
             }
         }
 
-        public override void Dispose()
+        public override void Dispose(bool disposing = false)
         {
 #if ASSETMANAGER_LOG
             Debug.Log("Bundle dispose " + name + "," + Time.frameCount);
@@ -54,20 +54,20 @@ namespace YH.AssetManager
                 onDispose = null;
             }
 
-            UnloadBundle();
+            UnloadBundle(disposing);
             ReleaseDependencies();
 
-            base.Dispose();
+            base.Dispose(disposing);
         }
 
-        void UnloadBundle()
+        void UnloadBundle(bool unloadAllLoadedObjects=false)
         {
             if (assetBundle != null)
             {
 #if ASSETMANAGER_LOG
                 Debug.Log("AssetBundle unload " + name);
 #endif
-                assetBundle.Unload(false);
+                assetBundle.Unload(unloadAllLoadedObjects);
                 assetBundle = null;
             }
         }

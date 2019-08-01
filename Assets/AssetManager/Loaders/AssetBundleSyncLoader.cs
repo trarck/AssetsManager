@@ -46,11 +46,12 @@ namespace YH.AssetManager
         void LoadDependencies()
         {
             string[] dependencies = info.dependencies;
+            ResetDependencies();
 
             for (int i = 0, l = dependencies.Length; i < l; ++i)
             {
                 string dep = dependencies[i];
-                AssetBundleReference abr = assetManager.LoadAssetBundleSync(dep, null, false);
+                AssetBundleReference abr = assetManager.LoadAssetBundleSync(dep, 0, false);
                 if (abr != null)
                 {
                     m_Dependencies.Add(abr);
@@ -77,22 +78,6 @@ namespace YH.AssetManager
         {
             assetBundle = null;
             base.Clean();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (!m_Disposed)
-            {
-                if (disposing)
-                {
-                    //释放托管状态(托管对象)。
-                    assetBundle = null;
-                }
-
-                // 释放未托管的资源(未托管的对象)并在以下内容中替代终结器。
-                // 将大型字段设置为 null。
-            }
-            base.Dispose(disposing);
         }
 
         public override AssetBundleReference result

@@ -79,21 +79,6 @@ namespace YH.AssetManager
             type = null;
             base.Clean();
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (!m_Disposed)
-            {
-                if (disposing)
-                {
-                    m_Request = null;
-                    assetName = null;
-                    type = null;
-                }
-            }
-
-            base.Dispose(disposing);
-        }
     }
 
     public class ResouceLoaderRequest : Request
@@ -168,21 +153,6 @@ namespace YH.AssetManager
             resourcePath = null;
             type = null;
             base.Clean();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (!m_Disposed)
-            {
-                if (disposing)
-                {
-                    m_Request = null;
-                    resourcePath = null;
-                    type = null;
-                }
-            }
-
-            base.Dispose(disposing);
         }
     }
 }

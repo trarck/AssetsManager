@@ -14,9 +14,9 @@ namespace YH.AssetManager
         internal static readonly ObjectPool<ResouceLoaderRequest> ResouceLoaderRequestPool = new ObjectPool<ResouceLoaderRequest>(null, l => l.Clean());
 
         int m_MaxActiveRequest = 20;
-        List<Request> m_ActiveRequests = ListPool<Request>.Get();
-        List<int> m_FinishedIndexs = ListPool<int>.Get();
-        Stack<Request> m_PrepareRequests = StackPool<Request>.Get();
+        List<Request> m_ActiveRequests = new List<Request>();
+        List<int> m_FinishedIndexs = new List<int>();
+        Stack<Request> m_PrepareRequests = new Stack<Request>();
         
 
         AssetManager m_AssetManager;
@@ -28,9 +28,9 @@ namespace YH.AssetManager
 
         public void Clean()
         {
-            ListPool<Request>.Release(m_ActiveRequests);
-            ListPool<int>.Release(m_FinishedIndexs);
-            StackPool<Request>.Release(m_PrepareRequests);
+            m_ActiveRequests.Clear();
+            m_FinishedIndexs.Clear();
+            m_PrepareRequests.Clear();
         }
 
         #region request operate
@@ -71,7 +71,7 @@ namespace YH.AssetManager
                         request.Complete();
                         if (request.autoRelease)
                         {
-                            request.Dispose();
+                            ReleaseRequest(request);
                         }
                     }
                 }
@@ -113,6 +113,26 @@ namespace YH.AssetManager
                 {
                     m_ActiveRequests.RemoveAt(m_FinishedIndexs[j]);
                 }
+            }
+        }
+
+        protected void ReleaseRequest(Request request)
+        {
+            if (request is BundleWebRequest)
+            {
+                ReleaseBundleWebRequest(request as BundleWebRequest);
+            }
+            else if (request is BundleCreateRequest)
+            {
+                ReleaseBundleCreateRequest(request as BundleCreateRequest);
+            }
+            else if (request is AssetLoaderRequest)
+            {
+                ReleaseAssetLoaderRequest(request as AssetLoaderRequest);
+            }
+            else if (request is ResouceLoaderRequest)
+            {
+                ReleaseResouceLoaderRequest(request as ResouceLoaderRequest);
             }
         }
         #endregion
@@ -175,5 +195,39 @@ namespace YH.AssetManager
         }
 
         #endregion
+
+        public override string ToString()
+        {
+            //show state
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            sb.Append("ActiveRequests:").Append(m_ActiveRequests.Count).Append("\n");
+            sb.Append("PrepareRequests:").Append(m_PrepareRequests.Count).Append("\n");
+
+            sb.Append("RquestPool:");
+            sb.Append("BundleCreateRequestPool =(")
+                .Append(BundleCreateRequestPool.countAll)
+                .Append(",").Append(BundleCreateRequestPool.countActive)
+                .Append(",").Append(BundleCreateRequestPool.countInactive)
+                .Append("),");
+            sb.Append("BundleCreateRequestPool =(")
+                .Append(BundleWebRequestPool.countAll)
+                .Append(",").Append(BundleWebRequestPool.countActive)
+                .Append(",").Append(BundleWebRequestPool.countInactive)
+                .Append("),");
+
+            sb.Append("AssetLoaderRequestPool =(")
+                .Append(AssetLoaderRequestPool.countAll)
+                .Append(",").Append(AssetLoaderRequestPool.countActive)
+                .Append(",").Append(AssetLoaderRequestPool.countInactive)
+                .Append("),");
+
+            sb.Append("ResouceLoaderRequestPool =(")
+                .Append(ResouceLoaderRequestPool.countAll)
+                .Append(",").Append(ResouceLoaderRequestPool.countActive)
+                .Append(",").Append(ResouceLoaderRequestPool.countInactive)
+                .Append("),");
+
+            return sb.ToString();
+        }
     }
 }

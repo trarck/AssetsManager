@@ -9,12 +9,13 @@ namespace YH.AssetManager
     public abstract class BaseReference
     {
         protected int m_RefCount=0;
-
-        protected bool m_InChain = false;
+        //是否要缓存。
+        //资源都是要缓存
+        protected bool m_IsCached = false;
 
         List<WeakReference> m_Owners=ListPool<WeakReference>.Get();
 
-        HashSet<string> m_Tags = HashSetPool<string>.Get();
+        HashSet<int> m_Tags = HashSetPool<int>.Get();
 
         public string name { get; set; }
 
@@ -102,34 +103,34 @@ namespace YH.AssetManager
 
         public bool isUnused()
         {
-            return inChain && m_RefCount == 1 && GetOwnersRefCount() == 0;
+            return m_RefCount==(isCache?1:0) && GetOwnersRefCount() == 0;
         }
 
-        public virtual void Dispose()
+        public virtual void Dispose(bool disposing = false)
         {
             ListPool<WeakReference>.Release(m_Owners);
             m_Owners = null;
-            HashSetPool<string>.Release(m_Tags);
+            HashSetPool<int>.Release(m_Tags);
         }
 
         public virtual void Reset()
         {
             m_RefCount = 0;
-            m_InChain = false;
+            m_IsCached = false;
             m_Owners.Clear();
             m_Tags.Clear();
             name = null;
         }
 
-        public virtual void AddTag(string tag)
+        public virtual void AddTag(int tag)
         {
-            if (!string.IsNullOrEmpty(tag))
+            if (tag>0)
             {
                 m_Tags.Add(tag);
             }
         }
 
-        public virtual void AddTags(string[] tags)
+        public virtual void AddTags(int[] tags)
         {
             if (tags != null)
             {
@@ -140,7 +141,7 @@ namespace YH.AssetManager
             }
         }
 
-        public virtual void AddTags(ICollection<string> tags)
+        public virtual void AddTags(ICollection<int> tags)
         {
             if (tags != null)
             {
@@ -152,15 +153,15 @@ namespace YH.AssetManager
             }
         }
 
-        public virtual void RemoveTag(string tag)
+        public virtual void RemoveTag(int tag)
         {
-            if (!string.IsNullOrEmpty(tag))
+            if (tag>0)
             {
                 m_Tags.Remove(tag);
             }
         }
 
-        public virtual void RemoveTags(string[] tags)
+        public virtual void RemoveTags(int[] tags)
         {
             if (tags != null)
             {
@@ -171,7 +172,7 @@ namespace YH.AssetManager
             }
         }
 
-        public virtual void RemoveTags(ICollection<string> tags)
+        public virtual void RemoveTags(ICollection<int> tags)
         {
             if (tags != null)
             {
@@ -183,7 +184,7 @@ namespace YH.AssetManager
             }
         }
 
-        public bool HaveTag(string tag)
+        public bool HaveTag(int tag)
         {
             return m_Tags.Contains(tag);
         }
@@ -196,33 +197,33 @@ namespace YH.AssetManager
             }
         }
 
-        public bool inChain
+        public bool isCache
         {
             get
             {
-                return m_InChain;
+                return m_IsCached;
             }
 
             set
             {
-                m_InChain = value;
+                m_IsCached = value;
             }
         }
 
-        public void Chain()
+        public void Cache()
         {
-            if (!inChain)
+            if (!isCache)
             {
-                inChain = true;
+                isCache = true;
                 Retain();
             }
         }
 
-        public void UnChain()
+        public void UnCache()
         {
-            if (inChain)
+            if (isCache)
             {
-                inChain = false;
+                isCache = false;
                 Release();
             }
         }

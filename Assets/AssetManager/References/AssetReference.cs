@@ -6,8 +6,14 @@ using Object = UnityEngine.Object;
 
 namespace YH.AssetManager
 {
+    /// <summary>
+    /// 资源从AssetBundle加载出来后，会重新生成一块内存。此时可以调用AssetBundle的unload(false)，释放AssetBundle占用的内存。
+    /// 如果AssetBundle中有多个资源，可以用预加载的方式加载AssetBundle，加载完所有资源后，再把AssetBundle删除。
+    ///                              也可以在资源加载完成后，把每个资源对AssetBundle的引用断开。
+    /// </summary>
     public class AssetReference : BaseReference
     {
+        //保持的AssetBundle的引用，如果要断开引用，只要赋值null。或调用RelaseBundleReference.
         AssetBundleReference m_AssetBundleReference;
 
         public Object asset { get; set; }
@@ -15,7 +21,7 @@ namespace YH.AssetManager
         public delegate void DisposeHandle(AssetReference abr);
 
         public event DisposeHandle onDispose;
-
+        
         public AssetBundleReference assetBundleReference
         {
             get
@@ -82,7 +88,15 @@ namespace YH.AssetManager
             }
         }
 
-        public override void Dispose()
+        /// <summary>
+        /// 释放到AssetBundle的引用。如果此时AssetBundle没有被其它资源引用，则会调用Unload(false)
+        /// </summary>
+        public void ReleaseBundleReference()
+        {
+            assetBundleReference = null;
+        }
+
+        public override void Dispose(bool disposing=false)
         {
 #if ASSETMANAGER_LOG
             Debug.Log("Asset dispose " + name + "," + Time.frameCount);
@@ -104,12 +118,12 @@ namespace YH.AssetManager
             }
 
             asset = null;
+            //这里通过setter调用release
             assetBundleReference = null;
             name = null;
 
-            base.Dispose();
+            base.Dispose(disposing);
         }
-
 
         public override void Reset()
         {
@@ -119,7 +133,6 @@ namespace YH.AssetManager
             base.Reset();
         }
     }
-
 
     public class AssetRefercenceMonitor : MonoBehaviour
     {

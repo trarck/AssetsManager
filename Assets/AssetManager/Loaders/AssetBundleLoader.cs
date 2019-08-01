@@ -9,7 +9,8 @@ namespace YH.AssetManager
     {
         protected AssetBundleReference m_Result;
 
-        protected HashSet<AssetBundleReference> m_Dependencies = HashSetPool<AssetBundleReference>.Get();
+        //这里可以不使用对象池。因为loader已经使用了对象池。
+        protected HashSet<AssetBundleReference> m_Dependencies = null;// HashSetPool<AssetBundleReference>.Get();
         //拆分onComplete和onBeforeComplete，要保证onBeforeComplete和onComplete的执行顺序。
         public Action<AssetBundleReference> onComplete;
 
@@ -18,18 +19,6 @@ namespace YH.AssetManager
         public Action<AssetBundleLoader> onAfterComplete;
 
         public AssetBundleInfo info { get; set; }
-
-        //public override void Complete()
-        //{
-        //    state = State.Completed;
-        //    DoLoadComplete();
-        //}
-
-        //public override void Error()
-        //{
-        //    state = State.Error;
-        //    DoLoadComplete();
-        //}
 
         protected void DoLoadComplete()
         {
@@ -67,32 +56,6 @@ namespace YH.AssetManager
             base.Clean();
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (!m_Disposed)
-            {
-                if (disposing)
-                {
-                    //释放托管状态(托管对象)。
-                    onComplete = null;
-                    onBeforeComplete = null;
-                    onAfterComplete = null;
-
-                    m_Result = null;
-
-                    info = null;
-
-                    if (m_Dependencies != null)
-                    {
-                        HashSetPool<AssetBundleReference>.Release(m_Dependencies);
-                        m_Dependencies = null;
-                    }
-                }
-            }
-
-            base.Dispose(disposing);
-        }
-
         public virtual AssetBundleReference result
         {
             get
@@ -102,6 +65,18 @@ namespace YH.AssetManager
             set
             {
                 m_Result = value;
+            }
+        }
+
+        protected void ResetDependencies()
+        {
+            if (m_Dependencies == null)
+            {
+                m_Dependencies = new HashSet<AssetBundleReference>();
+            }
+            else
+            {
+                m_Dependencies.Clear();
             }
         }
     }

@@ -63,25 +63,14 @@ namespace YH.AssetManager
 
         public override void Clean()
         {
+            if (m_Www != null)
+            {
+                m_Www.Dispose();
+            }
             m_Www = null;
             m_WebRequestAsyncOperation = null;
             bundleUrl = null;
             base.Clean();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (!m_Disposed)
-            {
-                if (disposing)
-                {
-                    m_Www.Dispose();
-                    m_Www = null;
-                    m_WebRequestAsyncOperation = null;
-                }
-            }
-
-            base.Dispose(disposing);
         }
     }
 
@@ -146,19 +135,6 @@ namespace YH.AssetManager
             m_CreateRequest = null;
             bundlePath = null;
             base.Clean();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (!m_Disposed)
-            {
-                if (disposing)
-                {
-                    m_CreateRequest = null;
-                }
-            }
-
-            base.Dispose(disposing);
         }
     }
 }

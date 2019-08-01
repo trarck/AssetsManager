@@ -158,7 +158,17 @@ namespace YH.AssetManager
 #if ASSETMANAGER_LOG
             Debug.Log("Load Dependencies " + dependencies.Length + "," + Time.frameCount);
 #endif
-            m_DependencyLoaders = ListPool<AssetBundleAsyncLoader>.Get();
+            if (m_DependencyLoaders == null)
+            {
+                m_DependencyLoaders = new List<AssetBundleAsyncLoader>();
+            }
+            else
+            {
+                m_DependencyLoaders.Clear();
+            }
+
+            ResetDependencies();
+
             m_DependenciesIsLoaded = false;
             m_DependenciesIsDone = false;
 
@@ -166,11 +176,11 @@ namespace YH.AssetManager
             {
                 string dep = dependencies[i];
 
-                if (dep.Contains("blue_s"))
-                {
-                    assetManager.StartCoroutine(testLoader(dep));
-                    continue;
-                }
+                //if (dep.Contains("blue_s"))
+                //{
+                //    assetManager.StartCoroutine(testLoader(dep));
+                //    continue;
+                //}
 
                 AssetBundleAsyncLoader depLoader = assetManager.LoadAssetBundle(dep, false, OnDependencyComplete) as AssetBundleAsyncLoader;
                 if (depLoader != null)
@@ -182,18 +192,18 @@ namespace YH.AssetManager
             }
         }
 
-        IEnumerator testLoader(string dep)
-        {
-            yield return new WaitForSeconds(0.5f);
+        //IEnumerator testLoader(string dep)
+        //{
+        //    yield return new WaitForSeconds(0.5f);
 
-            AssetBundleAsyncLoader depLoader = assetManager.LoadAssetBundle(dep, false, OnDependencyComplete) as AssetBundleAsyncLoader;
-            if (depLoader != null)
-            {
-                depLoader.autoRelease = false;
-                depLoader.onAssetBundleLoaded += OnDependencyLoaded;
-            }
-            m_DependencyLoaders.Add(depLoader);
-        }
+        //    AssetBundleAsyncLoader depLoader = assetManager.LoadAssetBundle(dep, false, OnDependencyComplete) as AssetBundleAsyncLoader;
+        //    if (depLoader != null)
+        //    {
+        //        depLoader.autoRelease = false;
+        //        depLoader.onAssetBundleLoaded += OnDependencyLoaded;
+        //    }
+        //    m_DependencyLoaders.Add(depLoader);
+        //}
 
         protected void OnDependencyComplete(AssetBundleReference abr)
         {
@@ -287,26 +297,12 @@ namespace YH.AssetManager
             m_DependenciesIsLoaded = false;
             m_WaitDependencyCompleteCount = 0;
             m_DependenciesIsDone = false;
-            m_DependencyLoaders = null;
+            if (m_DependencyLoaders != null)
+            {
+                m_DependencyLoaders.Clear();
+            }
 
             base.Clean();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (!m_Disposed)
-            {
-                if (disposing)
-                {
-                    //释放托管状态(托管对象)。
-                    onAssetBundleLoaded = null;
-                    m_DependencyLoaders = null;
-                }
-
-                // 释放未托管的资源(未托管的对象)并在以下内容中替代终结器。
-                // 将大型字段设置为 null。
-            }
-            base.Dispose(disposing);
         }
 
         public override AssetBundleReference result

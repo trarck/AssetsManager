@@ -8,10 +8,10 @@ namespace YH.AssetManager
     {
         AssetManager m_AssetManager;
 
-        int m_MaxActiveLoader = 100;
-        List<Loader> m_ActiveLoaders = ListPool<Loader>.Get();
-        List<int> m_FinishedIndexs = ListPool<int>.Get();
-        Stack<Loader> m_PrepareLoaders = StackPool<Loader>.Get();
+        //int m_MaxActiveLoader = 100;
+        //List<Loader> m_ActiveLoaders = ListPool<Loader>.Get();
+        //List<int> m_FinishedIndexs = ListPool<int>.Get();
+        //Stack<Loader> m_PrepareLoaders = StackPool<Loader>.Get();
 
         public LoaderManager(AssetManager assetManager)
         {
@@ -67,7 +67,6 @@ namespace YH.AssetManager
             return loader;
         }
 
-
         public AssetSyncLoader CreateAssetSyncLoader(string path)
         {
             AssetSyncLoader loader = null;
@@ -93,7 +92,6 @@ namespace YH.AssetManager
             return loader;
         }
 
-
         public AssetBundleSyncLoader CreateAssetBundleSyncLoader(string path)
         {
             AssetBundleSyncLoader loader = null;
@@ -118,12 +116,11 @@ namespace YH.AssetManager
 
         public void Clean()
         {
-            ListPool<Loader>.Release(m_ActiveLoaders);
-            ListPool<int>.Release(m_FinishedIndexs);
-            StackPool<Loader>.Release(m_PrepareLoaders);
+            //ListPool<Loader>.Release(m_ActiveLoaders);
+            //ListPool<int>.Release(m_FinishedIndexs);
+            //StackPool<Loader>.Release(m_PrepareLoaders);
         }
 
-        #region request operate
         public void ActiveLoader(Loader loader)
         {
             loader.Start();
@@ -138,69 +135,68 @@ namespace YH.AssetManager
             //}
         }
 
-        public void Update()
-        {
-            //check request 
-            Tick();
-        }
+        //public void Update()
+        //{
+        //    //check request 
+        //    Tick();
+        //}
 
-        public void Tick()
-        {
-            m_FinishedIndexs.Clear();
+        //public void Tick()
+        //{
+        //    m_FinishedIndexs.Clear();
 
-            try
-            {
-                Loader loader = null;
-                for (int i = 0, l = m_ActiveLoaders.Count; i < l; ++i)
-                {
-                    loader = m_ActiveLoaders[i];
-                    loader.Update();
+        //    try
+        //    {
+        //        Loader loader = null;
+        //        for (int i = 0, l = m_ActiveLoaders.Count; i < l; ++i)
+        //        {
+        //            loader = m_ActiveLoaders[i];
+        //            loader.Update();
 
-                    if (loader.isDone)
-                    {
-                        m_FinishedIndexs.Add(i);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-            }
+        //            if (loader.isDone)
+        //            {
+        //                m_FinishedIndexs.Add(i);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Debug.LogError(e);
+        //    }
 
-            CheckAndStartRequests();
-        }
+        //    CheckAndStartRequests();
+        //}
 
-        protected void CheckAndStartRequests()
-        {
-            if (m_PrepareLoaders.Count >= m_FinishedIndexs.Count)
-            {
-                //替换激活的请求
-                Loader request = null;
-                for (int i = m_FinishedIndexs.Count - 1; i >= 0; --i)
-                {
-                    request = m_PrepareLoaders.Pop();
-                    m_ActiveLoaders[m_FinishedIndexs[i]] = request;
-                    request.Start();
-                }
-            }
-            else
-            {
-                Loader loader = null;
-                int i = 0;
-                //替换一部分
-                for (int l = m_PrepareLoaders.Count; i < l; ++i)
-                {
-                    loader = m_PrepareLoaders.Pop();
-                    m_ActiveLoaders[m_FinishedIndexs[i]] = loader;
-                    loader.Start();
-                }
-                //移除剩余的
-                for (int j = m_FinishedIndexs.Count - 1; j >= i; --j)
-                {
-                    m_ActiveLoaders.RemoveAt(m_FinishedIndexs[j]);
-                }
-            }
-        }
-        #endregion
+        //protected void CheckAndStartRequests()
+        //{
+        //    if (m_PrepareLoaders.Count >= m_FinishedIndexs.Count)
+        //    {
+        //        //替换激活的请求
+        //        Loader loader = null;
+        //        for (int i = m_FinishedIndexs.Count - 1; i >= 0; --i)
+        //        {
+        //            loader = m_PrepareLoaders.Pop();
+        //            m_ActiveLoaders[m_FinishedIndexs[i]] = loader;
+        //            loader.Start();
+        //        }
+        //    }
+        //    else
+        //    {
+        //        Loader loader = null;
+        //        int i = 0;
+        //        //替换一部分
+        //        for (int l = m_PrepareLoaders.Count; i < l; ++i)
+        //        {
+        //            loader = m_PrepareLoaders.Pop();
+        //            m_ActiveLoaders[m_FinishedIndexs[i]] = loader;
+        //            loader.Start();
+        //        }
+        //        //移除剩余的
+        //        for (int j = m_FinishedIndexs.Count - 1; j >= i; --j)
+        //        {
+        //            m_ActiveLoaders.RemoveAt(m_FinishedIndexs[j]);
+        //        }
+        //    }
+        //}
     }
 }

@@ -24,7 +24,7 @@ namespace YH.AssetManager
 
                 if (!string.IsNullOrEmpty(info.bundleName))
                 {
-                    assetBundleReference=assetManager.LoadAssetBundleSync(info.bundleName, null,false);
+                    assetBundleReference=assetManager.LoadAssetBundleSync(info.bundleName, 0,false);
                 }
 
                 LoadAsset();
@@ -114,22 +114,6 @@ namespace YH.AssetManager
         {
             asset = null;
             base.Clean();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (!m_Disposed)
-            {
-                if (disposing)
-                {
-                    //释放托管状态(托管对象)。
-                    asset = null;
-                }
-
-                // 释放未托管的资源(未托管的对象)并在以下内容中替代终结器。
-                // 将大型字段设置为 null。
-            }
-            base.Dispose(disposing);
         }
 
         public override AssetReference result
