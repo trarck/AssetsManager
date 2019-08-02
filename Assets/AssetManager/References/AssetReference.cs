@@ -149,16 +149,19 @@ namespace YH.AssetManager
 
             set
             {
-                if (value != null)
+                if (m_AssetReference != value)
                 {
-                    value.Retain(gameObject);
-                }
+                    if (value != null)
+                    {
+                        value.Retain(gameObject);
+                    }
 
-                if (m_AssetReference != null)
-                {
-                    m_AssetReference.Release(gameObject);
+                    if (m_AssetReference != null)
+                    {
+                        m_AssetReference.Release(gameObject);
+                    }
+                    m_AssetReference = value;
                 }
-                m_AssetReference = value;
             }
         }
 
