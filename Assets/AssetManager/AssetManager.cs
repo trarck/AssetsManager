@@ -208,19 +208,19 @@ namespace YH.AssetManager
 #endregion
 
 #region load asset
-        public AssetLoader LoadAsset(string path, Action<AssetReference> completeHandle=null)
+        public AssetLoader LoadAsset(string path, Action<AssetReference> completeHandle=null, bool autoReleaseBundle = true)
         {
-            return LoadAsset(path, 0,null, completeHandle);
+            return LoadAsset(path, 0,null, completeHandle, autoReleaseBundle);
         }
 
-        public AssetLoader LoadAsset<T>(string path, Action<AssetReference> completeHandle=null)
+        public AssetLoader LoadAsset<T>(string path, Action<AssetReference> completeHandle=null, bool autoReleaseBundle = true)
         {
-            return LoadAsset(path, 0,  typeof(T), completeHandle);
+            return LoadAsset(path, 0,  typeof(T), completeHandle, autoReleaseBundle);
         }
 
-        public AssetLoader LoadAsset<T>(string path, string tag,Action<AssetReference> completeHandle=null)
+        public AssetLoader LoadAsset<T>(string path, string tag,Action<AssetReference> completeHandle=null, bool autoReleaseBundle = true)
         {
-            return LoadAsset(path, 0,  typeof(T), completeHandle);
+            return LoadAsset(path, 0,  typeof(T), completeHandle, autoReleaseBundle);
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace YH.AssetManager
         /// <param name="type"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public AssetLoader LoadAsset(string path,int tag, Type type,Action<AssetReference> completeHandle=null)
+        public AssetLoader LoadAsset(string path,int tag, Type type,Action<AssetReference> completeHandle=null,bool autoReleaseBundle=true)
         {
             if (!string.IsNullOrEmpty(path))
             {
@@ -292,6 +292,11 @@ namespace YH.AssetManager
                 if (type != null)
                 {
                     loader.type = type;
+                }
+
+                if (!autoReleaseBundle)
+                {
+                    loader.autoReleaseBundle = autoReleaseBundle;
                 }
 
                 if (loader.state == Loader.State.Idle)
@@ -981,14 +986,19 @@ namespace YH.AssetManager
 
         void OnAssetAfterLoaded(AssetLoader loader)
         {
-            //AssetReference ar = loader.result;
-            //if (ar != null)
-            //{
+            if (loader.autoReleaseBundle)
+            {
+                AssetReference ar = loader.result;
+                if (ar != null)
+                {
+                    ar.ReleaseBundleReference();
+                }
+            }
+
             if (loader.autoRelease)
             {
                 LoaderPool.Release(loader);
             }
-            //}
         }
 
         void OnAssetDispose(AssetReference ar)

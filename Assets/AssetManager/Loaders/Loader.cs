@@ -21,12 +21,15 @@ namespace YH.AssetManager
         //是否缓存加载后的资源。
         protected bool m_CacheLoadedAsset = false;
         protected bool m_AutoRelease = true;
+        //是否在加载后自动断开和AssetBundle的联系。
+        protected bool m_AutoReleaseBundle = true;
 
         HashSet<int> m_ParamTags = null;
 
         public abstract bool isDone { get; }
 
         public bool autoRelease { get { return m_AutoRelease; } set { m_AutoRelease = value; } }
+        public bool autoReleaseBundle { get { return m_AutoReleaseBundle; } set { m_AutoReleaseBundle = value; } }
 
         public HashSet<int> paramTags
         {
