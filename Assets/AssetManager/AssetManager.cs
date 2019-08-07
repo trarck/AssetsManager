@@ -21,6 +21,8 @@ namespace YH.AssetManager
         LoaderManager m_LoaderManager;
         RequestManager m_RequestManager;
 
+        bool m_Inited = false;
+
         //void Awake()
         //{
         //    Init();    
@@ -28,6 +30,23 @@ namespace YH.AssetManager
 
         public void Init(Action<bool> callback=null)
         {
+            if (m_Inited)
+            {
+                if (m_InfoManager.inited)
+                {
+                    if (callback != null)
+                    {
+                        callback(true);
+                    }
+                }
+                else
+                {
+                    m_InfoManager.onInitComplete += callback;
+                }
+                return;
+            }
+            m_Inited = true;
+
             Application.lowMemory += OnLowMemory;
 
             //add search paths

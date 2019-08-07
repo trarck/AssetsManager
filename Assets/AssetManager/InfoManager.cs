@@ -14,6 +14,8 @@ namespace YH.AssetManager
 
         AssetManager m_AssetManager;
 
+        bool m_Inited = false;
+
         public Action<bool> onInitComplete;
 
         public InfoManager(AssetManager assetManager)
@@ -206,6 +208,7 @@ namespace YH.AssetManager
 
         public void Clear()
         {
+            onInitComplete = null;
             m_AssetInfos.Clear();
             m_AssetBundleInfos.Clear();
         }
@@ -215,9 +218,18 @@ namespace YH.AssetManager
 #if ASSETMANAGER_LOG
             Debug.Log("Info Manager init complete");
 #endif
+            m_Inited = true;
             if (onInitComplete != null)
             {
                 onInitComplete(result);
+            }
+        }
+
+        public bool inited
+        {
+            get
+            {
+                return m_Inited;
             }
         }
     }
