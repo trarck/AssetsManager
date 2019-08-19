@@ -18,7 +18,26 @@ namespace YH.AssetManager
 
         public Type type { get; set; }
 
-        public AssetBundleReference assetBundleReference { get; set; }
+        private AssetBundleReference m_AssetBundleReference;
+        public AssetBundleReference assetBundleReference
+        {
+            get { return m_AssetBundleReference; }
+            set
+            {
+
+                if (value != null)
+                {
+                    value.Retain();
+                }
+
+                if (m_AssetBundleReference != null)
+                {
+                    m_AssetBundleReference.Release();
+                }
+
+                m_AssetBundleReference = value;
+            }
+        }
 
         protected bool AssetIsScene()
         {

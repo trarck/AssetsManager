@@ -49,10 +49,8 @@ namespace YH.AssetManager
 
             info = null;
 
-            if (m_Dependencies != null)
-            {                
-                m_Dependencies.Clear();
-            }
+            ClearDependencies();
+
             base.Clean();
         }
 
@@ -68,6 +66,27 @@ namespace YH.AssetManager
             }
         }
 
+        protected void AddDependency(AssetBundleReference abr)
+        {
+            if (abr != null)
+            {
+                //abr.Retain();
+                m_Dependencies.Add(abr);
+            }
+        }
+
+        protected void ClearDependencies()
+        {
+            if (m_Dependencies != null)
+            {
+                foreach (var dep in m_Dependencies)
+                {
+                    //dep.Release();
+                }
+                m_Dependencies.Clear();
+            }
+        }
+
         protected void ResetDependencies()
         {
             if (m_Dependencies == null)
@@ -76,7 +95,7 @@ namespace YH.AssetManager
             }
             else
             {
-                m_Dependencies.Clear();
+                ClearDependencies();
             }
         }
     }

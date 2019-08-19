@@ -207,7 +207,7 @@ namespace YH.AssetManager
 
         protected void OnDependencyComplete(AssetBundleReference abr)
         {
-            m_Dependencies.Add(abr);
+            AddDependency(abr);
 #if ASSETMANAGER_LOG
             Debug.Log("DependencyComplete "+info.fullName+ "=>" + abr.name + "," + Time.frameCount+",("+ m_WaitDependencyCompleteCount+")");
 #endif

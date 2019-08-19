@@ -54,7 +54,7 @@ namespace YH.AssetManager
                 AssetBundleReference abr = assetManager.LoadAssetBundleSync(dep, 0, false);
                 if (abr != null)
                 {
-                    m_Dependencies.Add(abr);
+                    AddDependency(abr);
                 }
             }
         }

@@ -41,6 +41,7 @@ namespace YH.AssetManager
 
                 if (m_AssetBundleReference != null)
                 {
+                    Debug.LogFormat("AssetReference:Release {0},{1}",name, m_AssetBundleReference!=null? m_AssetBundleReference.name:"Null");
                     m_AssetBundleReference.Release();
                 }
                 m_AssetBundleReference = value;
@@ -132,6 +133,12 @@ namespace YH.AssetManager
             onDispose = null;
             base.Reset();
         }
+
+        //public override void Retain()
+        //{
+        //    Debug.LogFormat("{0} Retain", asset);
+        //    base.Retain();
+        //}
     }
 
     public class AssetRefercenceMonitor : MonoBehaviour

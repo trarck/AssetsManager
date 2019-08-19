@@ -120,6 +120,7 @@ namespace YH.AssetManager
         {
             using (FileStream fs = File.OpenWrite(fileName))// new FileStream(fileName, FileMode.Create))
             {
+                fs.SetLength(0);
                 SaveToStream(fs);
             }
         }
