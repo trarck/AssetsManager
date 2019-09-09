@@ -70,7 +70,7 @@ namespace YH.AssetManager
         {
             if (abr != null)
             {
-                //abr.Retain();
+                abr.Retain();
                 m_Dependencies.Add(abr);
             }
         }
@@ -81,7 +81,7 @@ namespace YH.AssetManager
             {
                 foreach (var dep in m_Dependencies)
                 {
-                    //dep.Release();
+                    dep.Release();
                 }
                 m_Dependencies.Clear();
             }

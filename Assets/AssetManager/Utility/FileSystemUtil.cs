@@ -85,8 +85,6 @@ namespace YH
                 fol = fols.Peek();
                 foreach (FileInfo f in fol.GetFiles())
                 {
-                    Debug.Log(f.Name + ":" + reg.IsMatch(f.Name));
-
                     if (reg.IsMatch(f.Name))
                     { 
                         f.Attributes = f.Attributes & ~(FileAttributes.Archive | FileAttributes.ReadOnly | FileAttributes.Hidden);

@@ -23,10 +23,10 @@ namespace YH.AssetManager
 
         bool m_Inited = false;
 
-        //void Awake()
-        //{
-        //    Init();    
-        //}
+        void Awake()
+        {
+            Init();
+        }
 
         public void Init(Action<bool> callback=null)
         {
@@ -541,7 +541,10 @@ namespace YH.AssetManager
 
         void Update()
         {
-            m_RequestManager.Update();
+            if (m_RequestManager!=null)
+            {
+                m_RequestManager.Update();
+            }
         }
 
 #region exter function

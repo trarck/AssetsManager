@@ -72,6 +72,11 @@ namespace YH.AssetManager
             bundleUrl = null;
             base.Clean();
         }
+
+        public override string ToString()
+        {
+            return string.Format("BundleWebRequest:{0},isDone:{1}",  bundleUrl, isDone);
+        }
     }
 
     public class BundleCreateRequest : Request
@@ -135,6 +140,11 @@ namespace YH.AssetManager
             m_CreateRequest = null;
             bundlePath = null;
             base.Clean();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("BundleCreateRequest:{0},isDone:{1}", bundlePath, isDone);
         }
     }
 }

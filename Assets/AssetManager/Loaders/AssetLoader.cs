@@ -51,13 +51,13 @@ namespace YH.AssetManager
         protected void DoLoadComplete()
         {
 #if ASSETMANAGER_LOG
-            Debug.Log("EditorLoader DoLoadComplete" + "," + Time.frameCount);
+            Debug.LogFormat("AssetLoader {0}, DoLoadComplete,{1}", info!=null?info.fullName:"", Time.frameCount);
 #endif
             //先调用onBeforeComplete再调用onComplete,否则可能收不到Reference的onDispose事件。
             if (onBeforeComplete != null)
             {
 #if ASSETMANAGER_LOG
-                Debug.Log("EditorLoader onBeforeComplete" + "," + Time.frameCount);
+                Debug.LogFormat("AssetLoader {0}, onBeforeComplete,{1}", info != null ? info.fullName : "", Time.frameCount);
 #endif
                 onBeforeComplete(this);
             }
@@ -65,7 +65,7 @@ namespace YH.AssetManager
             if (onComplete != null)
             {
 #if ASSETMANAGER_LOG
-                Debug.Log("EditorLoader onComplete" + "," + Time.frameCount);
+                Debug.LogFormat("AssetLoader {0}, onComplete,{1}", info != null ? info.fullName : "", Time.frameCount);
 #endif
                 onComplete(result);
             }
@@ -73,7 +73,8 @@ namespace YH.AssetManager
             if (onAfterComplete != null)
             {
 #if ASSETMANAGER_LOG
-                Debug.Log("EditorLoader onAfterComplete" + "," + Time.frameCount);
+                Debug.LogFormat("AssetLoader {0}, onAfterComplete,{1}", info != null ? info.fullName : "", Time.frameCount);
+
 #endif
                 onAfterComplete(this);
             }

@@ -79,6 +79,10 @@ namespace YH.AssetManager
             type = null;
             base.Clean();
         }
+        public override string ToString()
+        {
+            return string.Format("AssetLoaderRequest:{0},isDone:{1}", assetName, isDone);
+        }
     }
 
     public class ResouceLoaderRequest : Request
@@ -153,6 +157,11 @@ namespace YH.AssetManager
             resourcePath = null;
             type = null;
             base.Clean();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("ResouceLoaderRequest:{0},isDone:{1}",  resourcePath, isDone);
         }
     }
 }

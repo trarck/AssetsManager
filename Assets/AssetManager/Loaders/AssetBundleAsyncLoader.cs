@@ -167,7 +167,7 @@ namespace YH.AssetManager
                 m_DependencyLoaders.Clear();
             }
 
-            ResetDependencies();
+            //ResetDependencies();
 
             m_DependenciesIsLoaded = false;
             m_DependenciesIsDone = false;
@@ -217,6 +217,7 @@ namespace YH.AssetManager
                 if (m_State == State.Loaded && m_Result != null)
                 {
                     m_Result.AddDependencies(m_Dependencies);
+                    ClearDependencies();
                     Complete();
                 }
             }
@@ -252,6 +253,7 @@ namespace YH.AssetManager
                 if (m_DependenciesIsDone )//|| (m_DependenciesIsLoaded && DeepCheckDependenciesComplete()))
                 {
                     m_Result.AddDependencies(m_Dependencies);
+                    ClearDependencies();
                     Complete();
                 }
             }
