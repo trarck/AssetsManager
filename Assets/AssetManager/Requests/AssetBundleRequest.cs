@@ -9,6 +9,7 @@ namespace YH.AssetManager
         UnityWebRequest m_Www;
         UnityWebRequestAsyncOperation m_WebRequestAsyncOperation;
         public string bundleUrl { get; set; }
+        public string hash { get; set; }
 
         public override bool isDone
         {
@@ -45,7 +46,14 @@ namespace YH.AssetManager
 
         public override void Start()
         {
-            m_Www = UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl);
+            if (string.IsNullOrEmpty(hash))
+            {
+                m_Www = UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl);
+            }
+            else
+            {
+                m_Www = UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl,Hash128.Parse(hash));
+            }
             m_WebRequestAsyncOperation = m_Www.SendWebRequest();
         }
 

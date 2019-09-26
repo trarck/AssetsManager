@@ -286,7 +286,7 @@ namespace YH.AssetManager
 
         Request LoadFromPackage(string path)
         {
-            Request request = RequestManager.CreateBundleWebRequest(path);
+            Request request = RequestManager.CreateBundleWebRequest(path, info!=null?info.hash:null);
             request.onComplete += OnBundleRequestComplete;
             assetManager.requestManager.ActiveRequest(request);
             return request;

@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace YH.AssetManager
 {
@@ -40,25 +41,27 @@ namespace YH.AssetManager
             m_AssetManager.StartCoroutine(LoadPackageFile(filePath));
         }
 
-        IEnumerator LoadPackageFile(string filePath)
+        IEnumerator LoadPackageFile(string fileUrl)
         {
-            WWW www = new WWW(filePath);
-            yield return www;
-            bool success = true;
-            if (www.error == null)
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(fileUrl))
             {
-                using (MemoryStream stream = new MemoryStream(www.bytes))
+                yield return webRequest;
+                bool success = true;
+                if (webRequest.error == null)
                 {
-                    LoadFromStream(stream);
+                    using (MemoryStream stream = new MemoryStream(webRequest.downloadHandler.data))
+                    {
+                        LoadFromStream(stream);
+                    }
                 }
-            }
-            else
-            {
-                Debug.LogErrorFormat("LoadPackageFile:{0} error: {1} ", filePath, www.error);
-                success = false;
-            }
+                else
+                {
+                    Debug.LogErrorFormat("LoadPackageFile:{0} error: {1} ", fileUrl, webRequest.error);
+                    success = false;
+                }
 
-            InitComplete(success);
+                InitComplete(success);
+            }
         }
 
         public void LoadFromFile(string filePath)

@@ -139,10 +139,11 @@ namespace YH.AssetManager
 
         #region create bundle request
 
-        public static BundleWebRequest CreateBundleWebRequest(string url)
+        public static BundleWebRequest CreateBundleWebRequest(string url,string hash=null)
         {
             BundleWebRequest request = BundleWebRequestPool.Get();
             request.bundleUrl = url;
+            request.hash = hash;
             return request;
         }
 
