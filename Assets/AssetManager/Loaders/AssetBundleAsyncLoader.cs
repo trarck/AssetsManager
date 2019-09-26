@@ -167,7 +167,7 @@ namespace YH.AssetManager
                 m_DependencyLoaders.Clear();
             }
 
-            //ResetDependencies();
+            ResetDependencies();
 
             m_DependenciesIsLoaded = false;
             m_DependenciesIsDone = false;
