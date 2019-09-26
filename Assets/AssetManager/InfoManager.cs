@@ -45,9 +45,9 @@ namespace YH.AssetManager
         {
             using (UnityWebRequest webRequest = UnityWebRequest.Get(fileUrl))
             {
-                yield return webRequest;
+                yield return webRequest.SendWebRequest();
                 bool success = true;
-                if (webRequest.error == null)
+                if (string.IsNullOrEmpty(webRequest.error))
                 {
                     using (MemoryStream stream = new MemoryStream(webRequest.downloadHandler.data))
                     {
