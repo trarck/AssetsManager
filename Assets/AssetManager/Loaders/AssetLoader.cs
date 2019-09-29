@@ -8,11 +8,11 @@ namespace YH.AssetManager
     {
         protected AssetReference m_Result;
         //拆分onComplete和onBeforeComplete，要保证onBeforeComplete和onComplete的执行顺序。
-        public Action<AssetReference> onComplete;
+        public event Action<AssetReference> onComplete;
 
-        public Action<AssetLoader> onBeforeComplete;
+        public event Action<AssetLoader> onBeforeComplete;
 
-        public Action<AssetLoader> onAfterComplete;
+        public event Action<AssetLoader> onAfterComplete;
 
         public AssetInfo info { get; set; }
 

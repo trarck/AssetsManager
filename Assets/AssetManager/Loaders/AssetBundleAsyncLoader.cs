@@ -12,7 +12,7 @@ namespace YH.AssetManager
     /// </summary>
     public class AssetBundleAsyncLoader : AssetBundleLoader
     {
-        public Action<AssetBundleAsyncLoader> onAssetBundleLoaded;
+        public event Action<AssetBundleAsyncLoader> onAssetBundleLoaded;
 
         int m_WaitDependencyLoadCount = 0;
         bool m_DependenciesIsLoaded = false;

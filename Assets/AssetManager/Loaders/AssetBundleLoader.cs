@@ -12,11 +12,11 @@ namespace YH.AssetManager
         //这里可以不使用对象池。因为loader已经使用了对象池。
         protected HashSet<AssetBundleReference> m_Dependencies = null;// HashSetPool<AssetBundleReference>.Get();
         //拆分onComplete和onBeforeComplete，要保证onBeforeComplete和onComplete的执行顺序。
-        public Action<AssetBundleReference> onComplete;
+        public event Action<AssetBundleReference> onComplete;
 
-        public Action<AssetBundleLoader> onBeforeComplete;
+        public event Action<AssetBundleLoader> onBeforeComplete;
 
-        public Action<AssetBundleLoader> onAfterComplete;
+        public event Action<AssetBundleLoader> onAfterComplete;
 
         public AssetBundleInfo info { get; set; }
 
