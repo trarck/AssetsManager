@@ -32,7 +32,7 @@ namespace YH.AssetManager
                 info.fullName = path;
             }
 
-            loader = LoaderPool.AssetAsyncLoader.Get();// new AssetAsyncLoader();
+            loader = LoaderPool.AssetAsyncLoaderPool.Get();// new AssetAsyncLoader();
 #else
             loader = new AssetEditorLoader();
             info = new AssetInfo();
@@ -48,13 +48,28 @@ namespace YH.AssetManager
             AssetBundleLoader loader = null;
             AssetBundleInfo info = null;
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-            loader = LoaderPool.AssetBundleAsyncLoader.Get();//new AssetBundleAsyncLoader();
-
             info = m_AssetManager.infoManager.FindAssetBundleInfo(path);
             if (info == null)
             {
                 Debug.LogErrorFormat("Can't find asset bundle info {0}", path);
+                return null;
             }
+    #if ASSET_BUNDLE_REMOTE
+            if (m_AssetManager.infoManager.NeedDownload(path,info.hash))
+            {
+                loader = LoaderPool.AssetBundleNetworkLoaderPool.Get();
+                loader.onBeforeComplete += (_loader) =>
+                {
+                    m_AssetManager.infoManager.UpdateAssetBundleVersion(path, info.hash);
+                };
+            }
+            else
+            {
+                loader = LoaderPool.AssetBundleAsyncLoaderPool.Get();
+            }
+    #else
+            loader = LoaderPool.AssetBundleAsyncLoaderPool.Get();
+    #endif
 #else
             loader = new AssetBundleEmptyLoader();
             //just for message

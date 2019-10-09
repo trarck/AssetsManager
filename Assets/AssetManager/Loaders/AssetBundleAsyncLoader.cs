@@ -134,7 +134,7 @@ namespace YH.AssetManager
             }
         }
 
-        void LoadBundle()
+        protected virtual void LoadBundle()
         {
             string assetPath = AssetPaths.GetFullPath(info.fullName);
 #if ASSETMANAGER_LOG
@@ -142,7 +142,7 @@ namespace YH.AssetManager
 #endif
             if (assetPath.Contains("://"))
             {
-                LoadFromPackage(assetPath);
+                LoadFromWeb(assetPath);
             }
             else
             {
@@ -150,7 +150,7 @@ namespace YH.AssetManager
             }
         }
 
-        void LoadDependencies()
+        protected virtual void LoadDependencies()
         {
             string[] dependencies = info.dependencies;
             m_WaitDependencyLoadCount = dependencies.Length;
@@ -276,7 +276,7 @@ namespace YH.AssetManager
             DoLoadComplete();
         }
 
-        Request LoadFromFile(string path)
+        protected Request LoadFromFile(string path)
         {
             Request request = RequestManager.CreateBundleCreateRequest(path);
             request.onComplete += OnBundleRequestComplete;
@@ -284,7 +284,7 @@ namespace YH.AssetManager
             return request;
         }
 
-        Request LoadFromPackage(string path)
+        protected Request LoadFromWeb(string path)
         {
             Request request = RequestManager.CreateBundleWebRequest(path, info!=null?info.hash:null);
             request.onComplete += OnBundleRequestComplete;

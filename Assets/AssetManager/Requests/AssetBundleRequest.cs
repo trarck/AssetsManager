@@ -1,13 +1,22 @@
-﻿using UnityEngine;
+﻿using System;
+using System.IO;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace YH.AssetManager
 {
+    class AcceptAllCertificatesSignedHandler : CertificateHandler
+    {
+        protected override bool ValidateCertificate(byte[] certificateData)
+        {
+            return true;
+        }
+    }
 
     public class BundleWebRequest : Request
     {
-        UnityWebRequest m_Www;
-        UnityWebRequestAsyncOperation m_WebRequestAsyncOperation;
+        protected UnityWebRequest m_Www;
+        protected UnityWebRequestAsyncOperation m_WebRequestAsyncOperation;
         public string bundleUrl { get; set; }
         public string hash { get; set; }
 
@@ -54,6 +63,11 @@ namespace YH.AssetManager
             {
                 m_Www = UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl,Hash128.Parse(hash));
             }
+
+#if SSH_ACCEPT_ALL
+            m_Www.certificateHandler = new AcceptAllCertificatesSignedHandler();
+#endif
+
             m_WebRequestAsyncOperation = m_Www.SendWebRequest();
         }
 
@@ -78,12 +92,104 @@ namespace YH.AssetManager
             m_Www = null;
             m_WebRequestAsyncOperation = null;
             bundleUrl = null;
+            hash = null;
             base.Clean();
         }
 
         public override string ToString()
         {
             return string.Format("BundleWebRequest:{0},isDone:{1}",  bundleUrl, isDone);
+        }
+    }
+
+    public class BundleWebSaveRequest : BundleWebRequest
+    {
+        public string saveFilePath { get; set; }
+
+        AssetBundleCreateRequest m_CreateRequest;
+
+        public override bool isDone
+        {
+            get
+            {
+                if (m_CreateRequest != null)
+                {
+                    return m_CreateRequest.isDone;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public override void Start()
+        {
+            if (string.IsNullOrEmpty(hash))
+            {
+                m_Www = UnityWebRequest.Get(bundleUrl);
+            }
+            else
+            {
+                m_Www = UnityWebRequest.Get(bundleUrl+"?hash="+hash);
+            }
+
+            //if (string.IsNullOrEmpty(hash))
+            //{
+            //    m_Www =  UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl);
+            //}
+            //else
+            //{
+            //    m_Www =UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl, Hash128.Parse(hash));
+            //}
+
+#if SSH_ACCEPT_ALL
+            m_Www.certificateHandler = new AcceptAllCertificatesSignedHandler();
+#endif
+            m_WebRequestAsyncOperation = m_Www.SendWebRequest();
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            if(m_WebRequestAsyncOperation!=null && m_WebRequestAsyncOperation.isDone && m_CreateRequest==null)
+            {
+#if ASSETMANAGER_LOG
+                Debug.LogFormat("BundleWebSaveRequest Download Complete {0},{1}", bundleUrl, Time.frameCount);
+#endif
+                m_CreateRequest = AssetBundle.LoadFromMemoryAsync(m_WebRequestAsyncOperation.webRequest.downloadHandler.data);
+            }
+        }
+
+        public override void Clean()
+        {
+            base.Clean();
+            saveFilePath = null;
+            m_CreateRequest = null;
+        }
+
+        public override void Complete()
+        {
+            base.Complete();
+            //Async save.如果Unity不支持则改为同步版本。
+            SaveAsync(saveFilePath, m_Www.downloadHandler.data);
+        }
+
+        protected async void SaveAsync(string saveFile, byte[] data)
+        {
+            using (FileStream stream = new FileStream(saveFile, FileMode.Append, FileAccess.Write, FileShare.None,
+                                                            bufferSize: 4096, useAsync: true))
+            {
+                await stream.WriteAsync(data, 0, data.Length);
+            };
+        }
+
+        public override AssetBundle assetBundle
+        {
+            get
+            {
+                return m_CreateRequest != null ? m_CreateRequest.assetBundle : null;
+            }
         }
     }
 

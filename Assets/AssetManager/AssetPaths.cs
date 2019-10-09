@@ -21,6 +21,9 @@ namespace YH.AssetManager
 
         public static string assetPathPrev = "Assets/";
 
+        //远程下载地址，指向要下载的asset bundle的根目录。如https://www.xxx.com/xxx/Android。
+        public static string remoteUrl = "";
+
         public static List<string> searchPaths = new List<string>();
 
         public static string FullPathForFilename(string filename)
@@ -113,8 +116,14 @@ namespace YH.AssetManager
                 return fullPath;
             }
 
+            
+#if ASSET_BUNDLE_REMOTE_UNITY
+            //down load from remote
+            return GetUrl(filename);
+#else
             //get from package
             return StreamingPathForFilename(filename);  
+#endif
         }
 
         public static string Combine(params string[] paths)
@@ -194,6 +203,47 @@ namespace YH.AssetManager
                 return Combine(assetPathPrev, path);
             }
             return path;
+        }
+
+        public static string GetBundlePath()
+        {
+            return Path.Combine(AssetPaths.Combine(Application.persistentDataPath, AssetPaths.bundlesPath));
+        }
+
+        public static string ToBundlePath(string filename)
+        {
+            if (string.IsNullOrEmpty(filename))
+            {
+                return filename;
+            }
+
+            //filename is root and exists
+            if (Path.IsPathRooted(filename))
+            {
+                if (File.Exists(filename))
+                {
+                    return filename;
+                }
+            }
+            //To bundle dir
+            return Path.Combine(GetBundlePath(), filename);
+        }
+
+        public static string GetUrl(string filename)
+        {
+            if (filename.Contains("://"))
+            {
+                return filename;
+            }
+
+            if (remoteUrl.EndsWith("/"))
+            {
+                return remoteUrl +filename;
+            }
+            else
+            {
+                return remoteUrl + "/" + filename;
+            }
         }
     }
 }

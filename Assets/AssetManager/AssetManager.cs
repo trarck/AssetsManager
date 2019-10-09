@@ -51,6 +51,7 @@ namespace YH.AssetManager
 
             //add search paths
             AssetPaths.AddSearchPath(AssetPaths.Combine(Application.persistentDataPath, AssetPaths.bundlesPath));
+            AssetPaths.AddSearchPath(Application.persistentDataPath);
 #if UNITY_EDITOR
             //bunlde out path
             AssetPaths.AddSearchPath(
@@ -545,9 +546,16 @@ namespace YH.AssetManager
             {
                 m_RequestManager.Update();
             }
+
+#if ASSET_BUNDLE_REMOTE
+            if (m_InfoManager != null)
+            {
+                m_InfoManager.Update(Time.deltaTime);
+            }
+#endif
         }
 
-#region exter function
+        #region exter function
         public AssetBundleLoader LoadScene(string path, int tag, Action<AssetBundleReference> completeHandle)
         {
             AssetInfo info = m_InfoManager.FindAssetInfo(path);
@@ -1028,8 +1036,25 @@ namespace YH.AssetManager
             m_Assets.Remove(ar.name);
         }
 
-#endregion
+        #endregion
 
+#if ASSET_BUNDLE_REMOTE
+        private void OnApplicationPause(bool pause)
+        {
+            if (m_InfoManager != null)
+            {
+                m_InfoManager.SaveLocalAssetBundleInfo();
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            if (m_InfoManager != null)
+            {
+                m_InfoManager.SaveLocalAssetBundleInfo();
+            }   
+        }
+#endif
         public InfoManager infoManager
         {
             get { return m_InfoManager; }

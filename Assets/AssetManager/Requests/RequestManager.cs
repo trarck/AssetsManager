@@ -9,11 +9,12 @@ namespace YH.AssetManager
     {
         internal static readonly ObjectPool<BundleCreateRequest> BundleCreateRequestPool = new ObjectPool<BundleCreateRequest>(null, l => l.Clean());
         internal static readonly ObjectPool<BundleWebRequest> BundleWebRequestPool = new ObjectPool<BundleWebRequest>(null, l => l.Clean());
+        internal static readonly ObjectPool<BundleWebSaveRequest> BundleWebSaveRequestPool = new ObjectPool<BundleWebSaveRequest>(null, l => l.Clean());
 
         internal static readonly ObjectPool<AssetLoaderRequest> AssetLoaderRequestPool = new ObjectPool<AssetLoaderRequest>(null, l => l.Clean());
         internal static readonly ObjectPool<ResouceLoaderRequest> ResouceLoaderRequestPool = new ObjectPool<ResouceLoaderRequest>(null, l => l.Clean());
 
-        int m_MaxActiveRequest = 20;
+        int m_MaxActiveRequest = 12;
         List<Request> m_ActiveRequests = new List<Request>();
         List<int> m_FinishedIndexs = new List<int>();
         Stack<Request> m_PrepareRequests = new Stack<Request>();
@@ -118,7 +119,11 @@ namespace YH.AssetManager
 
         protected void ReleaseRequest(Request request)
         {
-            if (request is BundleWebRequest)
+            if (request is BundleWebSaveRequest)
+            {
+                ReleaseBundleWebSaveRequest(request as BundleWebSaveRequest);
+            }
+            else if(request is BundleWebRequest)
             {
                 ReleaseBundleWebRequest(request as BundleWebRequest);
             }
@@ -162,6 +167,20 @@ namespace YH.AssetManager
         public static void ReleaseBundleCreateRequest(BundleCreateRequest request)
         {
             BundleCreateRequestPool.Release(request);
+        }
+
+        public static BundleWebSaveRequest CreateBundleWebSaveRequest(string url,string localPath, string hash = null)
+        {
+            BundleWebSaveRequest request = BundleWebSaveRequestPool.Get();
+            request.bundleUrl = url;
+            request.hash = hash;
+            request.saveFilePath = localPath;
+            return request;
+        }
+
+        public static void ReleaseBundleWebSaveRequest(BundleWebSaveRequest request)
+        {
+            BundleWebSaveRequestPool.Release(request);
         }
 
         #endregion
@@ -210,10 +229,16 @@ namespace YH.AssetManager
                 .Append(",").Append(BundleCreateRequestPool.countActive)
                 .Append(",").Append(BundleCreateRequestPool.countInactive)
                 .Append("),");
-            sb.Append("BundleCreateRequestPool =(")
+            sb.Append("BundleWebRequestPool =(")
                 .Append(BundleWebRequestPool.countAll)
                 .Append(",").Append(BundleWebRequestPool.countActive)
                 .Append(",").Append(BundleWebRequestPool.countInactive)
+                .Append("),");
+
+            sb.Append("BundleWebSaveRequestPool =(")
+                .Append(BundleWebSaveRequestPool.countAll)
+                .Append(",").Append(BundleWebSaveRequestPool.countActive)
+                .Append(",").Append(BundleWebSaveRequestPool.countInactive)
                 .Append("),");
 
             sb.Append("AssetLoaderRequestPool =(")

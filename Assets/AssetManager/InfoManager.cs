@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using Newtonsoft.Json;
+
 
 namespace YH.AssetManager
 {
@@ -12,6 +14,15 @@ namespace YH.AssetManager
         BundleManifest m_BundleManifest;
         Dictionary<string, AssetInfo> m_AssetInfos = new Dictionary<string, AssetInfo>();
         Dictionary<string, AssetBundleInfo> m_AssetBundleInfos = new Dictionary<string, AssetBundleInfo>();
+
+#if ASSET_BUNDLE_REMOTE
+        Dictionary<string, string> m_LocalAssetBundlesVersion = null;
+        string m_LocalAssetBundleVersionFileName = "LocalAssetBundleVersion.json";
+        bool m_LocalAssetBundleDirty=false;
+        float m_DelayDuration = 2.0f;
+        float m_Elapsed = 0;
+
+#endif
 
         AssetManager m_AssetManager;
 
@@ -26,6 +37,11 @@ namespace YH.AssetManager
 
         public void Load(string filePath)
         {
+#if ASSET_BUNDLE_REMOTE
+            //加载本地保存的AssetBundleVersion.
+            LoadLocalAssetBundleInfo();
+#endif
+
             if (filePath.Contains("://"))
             {
                 LoadFromPackage(filePath);
@@ -35,6 +51,7 @@ namespace YH.AssetManager
                 LoadFromFile(filePath);
             }
         }
+
 
         public void LoadFromPackage(string filePath)
         {
@@ -210,6 +227,88 @@ namespace YH.AssetManager
             return null;
         }
 
+#if ASSET_BUNDLE_REMOTE
+        public void Update(float dt)
+        {
+            if (m_LocalAssetBundleDirty)
+            {
+                m_Elapsed += dt;
+                if (m_Elapsed >= m_DelayDuration)
+                {
+                    SaveLocalAssetBundleInfo();
+                }
+            }
+        }
+
+        public void LoadLocalAssetBundleInfo()
+        {
+            string infoFile = GetLocalAssetBundleFilePath();
+            if (File.Exists(infoFile))
+            {
+                string content = File.ReadAllText(infoFile);
+                m_LocalAssetBundlesVersion = JsonConvert.DeserializeObject<Dictionary<string,string>>(content);
+            }
+            
+            if(m_LocalAssetBundlesVersion==null)
+            {
+                m_LocalAssetBundlesVersion = new Dictionary<string, string>();
+            }
+        }
+
+        public void SaveLocalAssetBundleInfo()
+        {
+            if (m_LocalAssetBundlesVersion != null && m_LocalAssetBundleDirty)
+            {
+                string infoFile = GetLocalAssetBundleFilePath();
+                string content = JsonConvert.SerializeObject(m_LocalAssetBundlesVersion);
+                File.WriteAllText(infoFile, content);
+                m_LocalAssetBundleDirty = false;
+            }
+        }
+
+        public void UpdateAssetBundleVersion(string key,string hash)
+        {
+            m_LocalAssetBundleDirty = true;
+            m_LocalAssetBundlesVersion[key] = hash;
+        }
+
+        public void UpdateAssetBundleVersion(string key)
+        {
+            AssetBundleInfo assetBundleInfo = FindAssetBundleInfo(key);
+            if (assetBundleInfo != null)
+            {
+                UpdateAssetBundleVersion(key, assetBundleInfo.hash);
+            }
+        }
+
+        public bool NeedDownload(string key)
+        {
+            AssetBundleInfo assetBundleInfo = FindAssetBundleInfo(key);
+            if (assetBundleInfo != null)
+            {
+                return NeedDownload(key, assetBundleInfo.hash);
+            }
+            return true;
+        }
+
+        public bool NeedDownload(string key,string newestHash)
+        {
+            string hash;
+            if (m_LocalAssetBundlesVersion.TryGetValue(key, out hash))
+            {
+                if (hash == newestHash)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        string GetLocalAssetBundleFilePath()
+        {
+            return Path.Combine(Application.persistentDataPath, m_LocalAssetBundleVersionFileName);
+        }
+#endif
         public void Clear()
         {
             onInitComplete = null;
