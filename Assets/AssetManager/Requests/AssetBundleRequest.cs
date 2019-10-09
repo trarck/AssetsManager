@@ -55,6 +55,7 @@ namespace YH.AssetManager
 
         public override void Start()
         {
+            //通过UnityWebRequest从远程下载的AssetBunle的缓存只与hash值有关与url地址不关。
             if (string.IsNullOrEmpty(hash))
             {
                 m_Www = UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl);
