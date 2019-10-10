@@ -207,7 +207,7 @@ namespace YH.AssetManager
 
         public static string GetBundlePath()
         {
-            return Path.Combine(AssetPaths.Combine(Application.persistentDataPath, AssetPaths.bundlesPath));
+            return Combine(Application.persistentDataPath, bundlesPath);
         }
 
         public static string ToBundlePath(string filename)
