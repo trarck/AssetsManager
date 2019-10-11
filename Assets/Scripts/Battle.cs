@@ -4,10 +4,10 @@ using UnityEngine;
 using YH.AssetManager;
 
 public class Battle : MonoBehaviour {
-
-	// Use this for initialization
-	void Start () {
-        AssetManager.Instance.UnloadUnuseds("Main");
+    
+    // Use this for initialization
+    void Start () {
+        AssetManager.Instance.UnloadUnuseds(AssetTag.Main);
         StartCoroutine(Test());
 	}
 	

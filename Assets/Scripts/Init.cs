@@ -29,7 +29,7 @@ public class Init : MonoBehaviour {
         //    SceneManager.LoadScene("Scenes/Main");
         //});
 
-        AssetManager.Instance.LoadScene("Scenes/Main.unity","Main", (abr) =>
+        AssetManager.Instance.LoadScene("Scenes/Main.unity",AssetTag.Main, (abr) =>
         {
             Debug.Log("LoadCompete");
             SceneManager.LoadScene("Scenes/Main");

@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using YH.AssetManager;
 
 public class Main : MonoBehaviour {
+    
 
 	// Use this for initialization
 	void Start () {
@@ -20,7 +21,7 @@ public class Main : MonoBehaviour {
         yield return new WaitForSeconds(3);
         Debug.Log("Goto Battle");
 
-        AssetManager.Instance.LoadScene("Scenes/Battle.unity", "Battle", (abr) =>
+        AssetManager.Instance.LoadScene("Scenes/Battle.unity", AssetTag.Battle, (abr) =>
         {
             Debug.Log("LoadCompete");
             SceneManager.LoadScene("Scenes/Battle");
