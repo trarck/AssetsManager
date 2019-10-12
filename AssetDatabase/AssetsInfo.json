@@ -1,0 +1,89 @@
+{
+    "assets": [
+        {
+            "mainAsset": "Assets/ArtResources/Prefabs/APreab.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/APreab.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Materials/MyMaterial.mat",
+                "Assets/ArtResources/Prefabs/BPreab.prefab"
+            ],
+            "standalone": true,
+            "refersHashCode": 1618300317
+        },
+        {
+            "mainAsset": "Assets/ArtResources/Materials/MyMaterial.mat",
+            "assets": [
+                "Assets/ArtResources/Materials/MyMaterial.mat",
+                "Assets/ArtResources/Textures/bnt_Blue_S.png"
+            ],
+            "dependencies": [],
+            "standalone": false,
+            "refersHashCode": 2126397277
+        },
+        {
+            "mainAsset": "Assets/ArtResources/Prefabs/BPreab.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/BPreab.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Prefabs/CPreab.prefab"
+            ],
+            "standalone": true,
+            "refersHashCode": -1665549729
+        },
+        {
+            "mainAsset": "Assets/ArtResources/Prefabs/CPreab.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/CPreab.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Prefabs/APreab.prefab"
+            ],
+            "standalone": true,
+            "refersHashCode": 2123858942
+        },
+        {
+            "mainAsset": "Assets/ArtResources/Prefabs/MyPrefab.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/MyPrefab.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Materials/MyMaterial.mat"
+            ],
+            "standalone": true,
+            "refersHashCode": 0
+        },
+        {
+            "mainAsset": "Assets/ArtResources/Prefabs/TestPrefab.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/TestPrefab.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Materials/MyMaterial.mat"
+            ],
+            "standalone": true,
+            "refersHashCode": 0
+        },
+        {
+            "mainAsset": "Assets/ArtResources/Monster/H_Bear.prefab",
+            "assets": [
+                "Assets/ArtResources/Monster/H_Bear.prefab",
+                "Assets/Models/H_Bear/H_Bear.FBX",
+                "Assets/Models/H_Bear/H_Bear@die.FBX",
+                "Assets/Models/H_Bear/H_Bear@wait.FBX",
+                "Assets/Models/H_Bear/H_Bear@attack.FBX",
+                "Assets/Models/H_Bear/H_Bear@idleaction.FBX",
+                "Assets/Models/H_Bear/H_Bear@move.FBX",
+                "Assets/Models/H_Bear/Materials/T_H_Bear_D.mat",
+                "Assets/Models/H_Bear/T_H_Bear_D.TGA",
+                "Assets/Resources/Shaders/Illumin-Diffuse.shader",
+                "Assets/Models/H_Bear/H_Bear@uniqueskill.FBX"
+            ],
+            "dependencies": [],
+            "standalone": true,
+            "refersHashCode": 0
+        }
+    ]
+}
