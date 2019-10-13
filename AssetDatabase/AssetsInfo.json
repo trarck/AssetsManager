@@ -1,50 +1,6 @@
 {
     "assets": [
         {
-            "mainAsset": "Assets/ArtResources/Prefabs/APreab.prefab",
-            "assets": [
-                "Assets/ArtResources/Prefabs/APreab.prefab"
-            ],
-            "dependencies": [
-                "Assets/ArtResources/Materials/MyMaterial.mat",
-                "Assets/ArtResources/Prefabs/BPreab.prefab"
-            ],
-            "standalone": true,
-            "refersHashCode": 1618300317
-        },
-        {
-            "mainAsset": "Assets/ArtResources/Materials/MyMaterial.mat",
-            "assets": [
-                "Assets/ArtResources/Materials/MyMaterial.mat",
-                "Assets/ArtResources/Textures/bnt_Blue_S.png"
-            ],
-            "dependencies": [],
-            "standalone": false,
-            "refersHashCode": 2126397277
-        },
-        {
-            "mainAsset": "Assets/ArtResources/Prefabs/BPreab.prefab",
-            "assets": [
-                "Assets/ArtResources/Prefabs/BPreab.prefab"
-            ],
-            "dependencies": [
-                "Assets/ArtResources/Prefabs/CPreab.prefab"
-            ],
-            "standalone": true,
-            "refersHashCode": -1665549729
-        },
-        {
-            "mainAsset": "Assets/ArtResources/Prefabs/CPreab.prefab",
-            "assets": [
-                "Assets/ArtResources/Prefabs/CPreab.prefab"
-            ],
-            "dependencies": [
-                "Assets/ArtResources/Prefabs/APreab.prefab"
-            ],
-            "standalone": true,
-            "refersHashCode": 2123858942
-        },
-        {
             "mainAsset": "Assets/ArtResources/Prefabs/MyPrefab.prefab",
             "assets": [
                 "Assets/ArtResources/Prefabs/MyPrefab.prefab"
@@ -56,6 +12,16 @@
             "refersHashCode": 0
         },
         {
+            "mainAsset": "Assets/ArtResources/Materials/MyMaterial.mat",
+            "assets": [
+                "Assets/ArtResources/Materials/MyMaterial.mat",
+                "Assets/ArtResources/Textures/bnt_Blue_S.png"
+            ],
+            "dependencies": [],
+            "standalone": false,
+            "refersHashCode": 1536217008
+        },
+        {
             "mainAsset": "Assets/ArtResources/Prefabs/TestPrefab.prefab",
             "assets": [
                 "Assets/ArtResources/Prefabs/TestPrefab.prefab"
@@ -65,6 +31,72 @@
             ],
             "standalone": true,
             "refersHashCode": 0
+        },
+        {
+            "mainAsset": "Assets/ArtResources/Prefabs/SameRefers/SameRefA.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/SameRefers/SameRefA.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat"
+            ],
+            "standalone": true,
+            "refersHashCode": 0
+        },
+        {
+            "mainAsset": "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
+            "assets": [
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_A.mat"
+            ],
+            "dependencies": [],
+            "standalone": false,
+            "refersHashCode": -435495295
+        },
+        {
+            "mainAsset": "Assets/ArtResources/Prefabs/SameRefers/SameRefB.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/SameRefers/SameRefB.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat"
+            ],
+            "standalone": true,
+            "refersHashCode": 0
+        },
+        {
+            "mainAsset": "Assets/ArtResources/Prefabs/CircelRefs/APreab.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/CircelRefs/APreab.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Materials/MyMaterial.mat",
+                "Assets/ArtResources/Prefabs/CircelRefs/BPreab.prefab"
+            ],
+            "standalone": true,
+            "refersHashCode": 1608748524
+        },
+        {
+            "mainAsset": "Assets/ArtResources/Prefabs/CircelRefs/BPreab.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/CircelRefs/BPreab.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Prefabs/CircelRefs/CPreab.prefab"
+            ],
+            "standalone": true,
+            "refersHashCode": -1675101522
+        },
+        {
+            "mainAsset": "Assets/ArtResources/Prefabs/CircelRefs/CPreab.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/CircelRefs/CPreab.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Prefabs/CircelRefs/APreab.prefab"
+            ],
+            "standalone": true,
+            "refersHashCode": 2114307149
         },
         {
             "mainAsset": "Assets/ArtResources/Monster/H_Bear.prefab",
