@@ -19,6 +19,7 @@ namespace YH.AssetManager
         }
 
         public abstract bool isDone { get; }
+        public abstract float progress { get; }
         public abstract bool haveError { get; }
 
         public virtual UnityEngine.Object data { get; set; }

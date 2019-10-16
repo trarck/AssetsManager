@@ -28,6 +28,21 @@ namespace YH.AssetManager
             }
         }
 
+        public override float progress
+        {
+            get
+            {
+                if (m_Request != null)
+                {
+                    return m_Request.progress;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+
         public override UnityEngine.Object data
         {
             get
@@ -103,6 +118,21 @@ namespace YH.AssetManager
                 else
                 {
                     return false;
+                }
+            }
+        }
+
+        public override float progress
+        {
+            get
+            {
+                if (m_Request != null)
+                {
+                    return m_Request.progress;
+                }
+                else
+                {
+                    return 0;
                 }
             }
         }

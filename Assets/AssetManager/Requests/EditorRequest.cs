@@ -15,6 +15,14 @@ namespace YH.AssetManager
             }
         }
 
+        public override float progress
+        {
+            get
+            {
+                return 1;
+            }
+        }
+
         public override bool haveError
         {
             get
@@ -31,6 +39,14 @@ namespace YH.AssetManager
             get
             {
                 return true;
+            }
+        }
+
+        public override float progress
+        {
+            get
+            {
+                return 1;
             }
         }
 
