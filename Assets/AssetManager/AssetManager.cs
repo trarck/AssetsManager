@@ -1007,9 +1007,18 @@ namespace YH.AssetManager
                 //asset loader always standalone
                 ar.Cache();
                 ar.onDispose += OnAssetDispose;
+                //remove from loading
                 if (m_LoadingAssetLoaders.ContainsKey(ar.name))
                 {
                     m_LoadingAssetLoaders.Remove(ar.name);
+                }
+            }
+            else if(loader.info!=null)
+            {
+                //remove from loading
+                if (m_LoadingAssetLoaders.ContainsKey(loader.info.fullName))
+                {
+                    m_LoadingAssetLoaders.Remove(loader.info.fullName);
                 }
             }
         }
