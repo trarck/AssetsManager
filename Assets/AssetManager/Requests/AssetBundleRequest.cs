@@ -207,17 +207,18 @@ namespace YH.AssetManager
         {
             base.Complete();
             //Async save.如果Unity不支持则改为同步版本。
-            SaveAsync(saveFilePath, m_Www.downloadHandler.data);
+            //SaveAsync(saveFilePath, m_Www.downloadHandler.data);
+            File.WriteAllBytes(saveFilePath, m_Www.downloadHandler.data);
         }
 
-        protected async void SaveAsync(string saveFile, byte[] data)
-        {
-            using (FileStream stream = new FileStream(saveFile, FileMode.Truncate, FileAccess.Write, FileShare.None,
-                                                            bufferSize: 4096, useAsync: true))
-            {
-                await stream.WriteAsync(data, 0, data.Length);
-            };
-        }
+        //protected async void SaveAsync(string saveFile, byte[] data)
+        //{
+        //    using (FileStream stream = new FileStream(saveFile, FileMode.Truncate, FileAccess.Write, FileShare.None,
+        //                                                    bufferSize: 4096, useAsync: true))
+        //    {
+        //        await stream.WriteAsync(data, 0, data.Length);
+        //    };
+        //}
 
         public override AssetBundle assetBundle
         {
