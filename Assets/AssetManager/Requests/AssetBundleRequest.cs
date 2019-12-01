@@ -15,10 +15,12 @@ namespace YH.AssetManager
 
     public class BundleWebRequest : Request
     {
+        static int RequestTimeout = 12;
         protected UnityWebRequest m_Www;
         protected UnityWebRequestAsyncOperation m_WebRequestAsyncOperation;
         public string bundleUrl { get; set; }
         public string hash { get; set; }
+        protected int m_RetryTimes = 3;
 
         public override bool isDone
         {
@@ -68,23 +70,55 @@ namespace YH.AssetManager
             bundleUrl = url;            
         }
 
-        public override void Start()
+        protected void SendRequest()
         {
-            //通过UnityWebRequest从远程下载的AssetBunle的缓存只与hash值有关与url地址不关。
+            //通过UnityWebRequest从远程下载的AssetBunle的缓存只与hash值有关与url地址无关。
             if (string.IsNullOrEmpty(hash))
             {
                 m_Www = UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl);
             }
             else
             {
-                m_Www = UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl,Hash128.Parse(hash));
+                m_Www = UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl, Hash128.Parse(hash));
             }
+            m_Www.timeout = RequestTimeout;
 
 #if SSH_ACCEPT_ALL
             m_Www.certificateHandler = new AcceptAllCertificatesSignedHandler();
 #endif
-
             m_WebRequestAsyncOperation = m_Www.SendWebRequest();
+        }
+
+        public override void Start()
+        {
+            SendRequest();
+        }
+
+        protected void Retry()
+        {
+            if (m_Www!=null)
+            {
+                m_Www.Dispose();
+            }
+
+            SendRequest();
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            if (m_Www != null && m_Www.isNetworkError)
+            {
+#if ASSETMANAGER_LOG
+                Debug.LogFormat("The WebRequest have network error left retry times:{0},--{1}", m_RetryTimes, Time.frameCount);
+#endif
+                //when network error retry again
+                if (m_RetryTimes > 0)
+                {
+                    --m_RetryTimes;
+                    Retry();
+                }
+            }
         }
 
         public override bool haveError
@@ -207,18 +241,17 @@ namespace YH.AssetManager
         {
             base.Complete();
             //Async save.如果Unity不支持则改为同步版本。
-            File.WriteAllBytes(saveFilePath, m_Www.downloadHandler.data);
-            //SaveAsync(saveFilePath, m_Www.downloadHandler.data);
+            SaveAsync(saveFilePath, m_Www.downloadHandler.data);
         }
 
-        //protected async void SaveAsync(string saveFile, byte[] data)
-        //{
-        //    using (FileStream stream = new FileStream(saveFile, FileMode.Truncate, FileAccess.Write, FileShare.None,
-        //                                                    bufferSize: 4096, useAsync: true))
-        //    {
-        //        await stream.WriteAsync(data, 0, data.Length);
-        //    };
-        //}
+        protected async void SaveAsync(string saveFile, byte[] data)
+        {
+            using (FileStream stream = new FileStream(saveFile, FileMode.Truncate, FileAccess.Write, FileShare.None,
+                                                            bufferSize: 4096, useAsync: true))
+            {
+                await stream.WriteAsync(data, 0, data.Length);
+            };
+        }
 
         public override AssetBundle assetBundle
         {
