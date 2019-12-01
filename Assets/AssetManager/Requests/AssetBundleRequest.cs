@@ -15,12 +15,13 @@ namespace YH.AssetManager
 
     public class BundleWebRequest : Request
     {
-        static int RequestTimeout = 12;
+        
         protected UnityWebRequest m_Www;
         protected UnityWebRequestAsyncOperation m_WebRequestAsyncOperation;
         public string bundleUrl { get; set; }
         public string hash { get; set; }
-        protected int m_RetryTimes = 3;
+        public int timeout = 12;
+        public int retryTimes = 3;
 
         public override bool isDone
         {
@@ -81,7 +82,7 @@ namespace YH.AssetManager
             {
                 m_Www = UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl, Hash128.Parse(hash));
             }
-            m_Www.timeout = RequestTimeout;
+            m_Www.timeout = timeout;
 
 #if SSH_ACCEPT_ALL
             m_Www.certificateHandler = new AcceptAllCertificatesSignedHandler();
@@ -113,9 +114,9 @@ namespace YH.AssetManager
                 Debug.LogFormat("The WebRequest have network error left retry times:{0},--{1}", m_RetryTimes, Time.frameCount);
 #endif
                 //when network error retry again
-                if (m_RetryTimes > 0)
+                if (retryTimes > 0)
                 {
-                    --m_RetryTimes;
+                    --retryTimes;
                     Retry();
                 }
             }
@@ -143,6 +144,8 @@ namespace YH.AssetManager
             m_WebRequestAsyncOperation = null;
             bundleUrl = null;
             hash = null;
+            timeout = 0;
+            retryTimes = 0;
             base.Clean();
         }
 

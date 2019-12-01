@@ -7,6 +7,9 @@ namespace YH.AssetManager
 {
     public class RequestManager
     {
+        public static int WebRequestTimeout=12;
+        public static int RequestRetryTimes = 3;
+
         internal static readonly ObjectPool<BundleCreateRequest> BundleCreateRequestPool = new ObjectPool<BundleCreateRequest>(null, l => l.Clean());
         internal static readonly ObjectPool<BundleWebRequest> BundleWebRequestPool = new ObjectPool<BundleWebRequest>(null, l => l.Clean());
         internal static readonly ObjectPool<BundleWebSaveRequest> BundleWebSaveRequestPool = new ObjectPool<BundleWebSaveRequest>(null, l => l.Clean());
@@ -149,6 +152,8 @@ namespace YH.AssetManager
             BundleWebRequest request = BundleWebRequestPool.Get();
             request.bundleUrl = url;
             request.hash = hash;
+            request.timeout = WebRequestTimeout;
+            request.retryTimes = RequestRetryTimes;
             return request;
         }
 
@@ -175,6 +180,8 @@ namespace YH.AssetManager
             request.bundleUrl = url;
             request.hash = hash;
             request.saveFilePath = localPath;
+            request.timeout = WebRequestTimeout;
+            request.retryTimes = RequestRetryTimes;
             return request;
         }
 
