@@ -30,7 +30,7 @@ namespace YH.AssetManager
 
         bool m_Inited = false;
         int m_RequestTimeout = 15;
-        int m_RetryTimes;
+        int m_RetryTimes=3;
 
         public Action<bool> onInitComplete;
 
@@ -48,6 +48,10 @@ namespace YH.AssetManager
 
             if (filePath.Contains("://"))
             {
+                if (!filePath.Contains(Application.version))
+                {
+                    filePath += "?v=" + Application.version;
+                }
                 LoadFromPackage(filePath);
             }
             else
@@ -59,6 +63,9 @@ namespace YH.AssetManager
 
         public void LoadFromPackage(string filePath)
         {
+#if ASSETMANAGER_LOG
+            Debug.LogFormat("Load File {0} ", filePath);
+#endif
             m_AssetManager.StartCoroutine(LoadPackageFile(filePath));
         }
 
@@ -85,7 +92,9 @@ namespace YH.AssetManager
                             Directory.CreateDirectory(localDir);
                         }
                         string localInfoFilePath = AssetPaths.Combine(localDir, AssetPaths.bundleManifestFile);
-
+#if ASSETMANAGER_LOG
+                        Debug.LogFormat("Save all.manifest to {0} ", localInfoFilePath);
+#endif
                         File.WriteAllBytes(localInfoFilePath,webRequest.downloadHandler.data);
 
                         using (MemoryStream stream = new MemoryStream(webRequest.downloadHandler.data))
