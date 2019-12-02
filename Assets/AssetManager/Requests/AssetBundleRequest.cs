@@ -111,7 +111,7 @@ namespace YH.AssetManager
             if (m_Www != null && m_Www.isNetworkError)
             {
 #if ASSETMANAGER_LOG
-                Debug.LogFormat("The WebRequest have network error left retry times:{0},--{1}", m_RetryTimes, Time.frameCount);
+                Debug.LogFormat("The WebRequest have network error left retry times:{0},--{1}", retryTimes, Time.frameCount);
 #endif
                 //when network error retry again
                 if (retryTimes > 0)
@@ -194,33 +194,7 @@ namespace YH.AssetManager
                 }
             }
         }
-
-        public override void Start()
-        {
-            if (string.IsNullOrEmpty(hash))
-            {
-                m_Www = UnityWebRequest.Get(bundleUrl);
-            }
-            else
-            {
-                m_Www = UnityWebRequest.Get(bundleUrl+"?hash="+hash);
-            }
-
-            //if (string.IsNullOrEmpty(hash))
-            //{
-            //    m_Www =  UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl);
-            //}
-            //else
-            //{
-            //    m_Www =UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl, Hash128.Parse(hash));
-            //}
-
-#if SSH_ACCEPT_ALL
-            m_Www.certificateHandler = new AcceptAllCertificatesSignedHandler();
-#endif
-            m_WebRequestAsyncOperation = m_Www.SendWebRequest();
-        }
-
+        
         public override void Update()
         {
             base.Update();

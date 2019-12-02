@@ -29,6 +29,8 @@ namespace YH.AssetManager
         AssetManager m_AssetManager;
 
         bool m_Inited = false;
+        int m_RequestTimeout = 15;
+        int m_RetryTimes;
 
         public Action<bool> onInitComplete;
 
@@ -65,21 +67,40 @@ namespace YH.AssetManager
             using (UnityWebRequest webRequest = UnityWebRequest.Get(fileUrl))
             {
                 yield return webRequest.SendWebRequest();
-                bool success = true;
-                if (string.IsNullOrEmpty(webRequest.error))
+
+                if (webRequest.isNetworkError && m_RetryTimes-- > 0)
                 {
-                    using (MemoryStream stream = new MemoryStream(webRequest.downloadHandler.data))
-                    {
-                        LoadFromStream(stream);
-                    }
+                        webRequest.Dispose();
+                        LoadFromPackage(fileUrl);
                 }
                 else
                 {
-                    Debug.LogErrorFormat("LoadPackageFile:{0} error: {1} ", fileUrl, webRequest.error);
-                    success = false;
-                }
+                    bool success = true;
+                    if (string.IsNullOrEmpty(webRequest.error))
+                    {
+                        //save to local file
+                        string localDir = AssetPaths.Combine(Application.persistentDataPath, AssetPaths.bundlesPath);
+                        if (!Directory.Exists(localDir))
+                        {
+                            Directory.CreateDirectory(localDir);
+                        }
+                        string localInfoFilePath = AssetPaths.Combine(localDir, AssetPaths.bundleManifestFile);
 
-                InitComplete(success);
+                        File.WriteAllBytes(localInfoFilePath,webRequest.downloadHandler.data);
+
+                        using (MemoryStream stream = new MemoryStream(webRequest.downloadHandler.data))
+                        {
+                            LoadFromStream(stream);
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogErrorFormat("LoadPackageFile:{0} error: {1} ", fileUrl, webRequest.error);
+                        success = false;
+                    }
+
+                    InitComplete(success);
+                }
             }
         }
 
