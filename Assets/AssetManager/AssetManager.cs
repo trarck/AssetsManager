@@ -414,18 +414,17 @@ namespace YH.AssetManager
             return ar;
         }
 
-        public void LoadAssets(List<string> assets, Action<Dictionary<string, AssetReference>> callback)
+        public void LoadAssets(ICollection<string> assets, Action<Dictionary<string, AssetReference>> callback)
         {
             Dictionary<string, AssetReference> assetReferences = new Dictionary<string, AssetReference>();
             int needCount = assets.Count;
-            bool needCallback = true;
+            bool haveLoadAssets = false;
 
-            for (int i=0,l=assets.Count;i<l;++i)
+            foreach (var asset in assets)
             {
-                var asset = assets[i];
                 if (!string.IsNullOrEmpty(asset))
                 {
-                    needCallback = false;
+                    haveLoadAssets = true;
                     AssetManager.Instance.LoadAsset(asset, (assetReference) => {
                         assetReferences[asset] = assetReference;
                         //all finished
@@ -441,7 +440,7 @@ namespace YH.AssetManager
                 }
             }
 
-            if (needCount == 0 && needCallback)
+            if (needCount == 0 && !haveLoadAssets)
             {
                 callback(null);
             }
