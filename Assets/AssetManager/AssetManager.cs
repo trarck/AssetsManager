@@ -417,9 +417,20 @@ namespace YH.AssetManager
         public void LoadAssets(ICollection<string> assets, Action<Dictionary<string, AssetReference>> callback)
         {
             Dictionary<string, AssetReference> assetReferences = new Dictionary<string, AssetReference>();
+            LoadAssets(assets, assetReferences, callback);
+        }
+
+        public void LoadAssets(ICollection<string> assets, Dictionary<string, AssetReference> assetReferences, Action<Dictionary<string, AssetReference>> callback)
+        {
             int needCount = assets.Count;
             bool haveLoadAssets = false;
-            bool checkAll = false;  
+            bool checkAll = false;
+
+            //check assetReferences
+            if (assetReferences == null)
+            {
+                assetReferences = new Dictionary<string, AssetReference>();
+            }
 
             foreach (var asset in assets)
             {
