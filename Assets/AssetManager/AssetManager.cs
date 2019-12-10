@@ -419,6 +419,7 @@ namespace YH.AssetManager
             Dictionary<string, AssetReference> assetReferences = new Dictionary<string, AssetReference>();
             int needCount = assets.Count;
             bool haveLoadAssets = false;
+            bool checkAll = false;  
 
             foreach (var asset in assets)
             {
@@ -430,7 +431,14 @@ namespace YH.AssetManager
                         //all finished
                         if (--needCount <= 0)
                         {
-                            callback(assetReferences);
+                            if (checkAll)
+                            {
+                                callback(assetReferences);
+                            }
+                            else
+                            {
+                                haveLoadAssets = false;
+                            }
                         }
                     });
                 }
@@ -440,9 +448,11 @@ namespace YH.AssetManager
                 }
             }
 
+            checkAll = true;
+
             if (needCount == 0 && !haveLoadAssets)
             {
-                callback(null);
+                callback(assetReferences);
             }
         }
         #endregion
