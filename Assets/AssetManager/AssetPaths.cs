@@ -92,7 +92,6 @@ namespace YH.AssetManager
             return Combine(Application.streamingAssetsPath, filename);
         }
 
-
         public static string GetFullPath(string filename)
         {
             if (string.IsNullOrEmpty(filename))
@@ -116,8 +115,8 @@ namespace YH.AssetManager
                 return fullPath;
             }
 
-            
-#if ASSET_BUNDLE_REMOTE_UNITY
+
+#if ASSET_BUNDLE_REMOTE_UNITY || ASSET_BUNDLE_REMOTE
             //down load from remote
             return GetUrl(filename);
 #else
@@ -236,13 +235,21 @@ namespace YH.AssetManager
                 return filename;
             }
 
-            if (remoteUrl.EndsWith("/"))
+            if (string.IsNullOrEmpty(remoteUrl))
             {
-                return remoteUrl +filename;
+                return StreamingPathForFilename(filename);
             }
             else
             {
-                return remoteUrl + "/" + filename;
+
+                if (remoteUrl.EndsWith("/"))
+                {
+                    return remoteUrl + filename;
+                }
+                else
+                {
+                    return remoteUrl + "/" + filename;
+                }
             }
         }
     }
