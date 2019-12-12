@@ -24,16 +24,29 @@ namespace YH.AssetManager
                 if (info != null)
                 {
                     state = State.Loading;
-
+                    bool dependencyLoadedSucess = true;
                     if (info.dependencies.Length > 0)
                     {
-                        LoadDependencies();
+                        dependencyLoadedSucess=LoadDependencies();
                     }
 
-                    LoadBundle();
+                    if (dependencyLoadedSucess)
+                    {
+                        LoadBundle();
+                    }
+                    else
+                    {
+#if ASSETMANAGER_LOG
+                        Debug.LogError("Load AssetBundle with no info");
+#endif
+                        Error();
+                    }
                 }
                 else
                 {
+#if ASSETMANAGER_LOG
+                    Debug.LogError("Load AssetBundle with no info");
+#endif
                     Error();
                 }
             }
@@ -43,7 +56,7 @@ namespace YH.AssetManager
             }
         }
 
-        void LoadDependencies()
+        bool LoadDependencies()
         {
             string[] dependencies = info.dependencies;
             ResetDependencies();
@@ -51,12 +64,21 @@ namespace YH.AssetManager
             for (int i = 0, l = dependencies.Length; i < l; ++i)
             {
                 string dep = dependencies[i];
-                AssetBundleReference abr = assetManager.LoadAssetBundleSync(dep, 0, false);
-                if (abr != null)
+                AssetBundleReference abr = assetManager.LoadAssetBundleSync(dep, 0, AMSetting.CacheDependencyBundle);
+                if (abr == null)
+                {
+                    if (AMSetting.BreakOnBundleLoadDependencyError)
+                    {
+                        ClearDependencies();
+                        return false;
+                    }
+                }
+                else
                 {
                     AddDependency(abr);
                 }
             }
+            return true;
         }
 
         void LoadBundle()
@@ -66,12 +88,23 @@ namespace YH.AssetManager
             Debug.Log("LoadBundle " + assetPath + "," + Time.frameCount);
 #endif
             LoadFromFileSync(assetPath);
-            Complete();
+            
         }
 
         protected void LoadFromFileSync(string path)
         {
             assetBundle = AssetBundle.LoadFromFile(path);
+            if (assetBundle != null)
+            {
+                Complete();
+            }
+            else
+            {
+#if ASSETMANAGER_LOG
+                Debug.Log("LoadBundle fail " + path + "," + Time.frameCount);
+#endif
+                Error();
+            }
         }
 
         public override void Clean()

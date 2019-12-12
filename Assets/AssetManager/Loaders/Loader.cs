@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace YH.AssetManager
 {
+    /// <summary>
+    /// Loader由管理器来管理，不需要自己的Dispose.
+    /// </summary>
     public abstract class Loader
     {
         public enum State
@@ -25,6 +29,8 @@ namespace YH.AssetManager
         protected bool m_AutoReleaseBundle = true;
 
         HashSet<int> m_ParamTags = null;
+        
+        protected int m_RefCount = 0;
 
         public abstract bool isDone { get; }
 
@@ -75,6 +81,39 @@ namespace YH.AssetManager
             }
         }
 
+        
+        public virtual void Retain()
+        {
+            ++m_RefCount;
+#if ASSETMANAGER_LOG
+            Debug.LogFormat("[{0}#{1}].Retain refCount={2}---{3}", this,GetHashCode(), m_RefCount, Time.frameCount);
+#endif
+        }
+
+        public virtual void Release()
+        {
+            --m_RefCount;
+#if ASSETMANAGER_LOG
+            Debug.LogFormat("[{0}#{1}].Release refCount={2}---{3}", this, GetHashCode(), m_RefCount, Time.frameCount);
+#endif
+            //check sub overflow
+            if (m_RefCount < 0)
+            {
+                m_RefCount = 0;
+            }
+        }
+
+        /// <summary>
+        /// 检查是否有引用
+        /// </summary>
+        public bool emptyRef
+        {
+            get
+            {
+                return m_RefCount <= 0;
+            }
+        }
+
         public virtual void Start()
         {
 
@@ -102,7 +141,10 @@ namespace YH.AssetManager
             m_ForceDone = false;
             m_CacheLoadedAsset = false;
             m_AutoRelease = true;
-            m_ParamTags.Clear();
+            if (m_ParamTags != null)
+            {
+                m_ParamTags.Clear();
+            }
             assetManager = null;
         }
 

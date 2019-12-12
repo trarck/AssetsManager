@@ -24,7 +24,7 @@ namespace YH.AssetManager
 
                 if (!string.IsNullOrEmpty(info.bundleName))
                 {
-                    assetBundleReference=assetManager.LoadAssetBundleSync(info.bundleName, 0,false);
+                    assetBundleReference=assetManager.LoadAssetBundleSync(info.bundleName, 0,AMSetting.CacheDependencyBundle);
                 }
 
                 LoadAsset();
@@ -96,8 +96,10 @@ namespace YH.AssetManager
             }
             else
             {
-                Error();
+#if ASSETMANAGER_LOG
                 Debug.LogError("Load Asset with no info");
+#endif
+                Error();
             }
         }
 

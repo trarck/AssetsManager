@@ -13,6 +13,8 @@ namespace YH.AssetManager
         //资源都是要缓存
         protected bool m_IsCached = false;
 
+        protected bool m_Disposed = false;
+
         List<WeakReference> m_Owners=ListPool<WeakReference>.Get();
 
         HashSet<int> m_Tags = HashSetPool<int>.Get();
@@ -118,11 +120,24 @@ namespace YH.AssetManager
             return m_RefCount==(isCache?1:0) && GetOwnersRefCount() == 0;
         }
 
-        public virtual void Dispose(bool disposing = false)
+        public virtual void Dispose(bool disposing, bool forceRemoveAll)
         {
-            ListPool<WeakReference>.Release(m_Owners);
-            m_Owners = null;
-            HashSetPool<int>.Release(m_Tags);
+            if (!m_Disposed)
+            {
+                if (disposing)
+                {
+                    ListPool<WeakReference>.Release(m_Owners);
+                    m_Owners = null;
+                    HashSetPool<int>.Release(m_Tags);
+
+                }
+                m_Disposed = true;
+            }
+        }
+
+        public void Dispose(bool forceRemoveAll=false)
+        {
+            Dispose(true, forceRemoveAll);
         }
 
         public virtual void Reset()
@@ -238,6 +253,11 @@ namespace YH.AssetManager
                 isCache = false;
                 Release();
             }
+        }
+
+        public virtual bool IsEmpty()
+        {
+            return true;
         }
     }
 }

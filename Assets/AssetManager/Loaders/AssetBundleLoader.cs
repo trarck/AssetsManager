@@ -98,5 +98,17 @@ namespace YH.AssetManager
                 ClearDependencies();
             }
         }
+
+        public override void Complete()
+        {
+            state = State.Completed;
+            DoLoadComplete();
+        }
+
+        public override void Error()
+        {
+            state = State.Error;
+            DoLoadComplete();
+        }
     }
 }

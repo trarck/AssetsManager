@@ -97,33 +97,42 @@ namespace YH.AssetManager
             assetBundleReference = null;
         }
 
-        public override void Dispose(bool disposing=false)
+        public override void Dispose(bool disposing, bool forceRemoveAll)
         {
+            if (m_Disposed)
+            {
+                return;
+            }
+
 #if ASSETMANAGER_LOG
             Debug.Log("Asset dispose " + name + "," + Time.frameCount);
 #endif
-            if (onDispose != null)
-            {
-                onDispose(this);
-                onDispose = null;
-            }
 
-            if (asset != null)
+            base.Dispose(disposing, forceRemoveAll);
+
+            if (disposing)
             {
-                if (!(asset is GameObject))
+                if (onDispose != null)
                 {
-                    Resources.UnloadAsset(asset);
+                    onDispose(this);
+                    onDispose = null;
+                }
+
+                if (asset != null)
+                {
+                    if (!(asset is GameObject))
+                    {
+                        Resources.UnloadAsset(asset);
+                    }
+
+                    asset = null;
                 }
 
                 asset = null;
+                //这里通过setter调用release
+                assetBundleReference = null;
+                name = null;
             }
-
-            asset = null;
-            //这里通过setter调用release
-            assetBundleReference = null;
-            name = null;
-
-            base.Dispose(disposing);
         }
 
         public override void Reset()
@@ -139,6 +148,11 @@ namespace YH.AssetManager
         //    Debug.LogFormat("{0} Retain", asset);
         //    base.Retain();
         //}
+
+        public override bool IsEmpty()
+        {
+            return asset == null;
+        }
     }
 
     public class AssetRefercenceMonitor : MonoBehaviour
@@ -269,5 +283,7 @@ namespace YH.AssetManager
                 m_TagReferences = null;
             }
         }
+
+
     }
 }

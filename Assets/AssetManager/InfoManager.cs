@@ -29,8 +29,7 @@ namespace YH.AssetManager
         AssetManager m_AssetManager;
 
         bool m_Inited = false;
-        int m_RequestTimeout = 15;
-        int m_RetryTimes=3;
+        int m_RetryTimes=AMSetting.RequestRetryTimes;
 
         public Action<bool> onInitComplete;
 
@@ -73,6 +72,7 @@ namespace YH.AssetManager
         {
             using (UnityWebRequest webRequest = UnityWebRequest.Get(fileUrl))
             {
+                webRequest.timeout = AMSetting.WebRequestTimeout;
                 yield return webRequest.SendWebRequest();
 
                 if (webRequest.isNetworkError && m_RetryTimes-- > 0)

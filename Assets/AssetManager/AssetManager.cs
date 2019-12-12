@@ -118,12 +118,16 @@ namespace YH.AssetManager
                 loader = m_LoaderManager.CreateAssetBundleAsyncLoader(path);
                 loader.forceDone = true;
                 loader.result = abr;
-
+              
                 //call complete callback
                 if (completeHandle != null)
                 {
-                    completeHandle(abr);
+                    loader.onComplete += completeHandle;
                 }
+                loader.onAfterComplete += OnAssetBundleLoaded;
+                loader.state = Loader.State.Completed;
+                loader.Retain();
+                m_LoaderManager.ActiveLoader(loader);
             }
             else
             {
@@ -159,8 +163,9 @@ namespace YH.AssetManager
                 {
                     loader.onAfterComplete += OnAssetBundleLoaded;
                     loader.state = Loader.State.Inited;
+                    loader.Retain();
                     m_LoaderManager.ActiveLoader(loader);                    
-                }                
+                }
             }
 
             return loader;
@@ -285,8 +290,13 @@ namespace YH.AssetManager
 
                 if (completeHandle != null)
                 {
-                    completeHandle(ar);
+                    loader.onComplete += completeHandle;
                 }
+
+                loader.onAfterComplete += OnAssetAfterLoaded;
+                loader.state = Loader.State.Completed;
+                loader.Retain();
+                m_LoaderManager.ActiveLoader(loader);
             }
             else
             {
@@ -307,7 +317,8 @@ namespace YH.AssetManager
                 }
                 
                 loader.AddParamTag(tag);
-                loader.onComplete += completeHandle;
+
+
 
                 if (type != null)
                 {
@@ -319,12 +330,17 @@ namespace YH.AssetManager
                     loader.autoReleaseBundle = autoReleaseBundle;
                 }
 
+                if (completeHandle != null)
+                {
+                    loader.onComplete += completeHandle;
+                }
+
                 if (loader.state == Loader.State.Idle)
                 {
                     loader.onBeforeComplete += OnAssetBeforeLoaded;
                     loader.onAfterComplete += OnAssetAfterLoaded;
                     loader.state = Loader.State.Inited;
-
+                    loader.Retain();
                     m_LoaderManager.ActiveLoader(loader);
                 }
             }
@@ -438,7 +454,14 @@ namespace YH.AssetManager
                 {
                     haveLoadAssets = true;
                     AssetManager.Instance.LoadAsset(asset, (assetReference) => {
-                        assetReferences[asset] = assetReference;
+                        if (assetReference != null && !assetReference.IsEmpty())
+                        {
+                            assetReferences[asset] = assetReference;
+                        }
+                        else
+                        {
+                            Debug.LogErrorFormat("LoadAssets can't load {0}", asset);
+                        }
                         //all finished
                         if (--needCount <= 0)
                         {
@@ -1003,14 +1026,14 @@ namespace YH.AssetManager
             {
                 if (m_LoadingAssetBundleLoaders.ContainsKey(info.fullName))
                 {
-                    if (loader.autoRelease)
-                    {
-                        LoaderPool.Release(loader);
-                    }
                     m_LoadingAssetBundleLoaders.Remove(info.fullName);
                 }
             }
 
+            if (loader.autoRelease)
+            {
+                m_LoaderManager.ReleaseLoader(loader);
+            }
         }
 
         void OnAssetBundleDispose(AssetBundleReference abr)
@@ -1056,7 +1079,7 @@ namespace YH.AssetManager
 
             if (loader.autoRelease)
             {
-                LoaderPool.Release(loader);
+                m_LoaderManager.ReleaseLoader(loader);
             }
         }
 

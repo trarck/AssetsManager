@@ -218,7 +218,10 @@ namespace YH.AssetManager
         {
             base.Complete();
             //Async save.如果Unity不支持则改为同步版本。
-            SaveAsync(saveFilePath, m_Www.downloadHandler.data);
+            if (!haveError)
+            {
+                SaveAsync(saveFilePath, m_Www.downloadHandler.data);
+            }            
         }
 
         protected async void SaveAsync(string saveFile, byte[] data)

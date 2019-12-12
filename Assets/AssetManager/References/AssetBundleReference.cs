@@ -42,22 +42,30 @@ namespace YH.AssetManager
             }
         }
 
-        public override void Dispose(bool disposing = false)
+        public override void Dispose(bool disposing, bool forceRemoveAll)
         {
+            if (m_Disposed)
+            {
+                return;
+            }
+
 #if ASSETMANAGER_LOG
             Debug.Log("Bundle dispose " + name + "," + Time.frameCount);
 #endif
 
-            if (onDispose != null)
+            base.Dispose(disposing, forceRemoveAll);
+
+            if (disposing)
             {
-                onDispose(this);
-                onDispose = null;
+                if (onDispose != null)
+                {
+                    onDispose(this);
+                    onDispose = null;
+                }
+
+                UnloadBundle(forceRemoveAll);
+                ReleaseDependencies();
             }
-
-            UnloadBundle(disposing);
-            ReleaseDependencies();
-
-            base.Dispose(disposing);
         }
 
         void UnloadBundle(bool unloadAllLoadedObjects=false)
@@ -89,6 +97,11 @@ namespace YH.AssetManager
             assetBundle = null;
             onDispose = null;
             base.Reset();
+        }
+
+        public override bool IsEmpty()
+        {
+            return assetBundle == null;
         }
 
         public HashSet<AssetBundleReference> dependencies
