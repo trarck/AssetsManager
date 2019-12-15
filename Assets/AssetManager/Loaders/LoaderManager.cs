@@ -28,6 +28,7 @@ namespace YH.AssetManager
             //can't find asset info
             if (info == null)
             {
+                Debug.LogErrorFormat("Can't find asset info {0}.Load from resource.", path);
                 info = new AssetInfo();
                 info.fullName = path;
             }
