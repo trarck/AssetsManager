@@ -36,17 +36,13 @@ namespace YH.AssetManager
                     }
                     else
                     {
-#if ASSETMANAGER_LOG
                         Debug.LogError("Load AssetBundle with no info");
-#endif
                         Error();
                     }
                 }
                 else
                 {
-#if ASSETMANAGER_LOG
                     Debug.LogError("Load AssetBundle with no info");
-#endif
                     Error();
                 }
             }

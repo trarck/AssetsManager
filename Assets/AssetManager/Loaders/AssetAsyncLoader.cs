@@ -91,9 +91,7 @@ namespace YH.AssetManager
             }
             else
             {
-#if ASSETMANAGER_LOG
                 Debug.LogError("Load Asset with no info");
-#endif
                 Error();
             }
         }

@@ -442,12 +442,6 @@ namespace YH.AssetManager
             bool haveLoadAssets = false;
             bool checkAll = false;
 
-            //check assetReferences
-            if (assetReferences == null)
-            {
-                assetReferences = new Dictionary<string, AssetReference>();
-            }
-
             foreach (var asset in assets)
             {
                 if (!string.IsNullOrEmpty(asset))
@@ -456,7 +450,10 @@ namespace YH.AssetManager
                     AssetManager.Instance.LoadAsset(asset, (assetReference) => {
                         if (assetReference != null && !assetReference.IsEmpty())
                         {
-                            assetReferences[asset] = assetReference;
+                            if (assetReferences != null)
+                            {
+                                assetReferences[asset] = assetReference;
+                            }
                         }
                         else
                         {
@@ -604,11 +601,11 @@ namespace YH.AssetManager
             AssetInfo info = m_InfoManager.FindAssetInfo(path);
             if (info != null)
             {
-                return LoadAssetBundle(info.bundleName, tag, true, completeHandle);
+                return LoadAssetBundle(info.bundleName, tag, false, completeHandle);
             }
             else
             {
-                return LoadAssetBundle(path, tag, true, completeHandle);
+                return LoadAssetBundle(path, tag, false, completeHandle);
             }
         }
 

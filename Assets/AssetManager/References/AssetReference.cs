@@ -41,7 +41,9 @@ namespace YH.AssetManager
 
                 if (m_AssetBundleReference != null)
                 {
+#if ASSETMANAGER_LOG
                     Debug.LogFormat("AssetReference:Release {0},{1}",name, m_AssetBundleReference!=null? m_AssetBundleReference.name:"Null");
+#endif
                     m_AssetBundleReference.Release();
                 }
                 m_AssetBundleReference = value;

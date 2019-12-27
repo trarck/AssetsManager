@@ -115,9 +115,7 @@ namespace YH.AssetManager
                 }
                 else
                 {
-#if ASSETMANAGER_LOG
                     Debug.LogError("Load AssetBundle with no info");
-#endif
                     Error();
                 }
             }
@@ -132,7 +130,9 @@ namespace YH.AssetManager
             switch (m_State)
             {
                 case State.Loaded:
+#if ASSETMANAGER_LOG
                     Debug.LogFormat("{0},{1},{2}", info.fullName, m_WaitDependencyLoadCount, isDone);
+#endif
                     if (isDone)
                     {
                         //Complete();
@@ -217,7 +217,7 @@ namespace YH.AssetManager
         protected void OnDependencyLoaded(AssetBundleAsyncLoader loader)
         {
 #if ASSETMANAGER_LOG
-            Debug.LogFormat("DependencyLoaded {0}=>{1}---{2}" , info.fullName , loader.info != null ? loader.info.fullName : "Null", Time.frameCount);
+            Debug.LogFormat("DependencyLoaded {0}=>{1}---{2}" , info!=null?info.fullName:"Null" , loader.info != null ? loader.info.fullName : "Null", Time.frameCount);
 #endif
             if (--m_WaitDependencyLoadCount == 0)
             {
@@ -228,7 +228,7 @@ namespace YH.AssetManager
         protected void OnBeforeDependencyComplete(AssetBundleLoader loader)
         {
 #if ASSETMANAGER_LOG
-            Debug.LogFormat("OnBeforeDependencyComplete remove from loader {0}=>{1}---{2} ", info.fullName, loader.info != null ? loader.info.fullName : "Null", Time.frameCount);
+            Debug.LogFormat("OnBeforeDependencyComplete remove from loader {0}=>{1}---{2} ", info != null ? info.fullName : "Null", loader.info != null ? loader.info.fullName : "Null", Time.frameCount);
 #endif
 
             //依赖项已经加载完成要从m_DependencyLoaders里移除。

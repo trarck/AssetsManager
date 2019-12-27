@@ -73,6 +73,9 @@ namespace YH.AssetManager
 
         protected void SendRequest()
         {
+#if ASSETMANAGER_LOG
+            Debug.LogFormat("BundleWebRequest Get url:{0},hash:{1},--{2}", bundleUrl,hash, Time.frameCount);
+#endif
             //通过UnityWebRequest从远程下载的AssetBunle的缓存只与hash值有关与url地址无关。
             if (string.IsNullOrEmpty(hash))
             {
