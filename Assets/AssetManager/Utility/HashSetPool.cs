@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace YH.AssetManager
+namespace YH.AssetManage
 {
     internal static class HashSetPool<T>
     {

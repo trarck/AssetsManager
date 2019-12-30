@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace YH.AssetManager
+namespace YH.AssetManage
 {
     public class LoaderManager
     {

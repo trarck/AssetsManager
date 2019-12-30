@@ -4,7 +4,7 @@ using System.Text;
 using UnityEngine;
 
 
-namespace YH.AssetManager
+namespace YH.AssetManage
 {
     public class AssetPaths
     {

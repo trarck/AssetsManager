@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace YH.AssetManager
+namespace YH.AssetManage
 {
     public abstract class Request : IEnumerator
     {

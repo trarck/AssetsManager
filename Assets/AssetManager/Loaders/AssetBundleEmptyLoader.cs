@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace YH.AssetManager
+namespace YH.AssetManage
 {
     public class AssetBundleEmptyLoader : AssetBundleLoader
     {

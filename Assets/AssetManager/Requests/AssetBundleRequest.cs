@@ -3,7 +3,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace YH.AssetManager
+namespace YH.AssetManage
 {
     class AcceptAllCertificatesSignedHandler : CertificateHandler
     {

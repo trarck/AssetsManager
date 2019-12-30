@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace YH.AssetManager
+namespace YH.AssetManage
 {
     /// <summary>
     /// Loader由管理器来管理，不需要自己的Dispose.

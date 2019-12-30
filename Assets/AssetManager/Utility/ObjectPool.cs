@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace YH.AssetManager
+namespace YH.AssetManage
 {
     internal class ObjectPool<T> where T : new()
     {

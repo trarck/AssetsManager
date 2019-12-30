@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace YH.AssetManager
+namespace YH.AssetManage
 {
     public enum AssetBundleType
     {

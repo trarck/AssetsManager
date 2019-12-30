@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace YH.AssetManager
+namespace YH.AssetManage
 {
     /// <summary>
     /// 资源从AssetBundle加载出来后，会重新生成一块内存。此时可以调用AssetBundle的unload(false)，释放AssetBundle占用的内存。

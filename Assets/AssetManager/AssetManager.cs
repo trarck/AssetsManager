@@ -90,6 +90,15 @@ namespace YH.AssetManager
             return LoadAssetBundle(path,0, cacheLoadedAsset, completeHandle);
         }
 
+        /// <summary>
+        /// async load asset bundle
+        /// if completeHandle is null must start load manual
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="tag"></param>
+        /// <param name="cacheLoadedAsset"></param>
+        /// <param name="completeHandle"></param>
+        /// <returns></returns>
         public AssetBundleLoader LoadAssetBundle(string path,int tag,bool cacheLoadedAsset, Action<AssetBundleReference> completeHandle=null)
         {
             AssetBundleLoader loader = null;
@@ -119,15 +128,16 @@ namespace YH.AssetManager
                 loader.forceDone = true;
                 loader.result = abr;
               
+
+                loader.onAfterComplete += OnAssetBundleLoaded;
+                loader.state = Loader.State.Completed;
+                loader.Retain();
                 //call complete callback
                 if (completeHandle != null)
                 {
                     loader.onComplete += completeHandle;
+                    m_LoaderManager.ActiveLoader(loader);
                 }
-                loader.onAfterComplete += OnAssetBundleLoaded;
-                loader.state = Loader.State.Completed;
-                loader.Retain();
-                m_LoaderManager.ActiveLoader(loader);
             }
             else
             {
@@ -164,10 +174,13 @@ namespace YH.AssetManager
                     loader.onAfterComplete += OnAssetBundleLoaded;
                     loader.state = Loader.State.Inited;
                     loader.Retain();
-                    m_LoaderManager.ActiveLoader(loader);                    
+
+                    if (completeHandle != null)
+                    {
+                        m_LoaderManager.ActiveLoader(loader);
+                    }
                 }
             }
-
             return loader;
         }
 
@@ -256,6 +269,7 @@ namespace YH.AssetManager
         ///     2.Retain(Object),使用完成时可以不用执行Release(Object)，等待UnloadUnuseds清理。
         ///     3.Monitor(GameObject),当GameObject被删除时，会自动执行Release(Object)。
         /// 对于手动删除资源最好执行RemoveAsset。
+        ///if completeHandle is null must start load manual
         /// </summary>
         /// <param name="path"></param>
         /// <param name="tag"></param>
@@ -288,15 +302,15 @@ namespace YH.AssetManager
                 loader.forceDone = true;
                 loader.result = ar;
 
-                if (completeHandle != null)
-                {
-                    loader.onComplete += completeHandle;
-                }
-
                 loader.onAfterComplete += OnAssetAfterLoaded;
                 loader.state = Loader.State.Completed;
                 loader.Retain();
-                m_LoaderManager.ActiveLoader(loader);
+
+                if (completeHandle != null)
+                {
+                    loader.onComplete += completeHandle;
+                    m_LoaderManager.ActiveLoader(loader);
+                }
             }
             else
             {
@@ -341,7 +355,10 @@ namespace YH.AssetManager
                     loader.onAfterComplete += OnAssetAfterLoaded;
                     loader.state = Loader.State.Inited;
                     loader.Retain();
-                    m_LoaderManager.ActiveLoader(loader);
+                    if (completeHandle != null)
+                    {
+                        m_LoaderManager.ActiveLoader(loader);
+                    }
                 }
             }
 

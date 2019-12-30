@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace YH.AssetManager
+namespace YH.AssetManage
 {
     /// <summary>
     /// 从网络上加载AssetBundle

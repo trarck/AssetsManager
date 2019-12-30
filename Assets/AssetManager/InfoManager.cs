@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 #endif
 
 
-namespace YH.AssetManager
+namespace YH.AssetManage
 {
     public class InfoManager
     {
