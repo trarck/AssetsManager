@@ -2,7 +2,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace YH.AssetManager
+namespace YH.AssetManage
 {
     public class AssetAsyncLoader : AssetLoader
     {
