@@ -41,6 +41,11 @@ namespace YH.AssetManage
 
         }
 
+        public virtual void Abort()
+        {
+
+        }
+
         public virtual void Update()
         {
             #if ASSETMANAGER_LOG

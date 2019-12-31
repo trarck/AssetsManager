@@ -15,7 +15,6 @@ namespace YH.AssetManage
 
     public class BundleWebRequest : Request
     {
-        
         protected UnityWebRequest m_Www;
         protected UnityWebRequestAsyncOperation m_WebRequestAsyncOperation;
         public string bundleUrl { get; set; }
@@ -23,10 +22,17 @@ namespace YH.AssetManage
         public int timeout = 12;
         public int retryTimes = 3;
 
+        protected bool m_Aborted = false;
+
         public override bool isDone
         {
             get
             {
+                if (m_Aborted)
+                {
+                    return true;
+                }
+
                 if (m_WebRequestAsyncOperation != null)
                 {
                     return m_WebRequestAsyncOperation.isDone;
@@ -125,6 +131,22 @@ namespace YH.AssetManage
             }
         }
 
+        public override void Abort()
+        {
+            if (!isDone)
+            {
+                m_Aborted = true;
+
+                m_WebRequestAsyncOperation = null;
+
+                if (m_Www != null)
+                {
+                    m_Www.Dispose();
+                }
+                m_Www = null;
+            }
+        }
+
         public override bool haveError
         {
             get
@@ -137,18 +159,28 @@ namespace YH.AssetManage
             }
         }
 
+        public override void Complete()
+        {
+            if (!m_Aborted)
+            {
+                base.Complete();
+            }
+        }
+
         public override void Clean()
         {
+            m_WebRequestAsyncOperation = null;
+
             if (m_Www != null)
             {
                 m_Www.Dispose();
             }
             m_Www = null;
-            m_WebRequestAsyncOperation = null;
             bundleUrl = null;
             hash = null;
             timeout = 0;
             retryTimes = 0;
+            m_Aborted = false;
             base.Clean();
         }
 

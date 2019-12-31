@@ -45,7 +45,7 @@ namespace YH.AssetManage
             onBeforeComplete = null;
             onAfterComplete = null;
 
-            m_Result = null;
+            result = null;
 
             info = null;
 
@@ -62,6 +62,15 @@ namespace YH.AssetManage
             }
             set
             {
+                if (value != null)
+                {
+                    value.Retain();
+                }
+
+                if (m_Result != null)
+                {
+                    m_Result.Release();
+                }
                 m_Result = value;
             }
         }

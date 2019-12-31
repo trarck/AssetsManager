@@ -121,6 +121,7 @@ namespace YH.AssetManage
                 if (m_Result == null && state == State.Completed)
                 {
                     m_Result = new AssetBundleReference(assetBundle, info != null ? info.fullName : "");
+                    m_Result.Retain();
                     if (m_Dependencies != null && m_Dependencies.Count > 0)
                     {
                         m_Result.AddDependencies(m_Dependencies);
@@ -131,7 +132,7 @@ namespace YH.AssetManage
             }
             set
             {
-                m_Result = value;
+                base.result = value;
             }
         }
     }

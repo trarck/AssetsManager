@@ -104,6 +104,7 @@ namespace YH.AssetManage
                     if (isDone && m_Request.data!=null)
                     {
                         m_Result = new AssetReference(m_Request.data, info.fullName);
+                        m_Result.Retain();
                         m_Result.AddTags(paramTags);
                         if (assetBundleReference != null)
                         {
@@ -115,7 +116,8 @@ namespace YH.AssetManage
             }
             set
             {
-                m_Result = value;
+                //m_Result = value;
+                base.result = value;
             }
         }
     }

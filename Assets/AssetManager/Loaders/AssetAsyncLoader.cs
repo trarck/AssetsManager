@@ -6,6 +6,9 @@ namespace YH.AssetManage
 {
     public class AssetAsyncLoader : AssetLoader
     {
+        AssetBundleLoader m_AssetBundleLoader = null;
+        Request m_Request = null;
+
         public override bool isDone
         {
             get
@@ -21,11 +24,7 @@ namespace YH.AssetManage
                 state = State.Loading;
                 if (!string.IsNullOrEmpty(info.bundleName))
                 {
-                    assetManager.LoadAssetBundle(info.bundleName, AMSetting.CacheDependencyBundle, (abr) =>
-                    {
-                        assetBundleReference = abr;
-                        LoadAsset();
-                    });
+                    m_AssetBundleLoader=assetManager.LoadAssetBundle(info.bundleName, AMSetting.CacheDependencyBundle, OnAssetBundleLoadComplete);
                 }
                 else
                 {
@@ -38,16 +37,49 @@ namespace YH.AssetManage
             }
         }
 
-        public override void Update()
+        public override void Abort()
         {
-            switch (m_State)
+            //如果已经完成或出错，则无效。
+            if(m_State==State.Error || m_State == State.Completed)
             {
-                case State.Loading:
-                    if (isDone)
-                    {
-                        //Complete();
-                    }
-                    break;
+                return;
+            }
+
+            base.Abort();
+            //取消正在加载的资源回调。
+            if (m_AssetBundleLoader != null)
+            {
+                m_AssetBundleLoader.onComplete -= OnAssetBundleLoadComplete;
+                m_AssetBundleLoader.DecreaseLoadingRequest();
+                m_AssetBundleLoader = null;
+            }
+
+            if (m_Request != null)
+            {
+                m_Request.onComplete -= OnRequestComplete;
+                m_Request.Abort();
+                m_Request = null;
+            }
+
+            //触发一次完成事件。以便管理器清除load数据。
+            DoLoadComplete();
+        }
+
+        void OnAssetBundleLoadComplete(AssetBundleReference abr)
+        {
+            //置空loader
+            if (m_AssetBundleLoader != null)
+            {
+                m_AssetBundleLoader.onComplete -= OnAssetBundleLoadComplete;
+                m_AssetBundleLoader = null;
+            }
+
+            //为了保险做一下检查
+            if (!m_Aborted)
+            {
+                assetBundleReference = abr;
+                m_State = State.Loaded;
+                LoadAsset();
             }
         }
 
@@ -85,9 +117,9 @@ namespace YH.AssetManage
                 Debug.LogFormat("Load asset {0}", assetName);
 #endif
 
-                Request request=RequestManager.CreateAssetLoaderRequest(assetBundleReference.assetBundle, assetName, type);
-                request.onComplete += OnRequestComplete;
-                assetManager.requestManager.ActiveRequest(request);
+                m_Request = RequestManager.CreateAssetLoaderRequest(assetBundleReference.assetBundle, assetName, type);
+                m_Request.onComplete += OnRequestComplete;
+                assetManager.requestManager.ActiveRequest(m_Request);
             }
             else
             {
@@ -102,9 +134,9 @@ namespace YH.AssetManage
             {
                 string resourcePath = Path.Combine(Path.GetDirectoryName(info.fullName), Path.GetFileNameWithoutExtension(info.fullName));
                 resourcePath = AssetPaths.RemoveAssetPrev(resourcePath);
-                Request request = RequestManager.CreateResouceLoaderRequest(resourcePath, type);
-                request.onComplete += OnRequestComplete;
-                assetManager.requestManager.ActiveRequest(request);
+                m_Request = RequestManager.CreateResouceLoaderRequest(resourcePath, type);
+                m_Request.onComplete += OnRequestComplete;
+                assetManager.requestManager.ActiveRequest(m_Request);
             }
             else
             {
@@ -116,22 +148,28 @@ namespace YH.AssetManage
         void LoadScene()
         {
             //do nothing.scene just need load dependencies
-            Request request = new EmptyLoaderRequest();
-            request.onComplete += OnRequestComplete;
-            assetManager.requestManager.ActiveRequest(request);
+            m_Request = new EmptyLoaderRequest();
+            m_Request.onComplete += OnRequestComplete;
+            assetManager.requestManager.ActiveRequest(m_Request);
         }
 
         protected void OnRequestComplete(Request request)
         {
+            if (m_Request != null)
+            {
+                m_Request.onComplete -= OnRequestComplete;
+                m_Request = null;
+            }
+
             if (!request.haveError)
             {
                 state = State.Completed;
 
-                m_Result = new AssetReference(request.data, info.fullName);
+                result = new AssetReference(request.data, info.fullName);
                 m_Result.AddTags(paramTags);
                 if (assetBundleReference != null)
                 {
-                    m_Result.assetBundleReference = assetBundleReference;
+                    result.assetBundleReference = assetBundleReference;
                 }
 
                 DoLoadComplete();
@@ -152,6 +190,13 @@ namespace YH.AssetManage
             DoLoadComplete();
         }
 
+        public override void Clean()
+        {
+            base.Clean();
+            m_AssetBundleLoader = null;
+            m_Request = null;
+        }
+
         public override AssetReference result
         {
             get
@@ -165,7 +210,8 @@ namespace YH.AssetManage
             }
             set
             {
-                m_Result = value;
+                //SetResult(value);
+                base.result = value;
             }
         }
     }

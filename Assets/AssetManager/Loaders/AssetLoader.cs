@@ -89,7 +89,7 @@ namespace YH.AssetManage
             type = null;
             assetBundleReference = null;
 
-            m_Result = null;
+            result = null;
             base.Clean();
         }
 
@@ -101,6 +101,17 @@ namespace YH.AssetManage
             }
             set
             {
+                //SetResult(value);
+                if (value != null)
+                {
+                    value.Retain();
+                }
+
+                if (m_Result != null)
+                {
+                    m_Result.Release();
+                }
+
                 m_Result = value;
             }
         }

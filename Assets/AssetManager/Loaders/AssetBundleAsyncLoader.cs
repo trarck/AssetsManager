@@ -25,6 +25,8 @@ namespace YH.AssetManage
 
         //由于整个loader使用了缓存，这里可以不使用缓存。
         List<AssetBundleAsyncLoader> m_DependencyLoaders = null;
+
+        Request m_Request = null;
         /// <summary>
         /// AssetBundle和所有依赖都加载完成。
         /// </summary>
@@ -125,20 +127,42 @@ namespace YH.AssetManage
             }
         }
 
-        public override void Update()
+        public override void Abort()
         {
-            switch (m_State)
+            //如果已经完成或出错，则无效。
+            if (m_State == State.Error || m_State == State.Completed)
             {
-                case State.Loaded:
-#if ASSETMANAGER_LOG
-                    Debug.LogFormat("{0},{1},{2}", info.fullName, m_WaitDependencyLoadCount, isDone);
-#endif
-                    if (isDone)
-                    {
-                        //Complete();
-                    }
-                    break;
+                return;
             }
+
+            base.Abort();
+
+            //取消依赖项
+            if (m_DependenciesIsDone)
+            {
+                if (m_DependencyLoaders.Count > 0)
+                {
+                    for (int i = 0; i < m_DependencyLoaders.Count; ++i)
+                    {
+                        AssetBundleAsyncLoader depLoader = m_DependencyLoaders[i];
+                        depLoader.onAssetBundleLoaded -= OnDependencyLoaded;
+                        depLoader.onBeforeComplete -= OnBeforeDependencyComplete;
+                        depLoader.onComplete -= OnDependencyComplete;
+                        depLoader.DecreaseLoadingRequest();
+                    }
+                    m_DependencyLoaders.Clear();
+                }
+            }
+
+            //清除本身资源
+            if (m_Request != null)
+            {
+                m_Request.onComplete -= OnBundleRequestComplete;
+                m_Request = null;
+            }
+
+            //执行一次加载完成
+            DoLoadComplete();
         }
 
         protected virtual void LoadBundle()
@@ -269,6 +293,12 @@ namespace YH.AssetManage
 
         protected void OnBundleRequestComplete(Request request)
         {
+            if (m_Request != null)
+            {
+                m_Request.onComplete -= OnBundleRequestComplete;
+                m_Request = null;
+            }
+
 #if ASSETMANAGER_LOG
             Debug.LogFormat("BundleRequestComplete {0}---{1}" , info.fullName ,Time.frameCount);
 #endif
@@ -281,7 +311,7 @@ namespace YH.AssetManage
                 }
                 
                 //Create result
-                m_Result = new AssetBundleReference(request.assetBundle, info != null ? info.fullName : "");
+                result = new AssetBundleReference(request.assetBundle, info != null ? info.fullName : "");
                 m_Result.AddTags(paramTags);
                 if (m_DependenciesIsDone )//|| (m_DependenciesIsLoaded && DeepCheckDependenciesComplete()))
                 {
@@ -312,18 +342,18 @@ namespace YH.AssetManage
 
         protected Request LoadFromFile(string path)
         {
-            Request request = RequestManager.CreateBundleCreateRequest(path);
-            request.onComplete += OnBundleRequestComplete;
-            assetManager.requestManager.ActiveRequest(request);
-            return request;
+            m_Request = RequestManager.CreateBundleCreateRequest(path);
+            m_Request.onComplete += OnBundleRequestComplete;
+            assetManager.requestManager.ActiveRequest(m_Request);
+            return m_Request;
         }
 
         protected Request LoadFromWeb(string path)
         {
-            Request request = RequestManager.CreateBundleWebRequest(path, info!=null?info.hash:null);
-            request.onComplete += OnBundleRequestComplete;
-            assetManager.requestManager.ActiveRequest(request);
-            return request;
+            m_Request = RequestManager.CreateBundleWebRequest(path, info!=null?info.hash:null);
+            m_Request.onComplete += OnBundleRequestComplete;
+            assetManager.requestManager.ActiveRequest(m_Request);
+            return m_Request;
         }
 
         protected void ClearDependencyLoaders()
@@ -366,7 +396,8 @@ namespace YH.AssetManage
             }
             set
             {
-                m_Result = value;
+                //m_Result = value;
+                base.result = value;
             }
         }
     }

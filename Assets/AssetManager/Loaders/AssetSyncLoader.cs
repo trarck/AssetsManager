@@ -129,6 +129,7 @@ namespace YH.AssetManage
                 {
 
                     m_Result = new AssetReference(asset, info.fullName);
+                    m_Result.Retain();
                     m_Result.AddTags(paramTags);
                     if (assetBundleReference != null)
                     {
@@ -139,7 +140,8 @@ namespace YH.AssetManage
             }
             set
             {
-                m_Result = value;
+                //SetResult(value);
+                base.result = value;
             }
         }
     }

@@ -92,14 +92,14 @@ namespace YH.AssetManage
 
         /// <summary>
         /// async load asset bundle
-        /// if completeHandle is null must start load manual
+        /// 同一个资源只有一个正在加载的loader
         /// </summary>
         /// <param name="path"></param>
         /// <param name="tag"></param>
         /// <param name="cacheLoadedAsset"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public AssetBundleLoader LoadAssetBundle(string path,int tag,bool cacheLoadedAsset, Action<AssetBundleReference> completeHandle=null)
+        public AssetBundleLoader LoadAssetBundle(string path,int tag,bool cacheLoadedAsset, Action<AssetBundleReference> completeHandle=null,bool autoStart=true)
         {
             AssetBundleLoader loader = null;
 
@@ -127,15 +127,19 @@ namespace YH.AssetManage
                 loader = m_LoaderManager.CreateAssetBundleAsyncLoader(path);
                 loader.forceDone = true;
                 loader.result = abr;
-              
 
-                loader.onAfterComplete += OnAssetBundleLoaded;
-                loader.state = Loader.State.Completed;
-                loader.Retain();
                 //call complete callback
                 if (completeHandle != null)
                 {
                     loader.onComplete += completeHandle;
+                }
+
+                loader.IncreaseLoadingRequest();
+
+                loader.onAfterComplete += OnAssetBundleLoaded;
+                loader.state = Loader.State.Completed;
+                if (autoStart)
+                {
                     m_LoaderManager.ActiveLoader(loader);
                 }
             }
@@ -174,8 +178,7 @@ namespace YH.AssetManage
                     loader.onAfterComplete += OnAssetBundleLoaded;
                     loader.state = Loader.State.Inited;
                     loader.Retain();
-
-                    if (completeHandle != null)
+                    if (autoStart)
                     {
                         m_LoaderManager.ActiveLoader(loader);
                     }
@@ -269,14 +272,14 @@ namespace YH.AssetManage
         ///     2.Retain(Object),使用完成时可以不用执行Release(Object)，等待UnloadUnuseds清理。
         ///     3.Monitor(GameObject),当GameObject被删除时，会自动执行Release(Object)。
         /// 对于手动删除资源最好执行RemoveAsset。
-        ///if completeHandle is null must start load manual
+        /// 同一个资源只有一个正在加载的loader。由Manager负责管理Loader。
         /// </summary>
         /// <param name="path"></param>
         /// <param name="tag"></param>
         /// <param name="type"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public AssetLoader LoadAsset(string path,int tag, Type type,Action<AssetReference> completeHandle=null,bool autoReleaseBundle=true)
+        public AssetLoader LoadAsset(string path,int tag, Type type,Action<AssetReference> completeHandle=null,bool autoReleaseBundle=true,bool autoStart=true)
         {
             if (!string.IsNullOrEmpty(path))
             {
@@ -302,13 +305,16 @@ namespace YH.AssetManage
                 loader.forceDone = true;
                 loader.result = ar;
 
-                loader.onAfterComplete += OnAssetAfterLoaded;
-                loader.state = Loader.State.Completed;
-                loader.Retain();
-
                 if (completeHandle != null)
                 {
                     loader.onComplete += completeHandle;
+                }
+
+                loader.onAfterComplete += OnAssetAfterLoaded;
+                loader.state = Loader.State.Completed;
+                loader.Retain();
+                if (autoStart)
+                {
                     m_LoaderManager.ActiveLoader(loader);
                 }
             }
@@ -332,8 +338,6 @@ namespace YH.AssetManage
                 
                 loader.AddParamTag(tag);
 
-
-
                 if (type != null)
                 {
                     loader.type = type;
@@ -348,14 +352,16 @@ namespace YH.AssetManage
                 {
                     loader.onComplete += completeHandle;
                 }
+                
+                loader.IncreaseLoadingRequest();
 
+                //only once init
                 if (loader.state == Loader.State.Idle)
                 {
                     loader.onBeforeComplete += OnAssetBeforeLoaded;
                     loader.onAfterComplete += OnAssetAfterLoaded;
                     loader.state = Loader.State.Inited;
-                    loader.Retain();
-                    if (completeHandle != null)
+                    if (autoStart)
                     {
                         m_LoaderManager.ActiveLoader(loader);
                     }
@@ -531,7 +537,7 @@ namespace YH.AssetManage
             AssetBundleLoader loader = LoadAssetBundle(path, tag, standalone, completeHandle);
             if (loader != null)
             {
-                loader.autoRelease = false;
+                loader.Retain();
                 return new BundleLoaderEnumerator(loader);
             }
             return null;
@@ -589,7 +595,7 @@ namespace YH.AssetManage
             AssetLoader loader = LoadAsset(path, tag, type, completeHandle);
             if (loader != null)
             {
-                loader.autoRelease = false;
+                loader.Retain();
                 return new AssetLoaderEnumerator(loader);
             }
             return null;
@@ -1043,11 +1049,24 @@ namespace YH.AssetManage
                     m_LoadingAssetBundleLoaders.Remove(info.fullName);
                 }
             }
-
-            if (loader.autoRelease)
+            else
             {
-                m_LoaderManager.ReleaseLoader(loader);
+                string key = null;
+                foreach (var iter in m_LoadingAssetBundleLoaders)
+                {
+                    if (iter.Value == loader)
+                    {
+                        key = iter.Key;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(key))
+                {
+                    m_LoadingAssetBundleLoaders.Remove(key);
+                }
             }
+
+            m_LoaderManager.ReleaseLoader(loader);
         }
 
         void OnAssetBundleDispose(AssetBundleReference abr)
@@ -1078,6 +1097,22 @@ namespace YH.AssetManage
                     m_LoadingAssetLoaders.Remove(loader.info.fullName);
                 }
             }
+            else
+            {
+                string key = null;
+                foreach(var iter in m_LoadingAssetLoaders)
+                {
+                    if (iter.Value == loader)
+                    {
+                        key = iter.Key;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(key))
+                {
+                    m_LoadingAssetLoaders.Remove(key);
+                }
+            }
         }
 
         void OnAssetAfterLoaded(AssetLoader loader)
@@ -1091,10 +1126,7 @@ namespace YH.AssetManage
                 }
             }
 
-            if (loader.autoRelease)
-            {
-                m_LoaderManager.ReleaseLoader(loader);
-            }
+            m_LoaderManager.ReleaseLoader(loader);
         }
 
         void OnAssetDispose(AssetReference ar)

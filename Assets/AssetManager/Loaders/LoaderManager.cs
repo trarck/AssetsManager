@@ -150,9 +150,9 @@ namespace YH.AssetManage
             //    m_PrepareLoaders.Push(loader);
             //}
         }
+
         public void ReleaseLoader(Loader loader)
         {
-            loader.Release();
             if (loader.emptyRef)
             {
                 LoaderPool.Release(loader);

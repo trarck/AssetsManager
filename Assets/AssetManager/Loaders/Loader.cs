@@ -7,6 +7,7 @@ namespace YH.AssetManage
 {
     /// <summary>
     /// Loader由管理器来管理，不需要自己的Dispose.
+    /// 加载同一个资源的loader同时只能存在一个。
     /// </summary>
     public abstract class Loader
     {
@@ -24,7 +25,6 @@ namespace YH.AssetManage
         protected bool m_ForceDone = false;
         //是否缓存加载后的资源。
         protected bool m_CacheLoadedAsset = false;
-        protected bool m_AutoRelease = true;
         //是否在加载后自动断开和AssetBundle的联系。
         protected bool m_AutoReleaseBundle = true;
 
@@ -34,8 +34,10 @@ namespace YH.AssetManage
 
         public abstract bool isDone { get; }
 
-        public bool autoRelease { get { return m_AutoRelease; } set { m_AutoRelease = value; } }
         public bool autoReleaseBundle { get { return m_AutoReleaseBundle; } set { m_AutoReleaseBundle = value; } }
+        //正在加载时请求的数量
+        protected int m_LoadingRequestCount = 0;
+        protected bool m_Aborted = false;
 
         public HashSet<int> paramTags
         {
@@ -119,9 +121,9 @@ namespace YH.AssetManage
 
         }
 
-        public virtual void Update()
+        public virtual void Abort()
         {
-
+            m_Aborted = true;
         }
 
         public virtual void Complete()
@@ -134,18 +136,31 @@ namespace YH.AssetManage
             state = State.Error;
         }
 
-
         public virtual void Clean()
         {
             state = State.Idle;
             m_ForceDone = false;
             m_CacheLoadedAsset = false;
-            m_AutoRelease = true;
             if (m_ParamTags != null)
             {
                 m_ParamTags.Clear();
             }
+            m_LoadingRequestCount = 0;
+            m_Aborted = false;
             assetManager = null;
+        }
+
+        public void IncreaseLoadingRequest()
+        {
+            ++m_LoadingRequestCount;
+        }
+
+        public void DecreaseLoadingRequest()
+        {
+            if (--m_LoadingRequestCount <= 0)
+            {
+                Abort();
+            }
         }
 
         protected bool isFinishedState
@@ -181,5 +196,6 @@ namespace YH.AssetManage
                 m_CacheLoadedAsset = value;
             }
         }
+
     }
 }

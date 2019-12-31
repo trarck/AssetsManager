@@ -9,6 +9,7 @@ namespace YH.AssetManage
     public class AssetLoaderRequest : Request
     {
         AssetBundleRequest m_Request;
+        bool m_Aborted = false;
 
         public string assetName { get; set; }
         public Type type { get; set; }
@@ -75,6 +76,29 @@ namespace YH.AssetManage
             }
         }
 
+        public override void Abort()
+        {
+            m_Aborted = true;
+        }
+
+        public override void Complete()
+        {
+            if (m_Aborted)
+            {
+                if(m_Request!=null && m_Request.asset != null)
+                {
+                    if (!(m_Request.asset is GameObject))
+                    {
+                        Resources.UnloadAsset(m_Request.asset);
+                    }
+                }
+            }
+            else
+            {
+                base.Complete();
+            }
+        }
+
         public override bool haveError
         {
             get
@@ -92,8 +116,10 @@ namespace YH.AssetManage
             m_Request = null;
             assetName = null;
             type = null;
+            m_Aborted = false;
             base.Clean();
         }
+
         public override string ToString()
         {
             return string.Format("AssetLoaderRequest:{0},isDone:{1}", assetName, isDone);
@@ -103,6 +129,7 @@ namespace YH.AssetManage
     public class ResouceLoaderRequest : Request
     {
         ResourceRequest m_Request;
+        bool m_Aborted = false;
 
         public string resourcePath { get; set; }
         public Type type { get; set; }
@@ -168,6 +195,28 @@ namespace YH.AssetManage
             }
         }
 
+        public override void Abort()
+        {
+            m_Aborted = true;
+        }
+
+        public override void Complete()
+        {
+            if (m_Aborted)
+            {
+                if (m_Request != null && m_Request.asset != null)
+                {
+                    if (!(m_Request.asset is GameObject))
+                    {
+                        Resources.UnloadAsset(m_Request.asset);
+                    }
+                }
+            }
+            else
+            {
+                base.Complete();
+            }
+        }
 
         public override bool haveError
         {
@@ -186,6 +235,7 @@ namespace YH.AssetManage
             m_Request = null;
             resourcePath = null;
             type = null;
+            m_Aborted = false;
             base.Clean();
         }
 
