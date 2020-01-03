@@ -136,7 +136,7 @@ namespace YH.AssetManage
 
                 loader.IncreaseLoadingRequest();
 
-                loader.onAfterComplete += OnAssetBundleLoaded;
+                loader.onAfterComplete += OnAssetBundleAfterLoaded;
                 loader.state = Loader.State.Completed;
                 if (autoStart)
                 {
@@ -175,9 +175,9 @@ namespace YH.AssetManage
 
                 if (loader.state == Loader.State.Idle)
                 {
-                    loader.onAfterComplete += OnAssetBundleLoaded;
+                    loader.onBeforeComplete += OnAssetBundleBeforeLoaded;
+                    loader.onAfterComplete += OnAssetBundleAfterLoaded;
                     loader.state = Loader.State.Inited;
-                    loader.Retain();
                     if (autoStart)
                     {
                         m_LoaderManager.ActiveLoader(loader);
@@ -239,7 +239,8 @@ namespace YH.AssetManage
 
                         loader.Start();
                         abr = loader.result;
-                        OnAssetBundleLoaded(loader);
+                        OnAssetBundleBeforeLoaded(loader);
+                        OnAssetBundleAfterLoaded(loader);
                     }
                 }
             }
@@ -312,7 +313,6 @@ namespace YH.AssetManage
 
                 loader.onAfterComplete += OnAssetAfterLoaded;
                 loader.state = Loader.State.Completed;
-                loader.Retain();
                 if (autoStart)
                 {
                     m_LoaderManager.ActiveLoader(loader);
@@ -1023,7 +1023,7 @@ namespace YH.AssetManage
         }
 
 #region loaded manage
-        void OnAssetBundleLoaded(AssetBundleLoader loader)
+        void OnAssetBundleBeforeLoaded(AssetBundleLoader loader)
         {
             AssetBundleReference abr = loader.result;
             if (abr != null)
@@ -1065,7 +1065,10 @@ namespace YH.AssetManage
                     m_LoadingAssetBundleLoaders.Remove(key);
                 }
             }
+        }
 
+        void OnAssetBundleAfterLoaded(AssetBundleLoader loader)
+        {
             m_LoaderManager.ReleaseLoader(loader);
         }
 

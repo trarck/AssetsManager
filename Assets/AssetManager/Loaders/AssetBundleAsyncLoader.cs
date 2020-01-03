@@ -137,22 +137,22 @@ namespace YH.AssetManage
 
             base.Abort();
 
-            //取消依赖项
-            if (m_DependenciesIsDone)
+            //清除未完成的loader
+            if (m_DependencyLoaders.Count > 0)
             {
-                if (m_DependencyLoaders.Count > 0)
+                for (int i = 0; i < m_DependencyLoaders.Count; ++i)
                 {
-                    for (int i = 0; i < m_DependencyLoaders.Count; ++i)
-                    {
-                        AssetBundleAsyncLoader depLoader = m_DependencyLoaders[i];
-                        depLoader.onAssetBundleLoaded -= OnDependencyLoaded;
-                        depLoader.onBeforeComplete -= OnBeforeDependencyComplete;
-                        depLoader.onComplete -= OnDependencyComplete;
-                        depLoader.DecreaseLoadingRequest();
-                    }
-                    m_DependencyLoaders.Clear();
+                    AssetBundleAsyncLoader depLoader = m_DependencyLoaders[i];
+                    depLoader.onAssetBundleLoaded -= OnDependencyLoaded;
+                    depLoader.onBeforeComplete -= OnBeforeDependencyComplete;
+                    depLoader.onComplete -= OnDependencyComplete;
+                    depLoader.DecreaseLoadingRequest();
                 }
+                m_DependencyLoaders.Clear();
             }
+
+            //清除已经加载的AssetBundle
+            ClearDependencies();
 
             //清除本身资源
             if (m_Request != null)
