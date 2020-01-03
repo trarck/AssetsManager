@@ -2,7 +2,7 @@
 using UnityEngine.TestTools;
 using NUnit.Framework;
 using System.Collections;
-using YH.AssetManager;
+using YH.AssetManage;
 
 public class AssetAsyncLoaderTest
 {

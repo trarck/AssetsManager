@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using YH.AssetManager;
+using YH.AssetManage;
 
 public class Main : MonoBehaviour {
     

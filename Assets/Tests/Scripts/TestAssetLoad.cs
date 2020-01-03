@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using YH.AssetManager;
+using YH.AssetManage;
 
 public class TestOperation : IEnumerator,System.IDisposable
 {
