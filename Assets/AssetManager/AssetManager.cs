@@ -158,7 +158,18 @@ namespace YH.AssetManage
                     Debug.Log("LoadAssetBundle create new loader " + path + "," + Time.frameCount);
                     #endif
                     loader = m_LoaderManager.CreateAssetBundleAsyncLoader(path);
-                    m_LoadingAssetBundleLoaders[path] = loader;
+                    if (loader!=null)
+                    {
+                        m_LoadingAssetBundleLoaders[path] = loader;
+                    }
+                    else
+                    {
+                        if (completeHandle != null)
+                        {
+                            completeHandle(null);
+                        }
+                        return null;
+                    }
                 }
                 
                 loader.AddParamTag(tag);
