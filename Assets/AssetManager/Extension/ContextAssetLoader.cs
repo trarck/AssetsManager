@@ -83,36 +83,30 @@ namespace YH.AssetManage.Extension
 
         void OnAssetBeforeComplete(AssetLoader loader)
         {
-            loader.onBeforeComplete -= OnAssetBeforeComplete;
-            m_AssetLoaders.Remove(loader);
-
             //check enable
             if (m_Context != null && !m_Context.enable)
             {
-                loader.onComplete -= m_AssetCompleteHandles[loader];
-                m_AssetCompleteHandles.Remove(loader);
                 OnContextDisable();
             }
             else
             {
+                loader.onBeforeComplete -= OnAssetBeforeComplete;
+                m_AssetLoaders.Remove(loader);
                 m_AssetCompleteHandles.Remove(loader);
             }
         }
 
         void OnAssetBundleBeforeComplete(AssetBundleLoader loader)
         {
-            loader.onBeforeComplete -= OnAssetBundleBeforeComplete;
-            m_AssetBundleLoaders.Remove(loader);
-
             //check enable
             if (m_Context != null && !m_Context.enable)
             {
-                loader.onComplete -= m_AssetBundleCompleteHandles[loader];
-                m_AssetBundleLoaders.Remove(loader);
                 OnContextDisable();
             }
             else
             {
+                loader.onBeforeComplete -= OnAssetBundleBeforeComplete;
+                m_AssetBundleLoaders.Remove(loader);
                 m_AssetBundleCompleteHandles.Remove(loader);
             }
         }
@@ -123,7 +117,9 @@ namespace YH.AssetManage.Extension
             {
                 s_CacheContextAssetLoaders.Remove(m_Context);
             }
+
             Clean();
+
             s_ContextAssetLoaderPool.Release(this);
         }
 

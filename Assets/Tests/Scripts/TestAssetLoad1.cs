@@ -110,4 +110,43 @@ public class TestAssetLoad1 : MonoBehaviour
         });
         GameObject.Destroy(m_Obj.gameObject);
     }
+
+    void Test5()
+    {
+        string asset1 = "ArtResources/Prefabs/MyPrefab.prefab";
+        MonoContext c = ContextFactroy.GetMonoContext(m_Obj.gameObject);
+        ContextAssetLoader.Create(c).LoadAsset(asset1, (ar) =>
+        {
+
+            Debug.Log(ar + "," + Time.frameCount);
+            if (ar != null)
+            {
+                //if (m_Obj)
+                {
+                    m_Obj.DoLoadAssetCallback(asset1);
+                }
+            }
+        });
+        GameObject.Destroy(m_Obj.gameObject);
+    }
+
+    void Test6()
+    {
+        string asset1 = "ArtResources/Prefabs/MyPrefab.prefab";
+        MonoContext c = ContextFactroy.GetMonoContext(m_Obj.gameObject);
+        ContextAssetLoader.Create(c).LoadAsset(asset1, (ar) =>
+        {
+
+            Debug.Log(ar + "," + Time.frameCount);
+            if (ar != null)
+            {
+                //if (m_Obj)
+                {
+                    m_Obj.DoLoadAssetCallback(asset1);
+                }
+            }
+        });
+        c.enable = false;
+        GameObject.Destroy(m_Obj.gameObject);
+    }
 }
