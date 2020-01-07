@@ -24,7 +24,7 @@ public class TestAssetLoad1 : MonoBehaviour
 
     void DoTest()
     {
-        Test3();
+        Test4();
     }
 
     // Update is called once per frame
@@ -78,6 +78,25 @@ public class TestAssetLoad1 : MonoBehaviour
     {
         string asset1 = "ArtResources/Prefabs/MyPrefab.prefab";
         MonoAssetLoader.Create().LoadAsset(asset1, (ar) =>
+        {
+
+            Debug.Log(ar + "," + Time.frameCount);
+            if (ar != null)
+            {
+                //if (m_Obj)
+                {
+                    m_Obj.DoLoadAssetCallback(asset1);
+                }
+            }
+        });
+        GameObject.Destroy(m_Obj.gameObject);
+    }
+
+    void Test4()
+    {
+        string asset1 = "ArtResources/Prefabs/MyPrefab.prefab";
+        Context c = ContextFactroy.GetMonoEventContext(m_Obj.gameObject);
+        ContextAssetLoader.Create(c).LoadAsset(asset1, (ar) =>
         {
 
             Debug.Log(ar + "," + Time.frameCount);

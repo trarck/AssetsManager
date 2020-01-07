@@ -138,7 +138,7 @@ namespace YH.AssetManage
             base.Abort();
 
             //清除未完成的loader
-            if (m_DependencyLoaders.Count > 0)
+            if (m_DependencyLoaders!=null && m_DependencyLoaders.Count > 0)
             {
                 for (int i = 0; i < m_DependencyLoaders.Count; ++i)
                 {

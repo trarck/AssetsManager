@@ -6,14 +6,17 @@ namespace YH.AssetManage.Extension
 {
     public class ContextAssetLoader
     {
-        static Dictionary<Context, ContextAssetLoader> s_CacheContextAssetLoaders;
-
         static ObjectPool<ContextAssetLoader> s_ContextAssetLoaderPool = new ObjectPool<ContextAssetLoader>(null, (o) => { o.Clean(); });
+
+        static Dictionary<Context, ContextAssetLoader> s_CacheContextAssetLoaders=new Dictionary<Context, ContextAssetLoader>();
 
         Context m_Context=null;
 
         HashSet<AssetLoader> m_AssetLoaders= new HashSet<AssetLoader>();
+        Dictionary<AssetLoader, Action<AssetReference>> m_AssetCompleteHandles = new Dictionary<AssetLoader, Action<AssetReference>>();
+
         HashSet<AssetBundleLoader> m_AssetBundleLoaders = new HashSet<AssetBundleLoader>();
+        Dictionary<AssetBundleLoader, Action<AssetBundleReference>> m_AssetBundleCompleteHandles = new Dictionary<AssetBundleLoader, Action<AssetBundleReference>>();
 
         public Context context
         {
@@ -54,6 +57,7 @@ namespace YH.AssetManage.Extension
                 AssetLoader loader = AssetManager.Instance.LoadAsset(path, tag, type, completeHandle, autoReleaseBundle);
                 loader.onBeforeComplete += OnAssetBeforeComplete;
                 m_AssetLoaders.Add(loader);
+                m_AssetCompleteHandles[loader] = completeHandle;
             }
         }
 
@@ -68,8 +72,12 @@ namespace YH.AssetManage.Extension
             {
                 //这里暂时使用匿名函数。
                 AssetBundleLoader loader = AssetManager.Instance.LoadAssetBundle(path, tag, cacheLoadedAsset, completeHandle);
-                loader.onBeforeComplete += OnAssetBundleBeforeComplete;
-                m_AssetBundleLoaders.Add(loader);
+                if (loader!=null)
+                {
+                    loader.onBeforeComplete += OnAssetBundleBeforeComplete;
+                    m_AssetBundleLoaders.Add(loader);
+                    m_AssetBundleCompleteHandles[loader] = completeHandle;
+                }
             }
         }
 
@@ -77,30 +85,45 @@ namespace YH.AssetManage.Extension
         {
             loader.onBeforeComplete -= OnAssetBeforeComplete;
             m_AssetLoaders.Remove(loader);
+
+            //check enable
+            if (m_Context != null && !m_Context.enable)
+            {
+                loader.onComplete -= m_AssetCompleteHandles[loader];
+                m_AssetCompleteHandles.Remove(loader);
+                OnContextDisable();
+            }
+            else
+            {
+                m_AssetCompleteHandles.Remove(loader);
+            }
         }
 
         void OnAssetBundleBeforeComplete(AssetBundleLoader loader)
         {
             loader.onBeforeComplete -= OnAssetBundleBeforeComplete;
             m_AssetBundleLoaders.Remove(loader);
+
+            //check enable
+            if (m_Context != null && !m_Context.enable)
+            {
+                loader.onComplete -= m_AssetBundleCompleteHandles[loader];
+                m_AssetBundleLoaders.Remove(loader);
+                OnContextDisable();
+            }
+            else
+            {
+                m_AssetBundleCompleteHandles.Remove(loader);
+            }
         }
 
         void OnContextDisable()
         {
-            m_Context.onDisable -= OnContextDisable;
-
             if (s_CacheContextAssetLoaders.ContainsKey(m_Context))
             {
                 s_CacheContextAssetLoaders.Remove(m_Context);
             }
-
-            foreach(var loader in m_AssetLoaders)
-            {
-                loader.Abort();
-            }
-
-            m_Context = null;
-
+            Clean();
             s_ContextAssetLoaderPool.Release(this);
         }
 
@@ -117,8 +140,10 @@ namespace YH.AssetManage.Extension
                 foreach (var loader in m_AssetLoaders)
                 {
                     loader.onBeforeComplete -= OnAssetBeforeComplete;
+                    loader.onComplete -= m_AssetCompleteHandles[loader];
                 }
                 m_AssetLoaders.Clear();
+                m_AssetCompleteHandles.Clear();
             }
 
             if (m_AssetBundleLoaders != null && m_AssetBundleLoaders.Count > 0)
@@ -126,8 +151,10 @@ namespace YH.AssetManage.Extension
                 foreach (var loader in m_AssetBundleLoaders)
                 {
                     loader.onBeforeComplete -= OnAssetBundleBeforeComplete;
+                    loader.onComplete -= m_AssetBundleCompleteHandles[loader];
                 }
                 m_AssetBundleLoaders.Clear();
+                m_AssetBundleCompleteHandles.Clear();
             }
         }
         
