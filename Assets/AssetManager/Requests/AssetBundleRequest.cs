@@ -120,7 +120,7 @@ namespace YH.AssetManage
             if (m_Www != null && m_Www.isNetworkError)
             {
 #if ASSETMANAGER_LOG
-                Debug.LogFormat("The WebRequest have network error left retry times:{0},--{1}", retryTimes, Time.frameCount);
+                Debug.LogFormat("The WebRequest have network error:{0} .Left retry times:{1},--{2}",m_Www.error, retryTimes, Time.frameCount);
 #endif
                 //when network error retry again
                 if (retryTimes > 0)

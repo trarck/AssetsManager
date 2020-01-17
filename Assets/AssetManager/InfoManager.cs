@@ -72,7 +72,7 @@ namespace YH.AssetManage
         {
             using (UnityWebRequest webRequest = UnityWebRequest.Get(fileUrl))
             {
-                webRequest.timeout = AMSetting.WebRequestTimeout;
+                webRequest.timeout = AMSetting.DownloadTimeout;
                 yield return webRequest.SendWebRequest();
 
                 if (webRequest.isNetworkError && m_RetryTimes-- > 0)

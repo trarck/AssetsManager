@@ -149,7 +149,7 @@ namespace YH.AssetManage
             BundleWebRequest request = BundleWebRequestPool.Get();
             request.bundleUrl = url;
             request.hash = hash;
-            request.timeout = AMSetting.WebRequestTimeout;
+            request.timeout = AMSetting.DownloadTimeout;
             request.retryTimes = AMSetting.RequestRetryTimes;
             return request;
         }
@@ -177,7 +177,7 @@ namespace YH.AssetManage
             request.bundleUrl = url;
             request.hash = hash;
             request.saveFilePath = localPath;
-            request.timeout = AMSetting.WebRequestTimeout;
+            request.timeout = AMSetting.DownloadTimeout;
             request.retryTimes = AMSetting.RequestRetryTimes;
             return request;
         }

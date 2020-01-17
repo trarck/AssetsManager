@@ -22,13 +22,13 @@ namespace YH.AssetManage
         RequestManager m_RequestManager;
 
         bool m_Inited = false;
-
+#if UNITY_EDITOR
         void Awake()
         {
-            Init();
+            Init(AssetPaths.bundleManifestFile);
         }
-
-        public void Init(Action<bool> callback=null)
+#endif
+        public void Init(string allManifestFile=null,Action<bool> callback=null)
         {
             if (m_Inited)
             {
@@ -71,8 +71,12 @@ namespace YH.AssetManage
             {
                 m_InfoManager.onInitComplete += callback;
             }
-            
-            m_InfoManager.Load(AssetPaths.GetFullPath(AssetPaths.bundleManifestFile));
+
+            if (string.IsNullOrEmpty(allManifestFile))
+            {
+                allManifestFile = AssetPaths.bundleManifestFile;
+            }
+            m_InfoManager.Load(AssetPaths.GetFullPath(allManifestFile));
         }
 
         public void Clean()
@@ -105,6 +109,10 @@ namespace YH.AssetManage
 
             if (string.IsNullOrEmpty(path))
             {
+                if (completeHandle != null)
+                {
+                    completeHandle(null);
+                }
                 return loader;
             }
 
@@ -293,12 +301,20 @@ namespace YH.AssetManage
         /// <returns></returns>
         public AssetLoader LoadAsset(string path,int tag, Type type,Action<AssetReference> completeHandle=null,bool autoReleaseBundle=true,bool autoStart=true)
         {
+            AssetLoader loader = null;
             if (!string.IsNullOrEmpty(path))
             {
                 path = AssetPaths.AddAssetPrev(path);
             }
+            else
+            {
+                if (completeHandle != null)
+                {
+                    completeHandle(null);
+                }
+                return loader;
+            }
 
-            AssetLoader loader = null;
 
             if (m_Assets.ContainsKey(path))
             {
