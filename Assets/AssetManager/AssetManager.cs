@@ -489,14 +489,14 @@ namespace YH.AssetManage
         public void LoadAssets(ICollection<string> assets, Dictionary<string, AssetReference> assetReferences, Action<Dictionary<string, AssetReference>> callback)
         {
             int needCount = assets.Count;
-            bool haveLoadAssets = false;
+            int loadCount = 0;
             bool checkAll = false;
 
             foreach (var asset in assets)
             {
                 if (!string.IsNullOrEmpty(asset))
                 {
-                    haveLoadAssets = true;
+                    ++loadCount;
                     AssetManager.Instance.LoadAsset(asset, (assetReference) => {
                         if (assetReference != null && !assetReference.IsEmpty())
                         {
@@ -509,16 +509,18 @@ namespace YH.AssetManage
                         {
                             Debug.LogErrorFormat("LoadAssets can't load {0}", asset);
                         }
-                        //all finished
-                        if (--needCount <= 0)
+
+                        --needCount;
+
+                        if (--loadCount <= 0)
                         {
                             if (checkAll)
                             {
-                                callback(assetReferences);
-                            }
-                            else
-                            {
-                                haveLoadAssets = false;
+                                //all finished
+                                if (callback != null)
+                                {
+                                    callback(assetReferences);
+                                }
                             }
                         }
                     });
@@ -531,9 +533,12 @@ namespace YH.AssetManage
 
             checkAll = true;
 
-            if (needCount == 0 && !haveLoadAssets)
+            if (needCount == 0 && loadCount<=0)
             {
-                callback(assetReferences);
+                if (callback != null)
+                {
+                    callback(assetReferences);
+                }
             }
         }
         #endregion

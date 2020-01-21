@@ -367,5 +367,21 @@ namespace YH.AssetManage
                 return m_Inited;
             }
         }
+
+        public string version
+        {
+            get
+            {
+                return m_BundleManifest != null ? m_BundleManifest.version : null;
+            }
+        }
+
+        public int format
+        {
+            get
+            {
+                return m_BundleManifest != null ? m_BundleManifest.format : 0;
+            }
+        }
     }
 }
