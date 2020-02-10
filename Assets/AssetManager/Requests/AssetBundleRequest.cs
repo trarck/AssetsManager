@@ -163,6 +163,10 @@ namespace YH.AssetManage
         {
             if (!m_Aborted)
             {
+                //clear other cached version
+                string bundleName = Path.GetFileName(bundleUrl);
+                Caching.ClearOtherCachedVersions(bundleName, Hash128.Parse(hash));
+
                 base.Complete();
             }
         }
