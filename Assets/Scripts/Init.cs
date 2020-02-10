@@ -8,7 +8,7 @@ public class Init : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        AssetManager.Instance.Init((result) =>
+        AssetManager.Instance.Init(null,(result) =>
         {
             GotoMain();
         });

@@ -75,7 +75,7 @@ public class TestAssetLoad : MonoBehaviour
     {
         YH.AssetsMonitor.Instance.CheckAssets();
 
-        m_AssetManager.Init((r) =>
+        m_AssetManager.Init(null,(r) =>
         {
             StartCoroutine(Testloop2());
         });
