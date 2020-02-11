@@ -8,8 +8,8 @@ namespace YH.AssetManage
     {
         //unity的webRequest.timeout默认值0，即没有timeout。
         //web请求超时时间.
-        public static int WebRequestTimeout = 30;
-        //web请求超时时间,一般默认为0.下载AssetBundle时不应该有超时时间,和web请求不同。
+        public static int WebRequestTimeout = 60;
+        //下载请求超时时间,一般默认为0.下载AssetBundle时不应该有超时时间,和web请求不同。
         public static int DownloadTimeout = 0;
         //web请求重试次数
         public static int RequestRetryTimes = 3;
