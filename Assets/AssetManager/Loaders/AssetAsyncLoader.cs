@@ -13,7 +13,7 @@ namespace YH.AssetManage
         {
             get
             {
-                return forceDone || state==State.Loaded || state==State.Completed;
+                return forceDone  || state==State.Completed || state == State.Error;
             }
         }
 
