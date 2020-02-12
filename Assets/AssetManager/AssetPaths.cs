@@ -8,7 +8,6 @@ namespace YH.AssetManage
 {
     public class AssetPaths
     {
-
         public static string dataPath = Application.dataPath;
 
         public static string streamingAssetsPath = Application.streamingAssetsPath;
@@ -26,27 +25,21 @@ namespace YH.AssetManage
 
         public static List<string> searchPaths = new List<string>();
 
-        public static string FullPathForFilename(string filename)
+        public static void SetupDefaultSearchPaths()
         {
-            if (Path.IsPathRooted(filename))
-            {
-                return filename;
-            }
-
-            return GetFullPathFromSearchPaths(filename);
-        }
-
-        public static string GetFullPathFromSearchPaths(string filename)
-        {
-            foreach (string searchPath in searchPaths)
-            {
-                string fullPath = Path.Combine(searchPath, filename);
-                if (File.Exists(fullPath))
-                {
-                    return fullPath;
-                }
-            }
-            return null;
+            //add search paths
+            AddSearchPath(Combine(Application.persistentDataPath, bundlesPath));
+            AddSearchPath(Application.persistentDataPath);
+#if UNITY_EDITOR
+            //bunlde out path
+            AddSearchPath(
+                Combine(
+                    Path.GetFullPath("."),
+                    bundleOutPaths,
+                    UnityEditor.EditorUserBuildSettings.activeBuildTarget.ToString()
+                )
+            );
+#endif
         }
 
         public static void AddSearchPath(string path)
@@ -76,6 +69,29 @@ namespace YH.AssetManage
             {
                 searchPaths.Remove(path);
             }
+        }
+
+        public static string FullPathForFilename(string filename)
+        {
+            if (Path.IsPathRooted(filename))
+            {
+                return filename;
+            }
+
+            return GetFullPathFromSearchPaths(filename);
+        }
+
+        public static string GetFullPathFromSearchPaths(string filename)
+        {
+            foreach (string searchPath in searchPaths)
+            {
+                string fullPath = Path.Combine(searchPath, filename);
+                if (File.Exists(fullPath))
+                {
+                    return fullPath;
+                }
+            }
+            return null;
         }
 
         public static string StreamingUrlForFilename(string filename)

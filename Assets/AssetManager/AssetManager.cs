@@ -17,7 +17,7 @@ namespace YH.AssetManage
         Dictionary<string, AssetBundleLoader> m_LoadingAssetBundleLoaders = new Dictionary<string, AssetBundleLoader>();
         Dictionary<string, AssetLoader> m_LoadingAssetLoaders = new Dictionary<string, AssetLoader>();
 
-        InfoManager m_InfoManager;
+        IInfoManager m_InfoManager;
         LoaderManager m_LoaderManager;
         RequestManager m_RequestManager;
 
@@ -28,6 +28,14 @@ namespace YH.AssetManage
             Init(AssetPaths.bundleManifestFile);
         }
 #endif
+
+        #region Init
+
+        protected void SetupSystemEvents()
+        {
+            Application.lowMemory += OnLowMemory;
+        }
+
         public void Init(string allManifestFile=null,Action<bool> callback=null)
         {
             if (m_Inited)
@@ -46,22 +54,12 @@ namespace YH.AssetManage
                 return;
             }
             m_Inited = true;
+            
+            //asset search path
+            AssetPaths.SetupDefaultSearchPaths();
 
-            Application.lowMemory += OnLowMemory;
-
-            //add search paths
-            AssetPaths.AddSearchPath(AssetPaths.Combine(Application.persistentDataPath, AssetPaths.bundlesPath));
-            AssetPaths.AddSearchPath(Application.persistentDataPath);
-#if UNITY_EDITOR
-            //bunlde out path
-            AssetPaths.AddSearchPath(
-                AssetPaths.Combine(
-                    System.IO.Path.GetFullPath("."),
-                    AssetPaths.bundleOutPaths,
-                    UnityEditor.EditorUserBuildSettings.activeBuildTarget.ToString()
-                )
-            );
-#endif
+            //system events
+            SetupSystemEvents();
 
             m_LoaderManager = new LoaderManager(this);
             m_RequestManager = new RequestManager(this);
@@ -71,13 +69,40 @@ namespace YH.AssetManage
             {
                 m_InfoManager.onInitComplete += callback;
             }
-
+            Debug.Log(allManifestFile);
             if (string.IsNullOrEmpty(allManifestFile))
             {
                 allManifestFile = AssetPaths.bundleManifestFile;
             }
+            foreach(var s in AssetPaths.searchPaths)
+            {
+                Debug.Log(s);
+            }
             m_InfoManager.Load(AssetPaths.GetFullPath(allManifestFile));
         }
+
+        /// <summary>
+        /// 用于自定义构建
+        /// </summary>
+        /// <param name="infoManager"></param>
+        /// <param name="loaderManager"></param>
+        /// <param name="requestManager"></param>
+        public void Init(IInfoManager infoManager,LoaderManager loaderManager,RequestManager requestManager)
+        {
+            if (m_Inited)
+            {
+                return;
+            }
+            m_Inited = true;
+
+            SetupSystemEvents();
+
+            m_InfoManager = infoManager;
+            m_LoaderManager = loaderManager;
+            m_RequestManager = requestManager;
+        }
+
+        #endregion
 
         public void Clean()
         {
@@ -664,7 +689,7 @@ namespace YH.AssetManage
             }
         }
 
-#endregion
+        #endregion
 
         void OnLowMemory()
         {
@@ -1188,19 +1213,22 @@ namespace YH.AssetManage
             }   
         }
 #endif
-        public InfoManager infoManager
+        public IInfoManager infoManager
         {
             get { return m_InfoManager; }
+            set {m_InfoManager = value;}
         }
 
         public LoaderManager loaderManager
         {
             get { return m_LoaderManager; }
+            set { m_LoaderManager = value; }
         }
 
         public RequestManager requestManager
         {
             get { return m_RequestManager; }
+            set { m_RequestManager = value; }
         }
 
         public Dictionary<string,AssetBundleReference> assetBundles

@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace YH.AssetManage
 {
-    public class InfoManager
+    public class InfoManager:IInfoManager
     {
         BundleManifest m_BundleManifest;
         Dictionary<string, AssetInfo> m_AssetInfos = new Dictionary<string, AssetInfo>();
@@ -31,7 +31,7 @@ namespace YH.AssetManage
         bool m_Inited = false;
         int m_RetryTimes=AMSetting.RequestRetryTimes;
 
-        public Action<bool> onInitComplete;
+        public event Action<bool> onInitComplete;
 
         public InfoManager(AssetManager assetManager)
         {
@@ -59,13 +59,12 @@ namespace YH.AssetManage
             }
         }
 
-
-        public void LoadFromPackage(string filePath)
+        public void LoadFromPackage(string url)
         {
 #if ASSETMANAGER_LOG
-            Debug.LogFormat("Load File {0} ", filePath);
+            Debug.LogFormat("Load File {0} ", url);
 #endif
-            m_AssetManager.StartCoroutine(LoadPackageFile(filePath));
+            m_AssetManager.StartCoroutine(LoadPackageFile(url));
         }
 
         IEnumerator LoadPackageFile(string fileUrl)
@@ -168,16 +167,16 @@ namespace YH.AssetManage
             m_BundleManifest.Read(reader);
         }
 
-        public void SaveToBinary(string fileName)
+        public void SaveBinary(string fileName)
         {
             using (FileStream fs = File.OpenWrite(fileName))// new FileStream(fileName, FileMode.Create))
             {
                 fs.SetLength(0);
-                SaveToStream(fs);
+                SaveBinaryStream(fs);
             }
         }
 
-        public void SaveToStream(Stream stream)
+        public void SaveBinaryStream(Stream stream)
         {
             if (m_BundleManifest != null)
             {
@@ -187,7 +186,7 @@ namespace YH.AssetManage
             }
         }
 
-        void UpdateManifest()
+        protected void UpdateManifest()
         {
             if (m_BundleManifest == null)
             {
@@ -348,7 +347,7 @@ namespace YH.AssetManage
             m_AssetBundleInfos.Clear();
         }
 
-        void InitComplete(bool result)
+        protected void InitComplete(bool result)
         {
 #if ASSETMANAGER_LOG
             Debug.Log("Info Manager init complete");

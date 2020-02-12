@@ -7,7 +7,7 @@ namespace YH.AssetManage
 {
     public class LoaderEnumerator : IEnumerator, IDisposable
     {
-        protected Loader m_Loader;
+        public Loader m_Loader;
 
         public object Current
         {
