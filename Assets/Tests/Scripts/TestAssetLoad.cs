@@ -139,45 +139,28 @@ public class TestAssetLoad : MonoBehaviour
     {
         yield return new WaitForSeconds(2);
         Debug.Log("Load prefab " + Time.frameCount);
-        using (LoaderEnumerator loader = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
-          {
-
-              Debug.Log(ar + "," + Time.frameCount);
-              if (ar != null)
-              {
-                  Debug.Log(ar.asset);
-                  m_Obj = GameObject.Instantiate(ar.asset);
-                //ar.Retain(m_Obj);
-                ar.Monitor(m_Obj as GameObject);
-              }
-          }))
+        AssetLoaderEnumerator loader = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
+         yield return loader;
+        AssetReference ar = loader.assetReference;
+        Debug.Log(ar + "," + Time.frameCount);
+        if (ar != null)
         {
-            yield return loader;
+            Debug.Log(ar.asset);
+            m_Obj = GameObject.Instantiate(ar.asset);
+            //ar.Retain(m_Obj);
+            ar.Monitor(m_Obj as GameObject);
         }
+        loader.Dispose();
 
         Debug.Log("Load mat " + Time.frameCount);
-        using (LoaderEnumerator loader = m_AssetManager.YieldLoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
-          {
-              Debug.Log(ar + "," + Time.frameCount);
-              if (ar != null)
-              {
-                  Debug.Log(ar.asset);
-              }
-          }))
+        AssetLoaderEnumerator loader2 = m_AssetManager.YieldLoadAsset("ArtResources/Materials/MyMaterial.mat");
+        ar = loader2.assetReference;
+        Debug.Log(ar + "," + Time.frameCount);
+        if (ar != null)
         {
-            yield return loader;
+            Debug.Log(ar.asset);
         }
-
-        //yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
-        //{
-
-        //    Debug.Log(ar + "," + Time.frameCount);
-        //    if (ar != null)
-        //    {
-        //        Debug.Log(ar.asset);
-        //    }
-        //});
-
+        loader2.Dispose();
         Debug.Log("Load complete " + Time.frameCount);
         yield return new WaitForSeconds(2);
         Debug.Log("start dstroy " + Time.frameCount);
@@ -205,16 +188,10 @@ public class TestAssetLoad : MonoBehaviour
 
     IEnumerator Test3()
     {
-        AssetReference assetRef = null;
-
-        yield return m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
-        {
-            Debug.Log(ar + "," + Time.frameCount);
-            if (ar != null)
-            {
-                assetRef = ar;
-            }
-        });
+        AssetLoaderEnumerator loader = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
+        yield return loader;
+        AssetReference assetRef = loader.assetReference;
+        Debug.Log(Time.frameCount);
         //资源已经在LoadAsset时已经被加载出来，后面删除AssetBundle也没有关系。
         yield return new WaitForSeconds(1);
         Debug.Log("Remove bundle," + Time.frameCount);
@@ -223,40 +200,41 @@ public class TestAssetLoad : MonoBehaviour
         yield return new WaitForSeconds(1);
         Debug.Log("Instance," + Time.frameCount);
         GameObject.Instantiate(assetRef.asset);
+        loader.Dispose();
     }
 
     IEnumerator Test4()
     {
-        yield return m_AssetManager.YieldLoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+        AssetLoaderEnumerator loader = m_AssetManager.YieldLoadAsset("ArtResources/Materials/MyMaterial.mat");
+        yield return loader;
+        AssetReference ar = loader.assetReference;
+        Debug.Log(ar + "," + Time.frameCount);
+        if (ar != null)
         {
-            Debug.Log(ar + "," + Time.frameCount);
-            if (ar != null)
-            {
-                Debug.Log(ar.asset);
-                ar.assetBundleReference = null;
-            }
-        });
-
-        yield return m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+            Debug.Log(ar.asset);
+            ar.assetBundleReference = null;
+        }
+        loader = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
+        yield return loader;
+        Debug.Log(ar + "," + Time.frameCount);
+        if (ar != null)
         {
-            Debug.Log(ar + "," + Time.frameCount);
-            if (ar != null)
-            {
-                GameObject.Instantiate(ar.asset);
-            }
-        });
+            GameObject.Instantiate(ar.asset);
+        }
+        loader.Dispose();
     }
 
     IEnumerator Testloop()
     {
-        yield return m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/APreab.prefab", (ar) =>
+        AssetLoaderEnumerator loader = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/APreab.prefab");
+        yield return loader;
+        AssetReference ar = loader.assetReference;
+        Debug.Log(ar + "," + Time.frameCount);
+        if (ar != null)
         {
-            Debug.Log(ar + "," + Time.frameCount);
-            if (ar != null)
-            {
-                GameObject.Instantiate(ar.asset);
-            }
-        });
+            GameObject.Instantiate(ar.asset);
+        }
+        loader.Dispose();
     }
 
     IEnumerator Testloop2()

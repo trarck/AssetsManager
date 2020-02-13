@@ -24,7 +24,7 @@ public class TestAssetLoad1 : MonoBehaviour
 
     void DoTest()
     {
-        Test4();
+        Test1();
     }
 
     // Update is called once per frame

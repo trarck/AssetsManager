@@ -5,10 +5,8 @@ using UnityEngine;
 
 namespace YH.AssetManage
 {
-    public class LoaderEnumerator : IEnumerator, IDisposable
+    public class LoaderEnumerator : IEnumerator,IDisposable
     {
-        public Loader m_Loader;
-
         public object Current
         {
             get
@@ -17,71 +15,114 @@ namespace YH.AssetManage
             }
         }
 
-        public LoaderEnumerator(Loader loader)
+        public virtual bool MoveNext()
         {
-            m_Loader = loader;
+            return !isDone;
         }
 
-        public bool MoveNext()
+        public virtual bool isDone
         {
-            return m_Loader != null && !m_Loader.isDone;
-        }
-
-        public void Reset()
-        {
-
-        }
-
-        void IDisposable.Dispose()
-        {
-#if ASSETMANAGER_LOG
-            Debug.Log("#### Dispose " + Time.frameCount);
-#endif
-            if (m_Loader != null)
+            get
             {
-                m_Loader.Clean();
+                return true;
             }
+        }
+
+        public virtual void Reset()
+        {
+
+        }
+
+        public virtual void Dispose()
+        {
+
         }
     }
 
     public class AssetLoaderEnumerator: LoaderEnumerator
     {
-        public AssetLoaderEnumerator(AssetLoader loader):base(loader)
-        {
+        AssetReference m_AssetReference;
+        bool m_LoadComplete = false;
 
+        public override bool isDone
+        {
+            get
+            {
+                return m_LoadComplete;
+            }
+        }
+
+        public void OnAssetLoadComlete(AssetReference assetReference)
+        {
+            m_LoadComplete = true;
+            this.assetReference = assetReference;
+        }
+
+        public override void Dispose()
+        {
+            assetReference = null;
+            base.Dispose();
         }
 
         public AssetReference assetReference
         {
             get
             {
-                AssetLoader loader = m_Loader as AssetLoader;
-                if (loader!=null)
+                return m_AssetReference;
+            }
+            set
+            {
+                if (value != null)
                 {
-                    return loader.result;
+                    value.Retain();
                 }
-                return null;
+
+                if (m_AssetReference != null)
+                {
+                    m_AssetReference.Release();
+                }
+
+                m_AssetReference = value;
             }
         }
     }
 
     public class BundleLoaderEnumerator : LoaderEnumerator
     {
-        public BundleLoaderEnumerator(AssetBundleLoader loader) : base(loader)
-        {
+        AssetBundleReference m_AssetBundleReference;
+        bool m_LoadComplete = false;
 
+        public void OnAssetBundleLoadComlete(AssetBundleReference assetBundleReference)
+        {
+            m_LoadComplete = true;
+            this.assetBundleReference = assetBundleReference;
         }
 
-        public AssetBundleReference bundleReference
+        public override void Dispose()
+        {
+            assetBundleReference = null;
+            base.Dispose();
+        }
+
+        public AssetBundleReference assetBundleReference
         {
             get
             {
-                AssetBundleLoader loader = m_Loader as AssetBundleLoader;
-                if (loader != null)
+                return m_AssetBundleReference;
+            }
+            set
+            {
+                if (value != null)
                 {
-                    return loader.result;
+                    value.Retain();
                 }
-                return null;
+
+                if (m_AssetBundleReference != null)
+                {
+                    m_AssetBundleReference.Release();
+                }
+
+                m_AssetBundleReference = value;
             }
         }
     }

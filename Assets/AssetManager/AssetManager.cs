@@ -573,12 +573,12 @@ namespace YH.AssetManage
         /// 使用yield要注意loader的释放。使用using或手动调用dispose
         /// </summary>
         /// <param name="path"></param>
-        /// <param name="standalone"></param>
+        /// <param name="cacheLoadedAsset"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public BundleLoaderEnumerator YieldLoadAssetBundle(string path, bool standalone, Action<AssetBundleReference> completeHandle = null)
+        public BundleLoaderEnumerator YieldLoadAssetBundle(string path, bool cacheLoadedAsset)
         {
-            return YieldLoadAssetBundle(path, 0, standalone,  completeHandle);
+            return YieldLoadAssetBundle(path, 0, cacheLoadedAsset);
         }
 
         /// <summary>
@@ -586,18 +586,14 @@ namespace YH.AssetManage
         /// </summary>
         /// <param name="path"></param>
         /// <param name="tag"></param>
-        /// <param name="standalone"></param>
+        /// <param name="cacheLoadedAsset"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public BundleLoaderEnumerator YieldLoadAssetBundle(string path, int tag, bool standalone, Action<AssetBundleReference> completeHandle = null)
+        public BundleLoaderEnumerator YieldLoadAssetBundle(string path, int tag, bool cacheLoadedAsset)
         {
-            AssetBundleLoader loader = LoadAssetBundle(path, tag, standalone, completeHandle);
-            if (loader != null)
-            {
-                loader.Retain();
-                return new BundleLoaderEnumerator(loader);
-            }
-            return null;
+            BundleLoaderEnumerator bundleLoaderEnumerator = new BundleLoaderEnumerator();
+            LoadAssetBundle(path, tag, cacheLoadedAsset, bundleLoaderEnumerator.OnAssetBundleLoadComlete);
+            return bundleLoaderEnumerator;
         }
 
 #endregion
@@ -609,9 +605,9 @@ namespace YH.AssetManage
         /// <param name="path"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public AssetLoaderEnumerator YieldLoadAsset(string path, Action<AssetReference> completeHandle = null)
+        public AssetLoaderEnumerator YieldLoadAsset(string path)
         {
-            return YieldLoadAsset(path, 0, null, completeHandle);
+            return YieldLoadAsset(path, 0, null);
         }
 
         /// <summary>
@@ -621,9 +617,9 @@ namespace YH.AssetManage
         /// <param name="path"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public AssetLoaderEnumerator YieldLoadAsset<T>(string path, Action<AssetReference> completeHandle = null)
+        public AssetLoaderEnumerator YieldLoadAsset<T>(string path)
         {
-            return YieldLoadAsset(path, 0, typeof(T), completeHandle);
+            return YieldLoadAsset(path, 0, typeof(T));
         }
 
         /// <summary>
@@ -634,9 +630,9 @@ namespace YH.AssetManage
         /// <param name="tag"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public AssetLoaderEnumerator YieldLoadAsset<T>(string path, string tag, Action<AssetReference> completeHandle = null)
+        public AssetLoaderEnumerator YieldLoadAsset<T>(string path, string tag)
         {
-            return YieldLoadAsset(path, 0, typeof(T), completeHandle);
+            return YieldLoadAsset(path, 0, typeof(T));
         }
 
         /// <summary>
@@ -647,15 +643,11 @@ namespace YH.AssetManage
         /// <param name="type"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public AssetLoaderEnumerator YieldLoadAsset(string path, int tag, Type type, Action<AssetReference> completeHandle = null)
+        public AssetLoaderEnumerator YieldLoadAsset(string path, int tag, Type type)
         {
-            AssetLoader loader = LoadAsset(path, tag, type, completeHandle);
-            if (loader != null)
-            {
-                loader.Retain();
-                return new AssetLoaderEnumerator(loader);
-            }
-            return null;
+            AssetLoaderEnumerator assetLoaderEnumerator = new AssetLoaderEnumerator();
+            LoadAsset(path, tag, type, assetLoaderEnumerator.OnAssetLoadComlete);
+            return assetLoaderEnumerator;
         }
 
 #endregion
