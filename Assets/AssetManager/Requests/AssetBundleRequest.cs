@@ -190,7 +190,7 @@ namespace YH.AssetManage
 
         public override string ToString()
         {
-            return string.Format("BundleWebRequest:{0},isDone:{1}",  bundleUrl, isDone);
+            return string.Format("BundleWebRequest:{0},isDone:{1},progress:{2}",  bundleUrl, isDone,m_Www!=null ?m_Www.downloadProgress:-1 );
         }
     }
 
@@ -256,13 +256,24 @@ namespace YH.AssetManage
         public override void Complete()
         {
             base.Complete();
-            //Async save.如果Unity不支持则改为同步版本。
+
+#if ASSET_MANAGE_SAVE_CACHE_SYNC
+            SaveSync(saveFilePath, m_Www.downloadHandler.data);
+#else
+            //Async save.
             if (!haveError)
             {
                 SaveAsync(saveFilePath, m_Www.downloadHandler.data);
-            }            
+            }
+#endif
         }
 
+#if ASSET_MANAGE_SAVE_CACHE_SYNC
+        void SaveSync(string saveFile,byte[] data)
+        {
+            File.WriteAllBytes(saveFile, data);
+        }
+#else
         protected async void SaveAsync(string saveFile, byte[] data)
         {
             using (FileStream stream = new FileStream(saveFile, FileMode.Truncate, FileAccess.Write, FileShare.None,
@@ -271,6 +282,7 @@ namespace YH.AssetManage
                 await stream.WriteAsync(data, 0, data.Length);
             };
         }
+#endif
 
         public override AssetBundle assetBundle
         {

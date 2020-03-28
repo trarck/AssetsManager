@@ -5,7 +5,7 @@ using Object = UnityEngine.Object;
 
 namespace YH.AssetManage
 {
-    public class RequestManager
+    public class RequestManager:IRequestManager
     {
         internal static readonly ObjectPool<BundleCreateRequest> BundleCreateRequestPool = new ObjectPool<BundleCreateRequest>(null, l => l.Clean());
         internal static readonly ObjectPool<BundleWebRequest> BundleWebRequestPool = new ObjectPool<BundleWebRequest>(null, l => l.Clean());
@@ -20,14 +20,17 @@ namespace YH.AssetManage
         Stack<Request> m_PrepareRequests = new Stack<Request>();
         
 
-        AssetManager m_AssetManager;
+        AssetManager m_AssetManager=null;
+
+        //cache manager
+        CacheManager m_CacheManager=null;
 
         public RequestManager(AssetManager assetManager)
         {
             m_AssetManager = assetManager;
         }
 
-        public void Clean()
+        public virtual void Clean()
         {
             m_ActiveRequests.Clear();
             m_FinishedIndexs.Clear();
@@ -35,7 +38,7 @@ namespace YH.AssetManage
         }
 
         #region request operate
-        public void ActiveRequest(Request request)
+        public virtual void ActiveRequest(Request request)
         {
             if (m_ActiveRequests.Count < m_MaxActiveRequest)
             {
@@ -48,7 +51,7 @@ namespace YH.AssetManage
             }
         }
 
-        public void Update()
+        public virtual void Update(float deltaTime)
         {
             //check request 
             Tick();
@@ -141,6 +144,48 @@ namespace YH.AssetManage
             }
         }
         #endregion
+
+        public virtual Request CreateAssetBundleRequest(AssetBundleInfo assetBundleInfo)
+        {
+            if (assetBundleInfo == null)
+            {
+                return null;
+            }
+
+            if (m_CacheManager!=null)
+            {
+                //use cache
+                if (m_CacheManager.IsCached(assetBundleInfo.fullName,assetBundleInfo.hash))
+                {
+                    //load from cache
+                    string assetPath = AssetPaths.GetFullPath(assetBundleInfo.fullName);
+                    return CreateBundleCreateRequest(assetBundleInfo.fullName);
+                }
+                else
+                {
+                    //download and save to cache
+                    string url = AssetPaths.GetUrl(assetBundleInfo.fullName);
+                    string savePath = AssetPaths.ToBundlePath(assetBundleInfo.fullName);
+                    return CreateBundleWebSaveRequest(url,savePath,assetBundleInfo.hash);
+                }
+            }
+            else
+            {
+                //no cache
+                string assetPath = AssetPaths.GetFullPath(assetBundleInfo.fullName);
+#if ASSETMANAGER_LOG
+                Debug.LogFormat("LoadBundle {0}---{1}", assetPath, Time.frameCount);
+#endif
+                if (assetPath.Contains("://"))
+                {
+                    return CreateBundleWebRequest(assetPath);
+                }
+                else
+                {
+                    return CreateBundleCreateRequest(assetPath);
+                }
+            }
+        }
 
         #region create bundle request
 
@@ -258,6 +303,18 @@ namespace YH.AssetManage
                 .Append("),");
 
             return sb.ToString();
+        }
+
+        public CacheManager cacheManager
+        {
+            get
+            {
+                return m_CacheManager;
+            }
+            set
+            {
+                m_CacheManager = value;
+            }
         }
     }
 }

@@ -19,7 +19,7 @@ namespace YH.AssetManage
 
         IInfoManager m_InfoManager;
         LoaderManager m_LoaderManager;
-        RequestManager m_RequestManager;
+        IRequestManager m_RequestManager;
 
         bool m_Inited = false;
 #if UNITY_EDITOR
@@ -69,14 +69,10 @@ namespace YH.AssetManage
             {
                 m_InfoManager.onInitComplete += callback;
             }
-            Debug.Log(allManifestFile);
+
             if (string.IsNullOrEmpty(allManifestFile))
             {
                 allManifestFile = AssetPaths.bundleManifestFile;
-            }
-            foreach(var s in AssetPaths.searchPaths)
-            {
-                Debug.Log(s);
             }
             m_InfoManager.Load(AssetPaths.GetFullPath(allManifestFile));
         }
@@ -87,12 +83,13 @@ namespace YH.AssetManage
         /// <param name="infoManager"></param>
         /// <param name="loaderManager"></param>
         /// <param name="requestManager"></param>
-        public void Init(IInfoManager infoManager,LoaderManager loaderManager,RequestManager requestManager)
+        public void Init(IInfoManager infoManager,LoaderManager loaderManager,IRequestManager requestManager)
         {
             if (m_Inited)
             {
                 return;
             }
+
             m_Inited = true;
 
             SetupSystemEvents();
@@ -656,7 +653,7 @@ namespace YH.AssetManage
         {
             if (m_RequestManager!=null)
             {
-                m_RequestManager.Update();
+                m_RequestManager.Update(Time.deltaTime);
             }
 
 #if ASSET_BUNDLE_REMOTE
@@ -1217,7 +1214,7 @@ namespace YH.AssetManage
             set { m_LoaderManager = value; }
         }
 
-        public RequestManager requestManager
+        public IRequestManager requestManager
         {
             get { return m_RequestManager; }
             set { m_RequestManager = value; }

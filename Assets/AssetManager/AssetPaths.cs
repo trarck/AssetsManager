@@ -16,7 +16,7 @@ namespace YH.AssetManage
 
         public static string bundleManifestFile = "all.manifest";
 
-        public static string bundleOutPaths = "AssetBundles";
+        public static string bundlesEditorBuildOutPath = "AssetBundles";
 
         public static string assetPathPrev = "Assets/";
 
@@ -25,17 +25,21 @@ namespace YH.AssetManage
 
         public static List<string> searchPaths = new List<string>();
 
+        /// <summary>
+        /// 设置默认路径
+        /// 由于默认路径有重复检查，这里不做多次调用检查
+        /// </summary>
         public static void SetupDefaultSearchPaths()
         {
             //add search paths
-            AddSearchPath(Combine(Application.persistentDataPath, bundlesPath));
+            AddSearchPath(GetBundlePath());
             AddSearchPath(Application.persistentDataPath);
 #if UNITY_EDITOR
             //bunlde out path
             AddSearchPath(
                 Combine(
                     Path.GetFullPath("."),
-                    bundleOutPaths,
+                    bundlesEditorBuildOutPath,
                     UnityEditor.EditorUserBuildSettings.activeBuildTarget.ToString()
                 )
             );
@@ -222,6 +226,10 @@ namespace YH.AssetManage
 
         public static string GetBundlePath()
         {
+            if (Path.IsPathRooted(bundlesPath))
+            {
+                return bundlesPath;
+            }
             return Combine(Application.persistentDataPath, bundlesPath);
         }
 

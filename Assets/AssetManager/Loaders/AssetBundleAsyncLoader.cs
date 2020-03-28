@@ -167,17 +167,17 @@ namespace YH.AssetManage
 
         protected virtual void LoadBundle()
         {
-            string assetPath = AssetPaths.GetFullPath(info.fullName);
-#if ASSETMANAGER_LOG
-            Debug.LogFormat("LoadBundle {0}---{1}" , assetPath , Time.frameCount);
-#endif
-            if (assetPath.Contains("://"))
+            if (assetManager!=null && assetManager.requestManager!=null)
             {
-                LoadFromWeb(assetPath);
+                m_Request = assetManager.requestManager.CreateAssetBundleRequest(info);
+                m_Request.onComplete += OnBundleRequestComplete;
+                assetManager.requestManager.ActiveRequest(m_Request);
             }
             else
             {
-                LoadFromFile(assetPath);
+#if ASSETMANAGER_LOG
+            Debug.LogError("[AssetManage]LoadBundle: no request manager.");
+#endif
             }
         }
 
@@ -340,21 +340,21 @@ namespace YH.AssetManage
             }
         }
 
-        protected Request LoadFromFile(string path)
-        {
-            m_Request = RequestManager.CreateBundleCreateRequest(path);
-            m_Request.onComplete += OnBundleRequestComplete;
-            assetManager.requestManager.ActiveRequest(m_Request);
-            return m_Request;
-        }
+        //protected Request LoadFromFile(string path)
+        //{
+        //    m_Request = RequestManager.CreateBundleCreateRequest(path);
+        //    m_Request.onComplete += OnBundleRequestComplete;
+        //    assetManager.requestManager.ActiveRequest(m_Request);
+        //    return m_Request;
+        //}
 
-        protected Request LoadFromWeb(string path)
-        {
-            m_Request = RequestManager.CreateBundleWebRequest(path, info!=null?info.hash:null);
-            m_Request.onComplete += OnBundleRequestComplete;
-            assetManager.requestManager.ActiveRequest(m_Request);
-            return m_Request;
-        }
+        //protected Request LoadFromWeb(string path)
+        //{
+        //    m_Request = RequestManager.CreateBundleWebRequest(path, info!=null?info.hash:null);
+        //    m_Request.onComplete += OnBundleRequestComplete;
+        //    assetManager.requestManager.ActiveRequest(m_Request);
+        //    return m_Request;
+        //}
 
         protected void ClearDependencyLoaders()
         {

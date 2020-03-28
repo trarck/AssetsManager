@@ -1,0 +1,21 @@
+1.从本地加载。使用自动更新，把需要下载的AssetBundle下载到本地。
+2.从网上加载。同时把下载的资源进行缓存。缓存可以使用unity自带的缓存机制，也可以自己实现。
+    网上加载的方式：
+        1.使用Unity的WebRequest.
+        2.使用http或其它下载库下载，然后从内存或文件中加载。
+    缓存方式：
+        1.使用Unity的AssetBundle的cace机制。只能配合Unity的WebRequest.
+        2.自定义缓存机制。可适应WebRequest和自定义下载。缓存放在Request层。
+    缓存位置：
+        1.放在特殊位置。这个位置不放到search paths里。由request从这个目录加载。
+        2.放在search paths前置位置。由Request正常加载。
+    由于unity的缓存只能和WebRequest一起使用，所以目前使用自定义缓存。
+3.架构：
+
+                File
+                  | \Data
+                  |  \                                  Cache(Memory)
+                  |   Request                     Load    
+               Cache /      Asset(Bundle)               Loader
+                  | /Data
+                 Web
