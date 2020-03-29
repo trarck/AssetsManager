@@ -146,8 +146,8 @@ namespace YH.AssetManage
 
             if (m_AssetBundles.ContainsKey(path))
             {
-#if ASSETMANAGER_LOG
-                Debug.Log("LoadAssetBundle asset bundle is loaded " + path + "," + Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                Debug.Log("[AssetManage]LoadAssetBundle asset bundle is loaded " + path + "," + Time.frameCount);
 #endif
                 //asset bundle is loaded
                 AssetBundleReference abr = m_AssetBundles[path];
@@ -183,15 +183,15 @@ namespace YH.AssetManage
             {
                 if (m_LoadingAssetBundleLoaders.ContainsKey(path))
                 {
-#if ASSETMANAGER_LOG
-                    Debug.Log("LoadAssetBundle using loading loader " + path + "," + Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                    Debug.Log("[AssetManage]LoadAssetBundle using loading loader " + path + "," + Time.frameCount);
 #endif
                     loader = m_LoadingAssetBundleLoaders[path];
                 }
                 else
                 {
-#if ASSETMANAGER_LOG
-                    Debug.Log("LoadAssetBundle create new loader " + path + "," + Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                    Debug.Log("[AssetManage]LoadAssetBundle create new loader " + path + "," + Time.frameCount);
 #endif
                     loader = m_LoaderManager.CreateAssetBundleAsyncLoader(path);
                     if (loader!=null)
@@ -257,8 +257,8 @@ namespace YH.AssetManage
 
             if (m_AssetBundles.ContainsKey(path))
             {
-#if ASSETMANAGER_LOG
-                Debug.LogFormat("LoadAssetBundleSync bundle is loaded {0},{1}", path, Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                Debug.LogFormat("[AssetManage]LoadAssetBundleSync bundle is loaded {0},{1}", path, Time.frameCount);
 #endif
                 abr = m_AssetBundles[path];
                 //refresh 
@@ -273,14 +273,14 @@ namespace YH.AssetManage
             {
                 if (m_LoadingAssetBundleLoaders.ContainsKey(path))
                 {
-                    Debug.LogErrorFormat("LoadAssetBundleSync async loader is active {0},{1}", path, Time.frameCount);
+                    Debug.LogErrorFormat("[AssetManage]LoadAssetBundleSync async loader is active {0},{1}", path, Time.frameCount);
                     //TODO Stop async
                     return null;
                 }
                 else
                 {
-#if ASSETMANAGER_LOG
-                    Debug.LogFormat("LoadAssetBundleSync create new loader {0},{1}", path, Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                    Debug.LogFormat("[AssetManage]LoadAssetBundleSync create new loader {0},{1}", path, Time.frameCount);
 #endif
                     AssetBundleSyncLoader loader = m_LoaderManager.CreateAssetBundleSyncLoader(path);
                     if (loader != null)
@@ -355,8 +355,8 @@ namespace YH.AssetManage
 
             if (m_Assets.ContainsKey(path))
             {
-#if ASSETMANAGER_LOG
-                Debug.Log("LoadAsset asset is loaded "+path+","+Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                Debug.Log("[AssetManage]LoadAsset asset is loaded "+path+","+Time.frameCount);
 #endif
                 AssetReference ar = m_Assets[path];
 
@@ -386,15 +386,15 @@ namespace YH.AssetManage
             {
                 if (m_LoadingAssetLoaders.ContainsKey(path))
                 {
-#if ASSETMANAGER_LOG
-                    Debug.Log("LoadAsset using loading loader " + path + "," + Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                    Debug.Log("[AssetManage]LoadAsset using loading loader " + path + "," + Time.frameCount);
 #endif
                     loader = m_LoadingAssetLoaders[path];
                 }
                 else
                 {
-#if ASSETMANAGER_LOG
-                    Debug.Log("LoadAsset create new loader " + path + "," + Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                    Debug.Log("[AssetManage]LoadAsset create new loader " + path + "," + Time.frameCount);
 #endif
                     loader = m_LoaderManager.CreateAssetAsyncLoader(path);
                     m_LoadingAssetLoaders[path] = loader;
@@ -444,7 +444,7 @@ namespace YH.AssetManage
             }
             else
             {
-                Debug.LogErrorFormat("LoadAsset no alias {0} find ", alias);
+                Debug.LogErrorFormat("[AssetManage]LoadAsset no alias {0} find ", alias);
             }
             return null;
         }
@@ -472,8 +472,8 @@ namespace YH.AssetManage
 
             if (m_Assets.ContainsKey(path))
             {
-#if ASSETMANAGER_LOG
-                Debug.Log("LoadAssetSync asset is loaded " + path + "," + Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                Debug.Log("[AssetManage]LoadAssetSync asset is loaded " + path + "," + Time.frameCount);
 #endif
                 ar = m_Assets[path];
 
@@ -487,16 +487,16 @@ namespace YH.AssetManage
             {
                 if (m_LoadingAssetLoaders.ContainsKey(path))
                 {
-#if ASSETMANAGER_LOG
-                    Debug.Log("LoadAssetSync async load staring " + path + "," + Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                    Debug.Log("[AssetManage]LoadAssetSync async load staring " + path + "," + Time.frameCount);
 #endif
                     //TODO Stop async loader
                     return null;
                 }
                 else
                 {
-#if ASSETMANAGER_LOG
-                    Debug.Log("LoadAssetSync create new loader " + path + "," + Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                    Debug.Log("[AssetManage]LoadAssetSync create new loader " + path + "," + Time.frameCount);
 #endif
                     loader = m_LoaderManager.CreateAssetSyncLoader(path);
                 }
@@ -544,7 +544,7 @@ namespace YH.AssetManage
                         }
                         else
                         {
-                            Debug.LogErrorFormat("LoadAssets can't load {0}", asset);
+                            Debug.LogErrorFormat("[AssetManage]LoadAssets can't load {0}", asset);
                         }
 
                         --needCount;

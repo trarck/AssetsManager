@@ -41,8 +41,8 @@ namespace YH.AssetManage
 
                 if (m_AssetBundleReference != null)
                 {
-#if ASSETMANAGER_LOG
-                    Debug.LogFormat("AssetReference:Release {0},{1}",name, m_AssetBundleReference!=null? m_AssetBundleReference.name:"Null");
+#if ASSETMANAGER_LOG_ON
+                    Debug.LogFormat("[AssetManage]AssetReference:Release {0},{1}",name, m_AssetBundleReference!=null? m_AssetBundleReference.name:"Null");
 #endif
                     m_AssetBundleReference.Release();
                 }
@@ -106,8 +106,8 @@ namespace YH.AssetManage
                 return;
             }
 
-#if ASSETMANAGER_LOG
-            Debug.Log("Asset dispose " + name + "," + Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+            Debug.Log("[AssetManage]Asset dispose " + name + "," + Time.frameCount);
 #endif
 
             base.Dispose(disposing, forceRemoveAll);

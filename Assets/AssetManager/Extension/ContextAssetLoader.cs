@@ -54,8 +54,8 @@ namespace YH.AssetManage.Extension
         {
             if (m_Context != null && m_Context.enable)
             {
-#if ASSETMANAGER_LOG
-                Debug.LogFormat("[ContextAssetLoader] Start load asset {0}.", path);
+#if ASSETMANAGER_LOG_ON
+                Debug.LogFormat("[AssetManage]ContextAssetLoader Start load asset {0}.", path);
 #endif
                 //这里暂时使用匿名函数。
                 AssetLoader loader = AssetManager.Instance.LoadAsset(path, tag, type, completeHandle, autoReleaseBundle);
@@ -65,7 +65,7 @@ namespace YH.AssetManage.Extension
             }
             else
             {
-#if ASSETMANAGER_LOG
+#if ASSETMANAGER_LOG_ON
                 Debug.LogFormat("[ContextAssetLoader] Can't lad asset {0}.The context is disable", path);
 #endif
             }
@@ -83,8 +83,8 @@ namespace YH.AssetManage.Extension
         {
             if (m_Context != null && m_Context.enable)
             {
-#if ASSETMANAGER_LOG
-                Debug.LogFormat("[ContextAssetLoader] Start load asset bundle {0}.", path);
+#if ASSETMANAGER_LOG_ON
+                Debug.LogFormat("[AssetManage]ContextAssetLoader Start load asset bundle {0}.", path);
 #endif
                 //这里暂时使用匿名函数。
                 AssetBundleLoader loader = AssetManager.Instance.LoadAssetBundle(path, tag, cacheLoadedAsset, completeHandle);
@@ -97,7 +97,7 @@ namespace YH.AssetManage.Extension
             }
             else
             {
-#if ASSETMANAGER_LOG
+#if ASSETMANAGER_LOG_ON
                 Debug.LogFormat("[ContextAssetLoader] Can't load asset bundle {0}.The context is disable", path);
 #endif
             }
@@ -116,8 +116,8 @@ namespace YH.AssetManage.Extension
         {
             if (m_Context != null && m_Context.enable)
             {
-#if ASSETMANAGER_LOG
-                Debug.Log("[ContextAssetLoader] Start load assets.");
+#if ASSETMANAGER_LOG_ON
+                Debug.Log("[AssetManage]ContextAssetLoader Start load assets.");
 #endif
 
                 int needCount = assets.Count;
@@ -140,7 +140,7 @@ namespace YH.AssetManage.Extension
                             }
                             else
                             {
-                                Debug.LogErrorFormat("LoadAssets can't load {0}", asset);
+                                Debug.LogErrorFormat("[AssetManage]LoadAssets can't load {0}", asset);
                             }
                             //all finished
                             --needCount;
@@ -174,8 +174,8 @@ namespace YH.AssetManage.Extension
             }
             else
             {
-#if ASSETMANAGER_LOG
-                Debug.Log("[ContextAssetLoader] Can't load assets .The context is disable");
+#if ASSETMANAGER_LOG_ON
+                Debug.Log("[AssetManage]ContextAssetLoader Can't load assets .The context is disable");
 #endif
             }
         }
@@ -185,8 +185,8 @@ namespace YH.AssetManage.Extension
         #region Event
         void OnAssetBeforeComplete(AssetLoader loader)
         {
-#if ASSETMANAGER_LOG
-            Debug.Log("[ContextAssetLoader] OnAssetBeforeComplete.");
+#if ASSETMANAGER_LOG_ON
+            Debug.Log("[AssetManage]ContextAssetLoader OnAssetBeforeComplete.");
 #endif
             //check enable
             if (m_Context != null && !m_Context.enable)
@@ -203,8 +203,8 @@ namespace YH.AssetManage.Extension
 
         void OnAssetBundleBeforeComplete(AssetBundleLoader loader)
         {
-#if ASSETMANAGER_LOG
-            Debug.Log("[ContextAssetLoader] OnAssetBundleBeforeComplete.");
+#if ASSETMANAGER_LOG_ON
+            Debug.Log("[AssetManage]ContextAssetLoader OnAssetBundleBeforeComplete.");
 #endif
             //check enable
             if (m_Context != null && !m_Context.enable)
@@ -221,8 +221,8 @@ namespace YH.AssetManage.Extension
 
         void OnContextDisable()
         {
-#if ASSETMANAGER_LOG
-            Debug.Log("[ContextAssetLoader] OnContextDisable.");
+#if ASSETMANAGER_LOG_ON
+            Debug.Log("[AssetManage]ContextAssetLoader OnContextDisable.");
 #endif
             if (s_CacheContextAssetLoaders.ContainsKey(m_Context))
             {
@@ -238,8 +238,8 @@ namespace YH.AssetManage.Extension
 
         public void Clean()
         {
-#if ASSETMANAGER_LOG
-            Debug.Log("[ContextAssetLoader] Clean.");
+#if ASSETMANAGER_LOG_ON
+            Debug.Log("[AssetManage]ContextAssetLoader Clean.");
 #endif
             if (m_Context != null)
             {
@@ -252,8 +252,8 @@ namespace YH.AssetManage.Extension
 
         public void ClearLoaders()
         {
-#if ASSETMANAGER_LOG
-            Debug.Log("[ContextAssetLoader] ClearLoaders.");
+#if ASSETMANAGER_LOG_ON
+            Debug.Log("[AssetManage]ContextAssetLoader ClearLoaders.");
 #endif
             if (m_AssetLoaders != null && m_AssetLoaders.Count > 0)
             {

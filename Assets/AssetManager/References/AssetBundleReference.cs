@@ -49,8 +49,8 @@ namespace YH.AssetManage
                 return;
             }
 
-#if ASSETMANAGER_LOG
-            Debug.Log("Bundle dispose " + name + "," + Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+            Debug.Log("[AssetManage]Bundle dispose " + name + "," + Time.frameCount);
 #endif
 
             base.Dispose(disposing, forceRemoveAll);
@@ -72,8 +72,8 @@ namespace YH.AssetManage
         {
             if (assetBundle != null)
             {
-#if ASSETMANAGER_LOG
-                Debug.LogFormat("AssetBundle unload {0},unloadAllLoadedObjects:{1}" ,name,unloadAllLoadedObjects);
+#if ASSETMANAGER_LOG_ON
+                Debug.LogFormat("[AssetManage]AssetBundle unload {0},unloadAllLoadedObjects:{1}" ,name,unloadAllLoadedObjects);
 #endif
                 assetBundle.Unload(unloadAllLoadedObjects);
                 assetBundle = null;

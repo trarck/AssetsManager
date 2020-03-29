@@ -23,16 +23,16 @@ namespace YH.AssetManage
         {
             if (m_State == State.Inited)
             {
-#if ASSETMANAGER_LOG
-                Debug.Log("EditorLoader load from resource" + "," + Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                Debug.Log("[AssetManage]EditorLoader load from resource" + "," + Time.frameCount);
 #endif
                 state = State.Loading;
                 LoadFromResources();
             }
             else if (isFinishedState)
             {
-#if ASSETMANAGER_LOG
-                Debug.Log("EditorLoader director complete" + "," + Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                Debug.Log("[AssetManage]EditorLoader director complete" + "," + Time.frameCount);
 #endif
                 DoLoadComplete();
             }
@@ -79,7 +79,7 @@ namespace YH.AssetManage
             base.Error();
             if (info != null)
             {
-                Debug.LogErrorFormat("Load asset {0} fail", info.fullName);
+                Debug.LogErrorFormat("[AssetManage]Load asset {0} fail", info.fullName);
             }
             DoLoadComplete();
         }

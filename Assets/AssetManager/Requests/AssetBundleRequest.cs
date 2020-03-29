@@ -79,8 +79,8 @@ namespace YH.AssetManage
 
         protected virtual void SendRequest()
         {
-#if ASSETMANAGER_LOG
-            Debug.LogFormat("BundleWebRequest Get url:{0},hash:{1},--{2}", bundleUrl,hash, Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+            Debug.LogFormat("[AssetManage]BundleWebRequest Get url:{0},hash:{1},--{2}", bundleUrl,hash, Time.frameCount);
 #endif
             //通过UnityWebRequest从远程下载的AssetBunle的缓存只与hash值有关与url地址无关。
             if (string.IsNullOrEmpty(hash))
@@ -119,8 +119,8 @@ namespace YH.AssetManage
             base.Update();
             if (m_Www != null && m_Www.isNetworkError)
             {
-#if ASSETMANAGER_LOG
-                Debug.LogFormat("The WebRequest have network error:{0} .Left retry times:{1},--{2}",m_Www.error, retryTimes, Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                Debug.LogFormat("[AssetManage]The WebRequest have network error:{0} .Left retry times:{1},--{2}",m_Www.error, retryTimes, Time.frameCount);
 #endif
                 //when network error retry again
                 if (retryTimes > 0)
@@ -239,8 +239,8 @@ namespace YH.AssetManage
 
         protected override void SendRequest()
         {
-#if ASSETMANAGER_LOG
-            Debug.LogFormat("BundleWebRequest Get url:{0},hash:{1},--{2}", bundleUrl, hash, Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+            Debug.LogFormat("[AssetManage]BundleWebRequest Get url:{0},hash:{1},--{2}", bundleUrl, hash, Time.frameCount);
 #endif
             m_Www = UnityWebRequest.Get(bundleUrl);
             m_Www.timeout = timeout;
@@ -256,8 +256,8 @@ namespace YH.AssetManage
             base.Update();
             if(m_WebRequestAsyncOperation!=null && m_WebRequestAsyncOperation.isDone && m_CreateRequest==null)
             {
-#if ASSETMANAGER_LOG
-                Debug.LogFormat("BundleWebSaveRequest Download Complete {0},{1}", bundleUrl, Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                Debug.LogFormat("[AssetManage]BundleWebSaveRequest Download Complete {0},{1}", bundleUrl, Time.frameCount);
 #endif
                 m_CreateRequest = AssetBundle.LoadFromMemoryAsync(m_WebRequestAsyncOperation.webRequest.downloadHandler.data);
                 //save to cache

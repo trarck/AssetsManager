@@ -87,16 +87,16 @@ namespace YH.AssetManage
         public virtual void Retain()
         {
             ++m_RefCount;
-#if ASSETMANAGER_LOG
-            Debug.LogFormat("[{0}#{1}].Retain refCount={2}---{3}", this,GetHashCode(), m_RefCount, Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+            Debug.LogFormat("[AssetManage]({0}#{1}).Retain refCount={2}---{3}", this,GetHashCode(), m_RefCount, Time.frameCount);
 #endif
         }
 
         public virtual void Release()
         {
             --m_RefCount;
-#if ASSETMANAGER_LOG
-            Debug.LogFormat("[{0}#{1}].Release refCount={2}---{3}", this, GetHashCode(), m_RefCount, Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+            Debug.LogFormat("[AssetManage]({0}#{1}).Release refCount={2}---{3}", this, GetHashCode(), m_RefCount, Time.frameCount);
 #endif
             //check sub overflow
             if (m_RefCount < 0)

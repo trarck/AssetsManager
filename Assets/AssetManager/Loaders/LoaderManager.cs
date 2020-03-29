@@ -28,7 +28,7 @@ namespace YH.AssetManage
             //can't find asset info
             if (info == null)
             {
-                Debug.LogErrorFormat("Can't find asset info {0}.Load from resource.", path);
+                Debug.LogErrorFormat("[AssetManage]Can't find asset info {0}.Load from resource.", path);
                 info = new AssetInfo();
                 info.fullName = path;
             }
@@ -52,7 +52,7 @@ namespace YH.AssetManage
             info = m_AssetManager.infoManager.FindAssetBundleInfo(path);
             if (info == null)
             {
-                Debug.LogErrorFormat("Can't find asset bundle info {0}", path);
+                Debug.LogErrorFormat("[AssetManage]Can't find asset bundle info {0}", path);
                 return null;
             }
             loader = LoaderPool.AssetBundleAsyncLoaderPool.Get();
@@ -108,7 +108,7 @@ namespace YH.AssetManage
             }
             else
             {
-                Debug.LogErrorFormat("Can't find asset bundle info {0}", path);
+                Debug.LogErrorFormat("[AssetManage]Can't find asset bundle info {0}", path);
             }
 #endif
 

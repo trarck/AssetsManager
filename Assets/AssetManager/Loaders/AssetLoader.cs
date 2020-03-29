@@ -50,30 +50,30 @@ namespace YH.AssetManage
 
         protected void DoLoadComplete()
         {
-#if ASSETMANAGER_LOG
-            Debug.LogFormat("AssetLoader {0}, DoLoadComplete,{1}", info!=null?info.fullName:"", Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+            Debug.LogFormat("[AssetManage]AssetLoader {0}, DoLoadComplete,{1}", info!=null?info.fullName:"", Time.frameCount);
 #endif
             //先调用onBeforeComplete再调用onComplete,否则可能收不到Reference的onDispose事件。
             if (onBeforeComplete != null)
             {
-#if ASSETMANAGER_LOG
-                Debug.LogFormat("AssetLoader {0}, onBeforeComplete,{1}", info != null ? info.fullName : "", Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                Debug.LogFormat("[AssetManage]AssetLoader {0}, onBeforeComplete,{1}", info != null ? info.fullName : "", Time.frameCount);
 #endif
                 onBeforeComplete(this);
             }
 
             if (onComplete != null)
             {
-#if ASSETMANAGER_LOG
-                Debug.LogFormat("AssetLoader {0}, onComplete,{1}", info != null ? info.fullName : "", Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                Debug.LogFormat("[AssetManage]AssetLoader {0}, onComplete,{1}", info != null ? info.fullName : "", Time.frameCount);
 #endif
                 onComplete(result);
             }
 
             if (onAfterComplete != null)
             {
-#if ASSETMANAGER_LOG
-                Debug.LogFormat("AssetLoader {0}, onAfterComplete,{1}", info != null ? info.fullName : "", Time.frameCount);
+#if ASSETMANAGER_LOG_ON
+                Debug.LogFormat("[AssetManage]AssetLoader {0}, onAfterComplete,{1}", info != null ? info.fullName : "", Time.frameCount);
 
 #endif
                 onAfterComplete(this);
