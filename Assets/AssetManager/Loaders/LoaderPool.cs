@@ -13,9 +13,6 @@ namespace YH.AssetManage
 
         public static readonly ObjectPool<AssetBundleSyncLoader> AssetBundleSyncLoaderPool = new ObjectPool<AssetBundleSyncLoader>(null, l => l.Clean());
         public static readonly ObjectPool<AssetSyncLoader> AssetSyncLoaderPool = new ObjectPool<AssetSyncLoader>(null, l => l.Clean());
-#if ASSET_BUNDLE_REMOTE
-        public static readonly ObjectPool<AssetBundleNetworkLoader> AssetBundleNetworkLoaderPool = new ObjectPool<AssetBundleNetworkLoader>(null, l => l.Clean());
-#endif
         public static void Release(Loader loader)
         {
             if (loader is AssetAsyncLoader)
@@ -34,12 +31,6 @@ namespace YH.AssetManage
             {
                 AssetSyncLoaderPool.Release(loader as AssetSyncLoader);
             }
-#if ASSET_BUNDLE_REMOTE
-            else if (loader is AssetBundleNetworkLoader)
-            {
-                AssetBundleNetworkLoaderPool.Release(loader as AssetBundleNetworkLoader);
-            }
-#endif
             else
             {
                 loader.Clean();

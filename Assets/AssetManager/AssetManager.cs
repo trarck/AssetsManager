@@ -61,10 +61,16 @@ namespace YH.AssetManage
             //system events
             SetupSystemEvents();
 
+            //crate loader manager
             m_LoaderManager = new LoaderManager(this);
-            m_RequestManager = new RequestManager(this);
 
+            //create rquest manager
+            m_RequestManager = new RequestManager(this);
+            m_RequestManager.Init();
+
+            //create info manager
             m_InfoManager = new InfoManager(this);
+            m_InfoManager.Init();
             if (callback != null)
             {
                 m_InfoManager.onInitComplete += callback;
@@ -99,7 +105,7 @@ namespace YH.AssetManage
             m_RequestManager = requestManager;
         }
 
-        #endregion
+#endregion
 
         public void Clean()
         {
@@ -109,7 +115,7 @@ namespace YH.AssetManage
             m_LoadingAssetLoaders.Clear();
         }
 
-        #region load asset bundle
+#region load asset bundle
 
         public AssetBundleLoader LoadAssetBundle(string path, bool cacheLoadedAsset, Action<AssetBundleReference> completeHandle=null)
         {
@@ -140,9 +146,9 @@ namespace YH.AssetManage
 
             if (m_AssetBundles.ContainsKey(path))
             {
-                #if ASSETMANAGER_LOG
+#if ASSETMANAGER_LOG
                 Debug.Log("LoadAssetBundle asset bundle is loaded " + path + "," + Time.frameCount);
-                #endif
+#endif
                 //asset bundle is loaded
                 AssetBundleReference abr = m_AssetBundles[path];
 
@@ -177,16 +183,16 @@ namespace YH.AssetManage
             {
                 if (m_LoadingAssetBundleLoaders.ContainsKey(path))
                 {
-                    #if ASSETMANAGER_LOG
+#if ASSETMANAGER_LOG
                     Debug.Log("LoadAssetBundle using loading loader " + path + "," + Time.frameCount);
-                    #endif
+#endif
                     loader = m_LoadingAssetBundleLoaders[path];
                 }
                 else
                 {
-                    #if ASSETMANAGER_LOG
+#if ASSETMANAGER_LOG
                     Debug.Log("LoadAssetBundle create new loader " + path + "," + Time.frameCount);
-                    #endif
+#endif
                     loader = m_LoaderManager.CreateAssetBundleAsyncLoader(path);
                     if (loader!=null)
                     {
@@ -233,6 +239,13 @@ namespace YH.AssetManage
             return LoadAssetBundleSync(path, 0, cacheLoadedAsset);
         }
 
+        /// <summary>
+        /// load asset bundle from file
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="tag"></param>
+        /// <param name="cacheLoadedAsset"></param>
+        /// <returns>AssetBundleReference retainted.ref count add one after load.</returns>
         public AssetBundleReference LoadAssetBundleSync(string path, int tag, bool cacheLoadedAsset = true)
         {
             if (string.IsNullOrEmpty(path))
@@ -244,9 +257,9 @@ namespace YH.AssetManage
 
             if (m_AssetBundles.ContainsKey(path))
             {
-                #if ASSETMANAGER_LOG
+#if ASSETMANAGER_LOG
                 Debug.LogFormat("LoadAssetBundleSync bundle is loaded {0},{1}", path, Time.frameCount);
-                #endif
+#endif
                 abr = m_AssetBundles[path];
                 //refresh 
                 abr.AddTag(tag);
@@ -266,9 +279,9 @@ namespace YH.AssetManage
                 }
                 else
                 {
-                    #if ASSETMANAGER_LOG
+#if ASSETMANAGER_LOG
                     Debug.LogFormat("LoadAssetBundleSync create new loader {0},{1}", path, Time.frameCount);
-                    #endif
+#endif
                     AssetBundleSyncLoader loader = m_LoaderManager.CreateAssetBundleSyncLoader(path);
                     if (loader != null)
                     {
@@ -280,6 +293,8 @@ namespace YH.AssetManage
 
                         loader.Start();
                         abr = loader.result;
+                        //must retain . will be destory by loader clean
+                        abr.Retain();
                         OnAssetBundleBeforeLoaded(loader);
                         OnAssetBundleAfterLoaded(loader);
                     }
@@ -340,9 +355,9 @@ namespace YH.AssetManage
 
             if (m_Assets.ContainsKey(path))
             {
-                #if ASSETMANAGER_LOG
+#if ASSETMANAGER_LOG
                 Debug.Log("LoadAsset asset is loaded "+path+","+Time.frameCount);
-                #endif
+#endif
                 AssetReference ar = m_Assets[path];
 
                 //refresh
@@ -563,9 +578,9 @@ namespace YH.AssetManage
                 }
             }
         }
-        #endregion
+#endregion
 
-        #region Yield Load Asset Bundle
+#region Yield Load Asset Bundle
         /// <summary>
         /// 使用yield要注意loader的释放。使用using或手动调用dispose
         /// </summary>
@@ -655,16 +670,9 @@ namespace YH.AssetManage
             {
                 m_RequestManager.Update(Time.deltaTime);
             }
-
-#if ASSET_BUNDLE_REMOTE
-            if (m_InfoManager != null)
-            {
-                m_InfoManager.Update(Time.deltaTime);
-            }
-#endif
         }
 
-        #region exter function
+#region exter function
         public AssetBundleLoader LoadScene(string path, int tag, Action<AssetBundleReference> completeHandle)
         {
             AssetInfo info = m_InfoManager.FindAssetInfo(path);
@@ -678,7 +686,7 @@ namespace YH.AssetManage
             }
         }
 
-        #endregion
+#endregion
 
         void OnLowMemory()
         {
@@ -1183,25 +1191,10 @@ namespace YH.AssetManage
             m_Assets.Remove(ar.name);
         }
 
-        #endregion
+#endregion
 
-#if ASSET_BUNDLE_REMOTE
-        private void OnApplicationPause(bool pause)
-        {
-            if (m_InfoManager != null)
-            {
-                m_InfoManager.SaveLocalAssetBundleInfo();
-            }
-        }
 
-        private void OnApplicationQuit()
-        {
-            if (m_InfoManager != null)
-            {
-                m_InfoManager.SaveLocalAssetBundleInfo();
-            }   
-        }
-#endif
+
         public IInfoManager infoManager
         {
             get { return m_InfoManager; }

@@ -226,7 +226,7 @@ public class TestAssetLoad : MonoBehaviour
 
     IEnumerator Testloop()
     {
-        AssetLoaderEnumerator loader = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/APreab.prefab");
+        AssetLoaderEnumerator loader = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/CircelRefs/APreab.prefab");
         yield return loader;
         AssetReference ar = loader.assetReference;
         Debug.Log(ar + "," + Time.frameCount);
@@ -239,7 +239,7 @@ public class TestAssetLoad : MonoBehaviour
 
     IEnumerator Testloop2()
     {
-        string[] assets = new string[] { "ArtResources/Materials/MyMaterial.mat", "ArtResources/Prefabs/MyPrefab.prefab" , "ArtResources/Prefabs/APreab.prefab" };
+        string[] assets = new string[] { "ArtResources/Materials/MyMaterial.mat", "ArtResources/Prefabs/MyPrefab.prefab" , "ArtResources/Prefabs/CircelRefs/APreab.prefab" };
         for(int i = 0; i < assets.Length; ++i)
         {
             Debug.Log("load:" + assets[i]);
@@ -262,7 +262,7 @@ public class TestAssetLoad : MonoBehaviour
     
     IEnumerator Testloop3()
     {
-        string[] assets = new string[] { "ArtResources/Materials/MyMaterial.mat", "ArtResources/Prefabs/MyPrefab.prefab" , "ArtResources/Prefabs/APreab.prefab" };
+        string[] assets = new string[] { "ArtResources/Materials/MyMaterial.mat", "ArtResources/Prefabs/MyPrefab.prefab" , "ArtResources/Prefabs/CircelRefs/APreab.prefab" };
         foreach(var asset in assets)
         {
             Debug.Log("load:" + asset);

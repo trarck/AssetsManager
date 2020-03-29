@@ -34,7 +34,7 @@ namespace YH.AssetManage
             //add search paths
             AddSearchPath(GetBundlePath());
             AddSearchPath(Application.persistentDataPath);
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !ASSET_BUNDLE_REMOTE_ON
             //bunlde out path
             AddSearchPath(
                 Combine(
@@ -136,7 +136,7 @@ namespace YH.AssetManage
             }
 
 
-#if ASSET_BUNDLE_REMOTE_UNITY || ASSET_BUNDLE_REMOTE
+#if ASSET_BUNDLE_REMOTE_ON
             //down load from remote
             return GetUrl(filename);
 #else
@@ -243,10 +243,7 @@ namespace YH.AssetManage
             //filename is root and exists
             if (Path.IsPathRooted(filename))
             {
-                if (File.Exists(filename))
-                {
-                    return filename;
-                }
+                return filename;
             }
             //To bundle dir
             return Path.Combine(GetBundlePath(), filename);

@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -7,7 +6,7 @@ using YH.AssetManage;
 
 namespace Tests
 {
-    public class TestAssetManager
+    public class TestRemote
     {
         AssetManager m_AssetManager;
 
@@ -15,6 +14,7 @@ namespace Tests
         public void OneTimeSetUp()
         {
             Debug.Log("OneTimeSetUp");
+            AssetPaths.remoteUrl = "http://localhost:8012/StandaloneWindows64/";
             m_AssetManager = AssetManager.Instance;
             m_AssetManager.Init();
         }
@@ -41,14 +41,6 @@ namespace Tests
         }
 
         #region Asset
-
-        [Test]
-        public void TestLoadAssetSync()
-        {
-            AssetReference result = m_AssetManager.LoadAssetSync("ArtResources/Prefabs/MyPrefab.prefab");
-            Assert.AreNotEqual(result, null);
-            result.Release();
-        }
 
         [UnityTest]
         public IEnumerator TestLoadAsset()
@@ -99,14 +91,6 @@ namespace Tests
         #endregion
 
         #region AssetBundle
-        [Test]
-        public void TestLoadAssetBundleSync()
-        {
-            AssetBundleReference result = m_AssetManager.LoadAssetBundleSync("prefabs/myprefab", false);
-            Assert.AreNotEqual(result, null);
-            result.Release();
-        }
-
 
         [UnityTest]
         public IEnumerator TestLoadAssetBundle()

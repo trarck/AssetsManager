@@ -30,6 +30,15 @@ namespace YH.AssetManage
             m_AssetManager = assetManager;
         }
 
+        public virtual void Init()
+        {
+#if ASSETMANAGE_BUNDLE_CACHE_ON
+            m_CacheManager = new CacheManager();
+            m_CacheManager.cacheInfoFile = AssetPaths.ToBundlePath(cacheManager.cacheInfoFile);
+            m_CacheManager.LoadCacheInfo();
+#endif
+        }
+
         public virtual void Clean()
         {
             m_ActiveRequests.Clear();
@@ -55,6 +64,12 @@ namespace YH.AssetManage
         {
             //check request 
             Tick();
+#if ASSETMANAGE_BUNDLE_CACHE_ON
+            if (m_CacheManager != null)
+            {
+                m_CacheManager.Update(deltaTime);
+            }
+#endif
         }
 
         protected void Tick()
@@ -143,7 +158,7 @@ namespace YH.AssetManage
                 ReleaseResouceLoaderRequest(request as ResouceLoaderRequest);
             }
         }
-        #endregion
+#endregion
 
         public virtual Request CreateAssetBundleRequest(AssetBundleInfo assetBundleInfo)
         {
@@ -159,14 +174,16 @@ namespace YH.AssetManage
                 {
                     //load from cache
                     string assetPath = AssetPaths.GetFullPath(assetBundleInfo.fullName);
-                    return CreateBundleCreateRequest(assetBundleInfo.fullName);
+                    return CreateBundleCreateRequest(assetPath);
                 }
                 else
                 {
                     //download and save to cache
                     string url = AssetPaths.GetUrl(assetBundleInfo.fullName);
                     string savePath = AssetPaths.ToBundlePath(assetBundleInfo.fullName);
-                    return CreateBundleWebSaveRequest(url,savePath,assetBundleInfo.hash);
+                    BundleWebSaveRequest webSaveRequest= CreateBundleWebSaveRequest(url,savePath,assetBundleInfo.hash, assetBundleInfo.fullName);
+                    webSaveRequest.onSaveComplete += OnBundleWebRequestSaveComplete;
+                    return webSaveRequest;
                 }
             }
             else
@@ -187,7 +204,15 @@ namespace YH.AssetManage
             }
         }
 
-        #region create bundle request
+        private void OnBundleWebRequestSaveComplete(BundleWebSaveRequest request)
+        {
+            if (m_CacheManager!=null)
+            {
+                m_CacheManager.UpdateCacheItem(request.bundleFullname, request.hash);
+            }
+        }
+
+#region create bundle request
 
         public static BundleWebRequest CreateBundleWebRequest(string url,string hash=null)
         {
@@ -216,12 +241,13 @@ namespace YH.AssetManage
             BundleCreateRequestPool.Release(request);
         }
 
-        public static BundleWebSaveRequest CreateBundleWebSaveRequest(string url,string localPath, string hash = null)
+        public static BundleWebSaveRequest CreateBundleWebSaveRequest(string url,string localPath, string hash = null,string fullName=null)
         {
             BundleWebSaveRequest request = BundleWebSaveRequestPool.Get();
             request.bundleUrl = url;
             request.hash = hash;
             request.saveFilePath = localPath;
+            request.bundleFullname = fullName;
             request.timeout = AMSetting.DownloadTimeout;
             request.retryTimes = AMSetting.RequestRetryTimes;
             return request;
@@ -232,9 +258,9 @@ namespace YH.AssetManage
             BundleWebSaveRequestPool.Release(request);
         }
 
-        #endregion
+#endregion
 
-        #region create asset request
+#region create asset request
 
         public static AssetLoaderRequest CreateAssetLoaderRequest(AssetBundle assetBundle, string assetName, Type type)
         {
@@ -264,6 +290,26 @@ namespace YH.AssetManage
         }
 
         #endregion
+
+        public void OnApplicationPause(bool pause)
+        {
+#if ASSETMANAGE_BUNDLE_CACHE_ON
+            if (m_CacheManager != null)
+            {
+                m_CacheManager.SaveCacheInfo();
+            }
+#endif
+        }
+
+        public void OnApplicationQuit()
+        {
+#if ASSETMANAGE_BUNDLE_CACHE_ON
+            if (m_CacheManager != null)
+            {
+                m_CacheManager.SaveCacheInfo();
+            }
+#endif
+        }
 
         public override string ToString()
         {

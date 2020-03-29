@@ -1,0 +1,1 @@
+exports.conf={	local:{		port:8012,        root:"../../AssetBundles/",		routeMaps:{					}	},    www:{        port:8080,        root:"../../AssetBundles/"    },};

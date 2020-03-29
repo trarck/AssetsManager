@@ -1,0 +1,1 @@
+var server=require("./server");var conf=require("./conf").conf;var site=conf.local;console.log("start server "+(site.host||"localhost")+" at "+site.port);server.createServer(site.port,site.host,site.root,site.routeMaps);

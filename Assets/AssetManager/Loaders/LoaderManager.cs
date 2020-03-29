@@ -55,22 +55,7 @@ namespace YH.AssetManage
                 Debug.LogErrorFormat("Can't find asset bundle info {0}", path);
                 return null;
             }
-    #if ASSET_BUNDLE_REMOTE
-            if (m_AssetManager.infoManager.NeedDownload(path,info.hash))
-            {
-                loader = LoaderPool.AssetBundleNetworkLoaderPool.Get();
-                loader.onBeforeComplete += (_loader) =>
-                {
-                    m_AssetManager.infoManager.UpdateAssetBundleVersion(path, info.hash);
-                };
-            }
-            else
-            {
-                loader = LoaderPool.AssetBundleAsyncLoaderPool.Get();
-            }
-    #else
             loader = LoaderPool.AssetBundleAsyncLoaderPool.Get();
-    #endif
 #else
             loader = new AssetBundleEmptyLoader();
             //just for message

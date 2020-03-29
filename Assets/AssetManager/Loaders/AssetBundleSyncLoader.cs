@@ -72,6 +72,8 @@ namespace YH.AssetManage
                 else
                 {
                     AddDependency(abr);
+                    //must release 
+                    abr.Release();
                 }
             }
             return true;

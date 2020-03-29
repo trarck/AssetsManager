@@ -13,6 +13,7 @@ namespace YH.AssetManage
         int format { get; }
         event Action<bool> onInitComplete;
 
+        void Init();
         void Load(string filePath);
         void LoadFromStream(Stream steam);
         void SaveBinary(string fileName);

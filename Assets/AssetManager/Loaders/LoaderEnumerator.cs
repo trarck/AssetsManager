@@ -7,6 +7,8 @@ namespace YH.AssetManage
 {
     public class LoaderEnumerator : IEnumerator,IDisposable
     {
+        protected bool m_LoadComplete = false;
+
         public object Current
         {
             get
@@ -24,7 +26,7 @@ namespace YH.AssetManage
         {
             get
             {
-                return true;
+                return m_LoadComplete;
             }
         }
 
@@ -42,15 +44,6 @@ namespace YH.AssetManage
     public class AssetLoaderEnumerator: LoaderEnumerator
     {
         AssetReference m_AssetReference;
-        bool m_LoadComplete = false;
-
-        public override bool isDone
-        {
-            get
-            {
-                return m_LoadComplete;
-            }
-        }
 
         public void OnAssetLoadComlete(AssetReference assetReference)
         {
@@ -90,7 +83,6 @@ namespace YH.AssetManage
     public class BundleLoaderEnumerator : LoaderEnumerator
     {
         AssetBundleReference m_AssetBundleReference;
-        bool m_LoadComplete = false;
 
         public void OnAssetBundleLoadComlete(AssetBundleReference assetBundleReference)
         {

@@ -119,10 +119,20 @@ namespace YH.AssetManage
         {
             m_Dirty = true;
             CacheItem cacheItem;
-            if(!m_CacheItems.TryGetValue(key,out cacheItem))
+
+            if (m_CacheItems == null)
+            {
+                m_CacheItems = new Dictionary<string, CacheItem>();
+
+                cacheItem = new CacheItem();
+                cacheItem.name = key;
+                m_CacheItems[key] = cacheItem;
+            }
+            else  if(!m_CacheItems.TryGetValue(key,out cacheItem))
             {
                 cacheItem = new CacheItem();
                 cacheItem.name = key;
+                m_CacheItems[key] = cacheItem;
             }
             //转换成秒
             cacheItem.lastTime = (long)(DateTime.Now.Ticks * 0.0000001d);
@@ -141,6 +151,19 @@ namespace YH.AssetManage
             }
         }
 
+        public float delayDuration
+        {
+            get
+            {
+                return m_DelayDuration;
+            }
+            set
+            {
+                m_DelayDuration = value;
+            }
+        }
+        
+
         public int expiration
         {
             get
@@ -153,5 +176,12 @@ namespace YH.AssetManage
             }
         }
 
+        public Dictionary<string, CacheItem> cacheItems
+        {
+            get
+            {
+                return m_CacheItems;
+            }
+        }
     }
 }

@@ -77,7 +77,7 @@ namespace YH.AssetManage
             bundleUrl = url;            
         }
 
-        protected void SendRequest()
+        protected virtual void SendRequest()
         {
 #if ASSETMANAGER_LOG
             Debug.LogFormat("BundleWebRequest Get url:{0},hash:{1},--{2}", bundleUrl,hash, Time.frameCount);
@@ -197,8 +197,11 @@ namespace YH.AssetManage
     public class BundleWebSaveRequest : BundleWebRequest
     {
         public string saveFilePath { get; set; }
+        public string bundleFullname { get; set; }
+        public Action<BundleWebSaveRequest> onSaveComplete;
 
         AssetBundleCreateRequest m_CreateRequest;
+        bool m_SaveComplete = false;        
 
         public override bool isDone
         {
@@ -206,7 +209,7 @@ namespace YH.AssetManage
             {
                 if (m_CreateRequest != null)
                 {
-                    return m_CreateRequest.isDone;
+                    return m_CreateRequest.isDone && m_SaveComplete;
                 }
                 else
                 {
@@ -233,7 +236,21 @@ namespace YH.AssetManage
                 }
             }
         }
-        
+
+        protected override void SendRequest()
+        {
+#if ASSETMANAGER_LOG
+            Debug.LogFormat("BundleWebRequest Get url:{0},hash:{1},--{2}", bundleUrl, hash, Time.frameCount);
+#endif
+            m_Www = UnityWebRequest.Get(bundleUrl);
+            m_Www.timeout = timeout;
+
+#if SSH_ACCEPT_ALL
+            m_Www.certificateHandler = new AcceptAllCertificatesSignedHandler();
+#endif
+            m_WebRequestAsyncOperation = m_Www.SendWebRequest();
+        }
+
         public override void Update()
         {
             base.Update();
@@ -243,43 +260,54 @@ namespace YH.AssetManage
                 Debug.LogFormat("BundleWebSaveRequest Download Complete {0},{1}", bundleUrl, Time.frameCount);
 #endif
                 m_CreateRequest = AssetBundle.LoadFromMemoryAsync(m_WebRequestAsyncOperation.webRequest.downloadHandler.data);
+                //save to cache
+#if ASSET_MANAGE_SAVE_CACHE_SYNC
+            SaveSync(saveFilePath, m_Www.downloadHandler.data);
+#else
+                //Async save.
+                if (!haveError)
+                {
+                    SaveAsync(saveFilePath, m_Www.downloadHandler.data);
+                }
+#endif
             }
         }
 
         public override void Clean()
         {
-            base.Clean();
             saveFilePath = null;
             m_CreateRequest = null;
-        }
-
-        public override void Complete()
-        {
-            base.Complete();
-
-#if ASSET_MANAGE_SAVE_CACHE_SYNC
-            SaveSync(saveFilePath, m_Www.downloadHandler.data);
-#else
-            //Async save.
-            if (!haveError)
-            {
-                SaveAsync(saveFilePath, m_Www.downloadHandler.data);
-            }
-#endif
+            m_SaveComplete = false;
+            onSaveComplete = null;
+            base.Clean();
         }
 
 #if ASSET_MANAGE_SAVE_CACHE_SYNC
         void SaveSync(string saveFile,byte[] data)
         {
+            string saveDir = Path.GetDirectoryName(saveFile);
+            if (!Directory.Exists(saveDir))
+            {
+                Directory.CreateDirectory(saveDir);
+            }
             File.WriteAllBytes(saveFile, data);
+            onSaveComplete?.Invoke(this);
+            m_SaveComplete=true;
         }
 #else
         protected async void SaveAsync(string saveFile, byte[] data)
         {
-            using (FileStream stream = new FileStream(saveFile, FileMode.Truncate, FileAccess.Write, FileShare.None,
+            string saveDir = Path.GetDirectoryName(saveFile);
+            if (!Directory.Exists(saveDir))
+            {
+                Directory.CreateDirectory(saveDir);
+            }
+            using (FileStream stream = new FileStream(saveFile, FileMode.Create, FileAccess.Write, FileShare.None,
                                                             bufferSize: 4096, useAsync: true))
             {
                 await stream.WriteAsync(data, 0, data.Length);
+                onSaveComplete?.Invoke(this);
+                m_SaveComplete = true;
             };
         }
 #endif
