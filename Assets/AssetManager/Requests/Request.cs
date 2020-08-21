@@ -6,7 +6,7 @@ namespace YH.AssetManage
 {
     public abstract class Request : IEnumerator
     {
-        public Action<Request> onComplete;
+        public event Action<Request> onComplete;
         public bool autoRelease = true;
 
         #region Enumertor

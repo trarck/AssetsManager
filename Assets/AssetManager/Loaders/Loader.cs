@@ -24,7 +24,7 @@ namespace YH.AssetManage
         protected State m_State = State.Idle;
         protected bool m_ForceDone = false;
         //是否缓存加载后的资源。
-        protected bool m_CacheLoadedAsset = false;
+        protected bool m_CacheResult = false;
         //是否在加载后自动断开和AssetBundle的联系。
         protected bool m_AutoReleaseBundle = true;
 
@@ -140,7 +140,7 @@ namespace YH.AssetManage
         {
             state = State.Idle;
             m_ForceDone = false;
-            m_CacheLoadedAsset = false;
+            m_CacheResult = false;
             if (m_ParamTags != null)
             {
                 m_ParamTags.Clear();
@@ -184,16 +184,28 @@ namespace YH.AssetManage
             paramTags.Add(tag);
         }
 
-        public bool cacheLoadedAsset
+		/// <summary>
+		/// 防止设置过true被false覆盖
+		/// </summary>
+		/// <param name="val"></param>
+		public void SetCacheResult(bool val)
+		{
+			if (!m_CacheResult && val)
+			{
+				m_CacheResult = val;
+			}
+		}
+
+        public bool cacheResult
         {
             get
             {
-                return m_CacheLoadedAsset;
+                return m_CacheResult;
             }
 
             set
             {
-                m_CacheLoadedAsset = value;
+                m_CacheResult = value;
             }
         }
 

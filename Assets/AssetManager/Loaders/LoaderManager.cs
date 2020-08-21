@@ -44,9 +44,9 @@ namespace YH.AssetManage
             return loader;
         }
 
-        public AssetBundleLoader CreateAssetBundleAsyncLoader(string path)
+        public AssetBundleAsyncLoader CreateAssetBundleAsyncLoader(string path)
         {
-            AssetBundleLoader loader = null;
+			AssetBundleAsyncLoader loader = null;
             AssetBundleInfo info = null;
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
             info = m_AssetManager.infoManager.FindAssetBundleInfo(path);
@@ -102,7 +102,7 @@ namespace YH.AssetManage
             info = m_AssetManager.infoManager.FindAssetBundleInfo(path);
             if (info != null)
             {
-                loader = new AssetBundleSyncLoader();
+                loader = LoaderPool.AssetBundleSyncLoaderPool.Get();
                 loader.info = info;
                 loader.assetManager = m_AssetManager;
             }
@@ -114,6 +114,11 @@ namespace YH.AssetManage
 
             return loader;
         }
+
+		public AssetBundleEmptyLoader CreateAssetBundleEmptyLoader(string path)
+		{
+			return LoaderPool.AssetBundleEmptyLoaderPool.Get();
+		}
 
         public void Clean()
         {

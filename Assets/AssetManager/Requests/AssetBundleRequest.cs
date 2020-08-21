@@ -198,7 +198,7 @@ namespace YH.AssetManage
     {
         public string saveFilePath { get; set; }
         public string bundleFullname { get; set; }
-        public Action<BundleWebSaveRequest> onSaveComplete;
+        public event Action<BundleWebSaveRequest> onSaveComplete;
 
         AssetBundleCreateRequest m_CreateRequest;
         bool m_SaveComplete = false;        

@@ -7,8 +7,8 @@ using UnityEditor;
 
 namespace YH.AssetManage
 {
-    public class AssetBundleEmptyLoader : AssetBundleLoader
-    {
+    public class AssetBundleEmptyLoader : AssetBundleAsyncLoader
+	{
         public override bool isDone
         {
             get
@@ -23,14 +23,9 @@ namespace YH.AssetManage
             {
                 Debug.LogErrorFormat("[AssetManage]Load AssetBundle mode not open {0}", info.fullName);
             }
-            Error();
+            Complete();
         }
 
-        public override void Error()
-        {
-            state = State.Error;
-            DoLoadComplete();
-        }
     }
 }
 #endif
