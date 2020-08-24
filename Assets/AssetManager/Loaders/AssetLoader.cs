@@ -48,7 +48,17 @@ namespace YH.AssetManage
             return false;
         }
 
-        protected void DoLoadComplete()
+		public virtual void Init(Action<AssetLoader> beforeCompleteHandle, Action<AssetLoader> afterCompleteHandle)
+		{
+			if (state == State.Idle)
+			{
+				onBeforeComplete += beforeCompleteHandle;
+				onAfterComplete += afterCompleteHandle;
+				state = Loader.State.Inited;
+			}
+		}
+
+		protected void DoLoadComplete()
         {
 #if ASSETMANAGER_LOG_ON
             Debug.LogFormat("[AssetManage]AssetLoader {0}, DoLoadComplete,{1}", info!=null?info.fullName:"", Time.frameCount);

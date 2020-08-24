@@ -14,7 +14,8 @@ namespace YH.AssetManage
         public static readonly ObjectPool<AssetBundleSyncLoader> AssetBundleSyncLoaderPool = new ObjectPool<AssetBundleSyncLoader>(null, l => l.Clean());
         public static readonly ObjectPool<AssetSyncLoader> AssetSyncLoaderPool = new ObjectPool<AssetSyncLoader>(null, l => l.Clean());
 
-		public static readonly ObjectPool<AssetBundleEmptyLoader> AssetBundleEmptyLoaderPool= new ObjectPool<AssetBundleEmptyLoader>(null, l => l.Clean());
+		public static readonly ObjectPool<AssetBundleAsyncEmptyLoader> AssetBundleAsyncEmptyLoaderPool= new ObjectPool<AssetBundleAsyncEmptyLoader>(null, l => l.Clean());
+		public static readonly ObjectPool<AssetAsyncEmptyLoader> AssetAsyncEmptyLoaderPool = new ObjectPool<AssetAsyncEmptyLoader>(null, l => l.Clean());
 
 
 		public static void Release(Loader loader)
@@ -35,9 +36,13 @@ namespace YH.AssetManage
 			{
 				AssetSyncLoaderPool.Release(loader as AssetSyncLoader);
 			}
-			else if (loader is AssetBundleEmptyLoader)
+			else if (loader is AssetBundleAsyncEmptyLoader)
 			{
-				AssetBundleEmptyLoaderPool.Release(loader as AssetBundleEmptyLoader);
+				AssetBundleAsyncEmptyLoaderPool.Release(loader as AssetBundleAsyncEmptyLoader);
+			}
+			else if (loader is AssetAsyncEmptyLoader)
+			{
+				AssetAsyncEmptyLoaderPool.Release(loader as AssetAsyncEmptyLoader);
 			}
 			else
 			{

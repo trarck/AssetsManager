@@ -18,9 +18,9 @@ namespace YH.AssetManage
             m_AssetManager = assetManager;
         }
 
-        public AssetLoader CreateAssetAsyncLoader(string path)
-        { 
-            AssetLoader loader = null;
+        public AssetAsyncLoader CreateAssetAsyncLoader(string path)
+        {
+			AssetAsyncLoader loader = null;
             AssetInfo info = null;
 
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
@@ -44,7 +44,37 @@ namespace YH.AssetManage
             return loader;
         }
 
-        public AssetBundleAsyncLoader CreateAssetBundleAsyncLoader(string path)
+		public AssetSyncLoader CreateAssetSyncLoader(string path)
+		{
+			AssetSyncLoader loader = null;
+			AssetInfo info = null;
+
+#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
+			info = m_AssetManager.infoManager.FindAssetInfo(path);
+			//can't find asset info
+			if (info == null)
+			{
+				info = new AssetInfo();
+				info.fullName = path;
+			}
+
+			loader = new AssetSyncLoader();
+#else
+            loader = new AssetSyncLoader();
+            info = new AssetInfo();
+            info.fullName = path;
+#endif
+			loader.info = info;
+			loader.assetManager = m_AssetManager;
+			return loader;
+		}
+
+		public AssetAsyncEmptyLoader CreateAssetAsyncEmptyLoader(string path)
+		{
+			return LoaderPool.AssetAsyncEmptyLoaderPool.Get();
+		}
+
+		public AssetBundleAsyncLoader CreateAssetBundleAsyncLoader(string path)
         {
 			AssetBundleAsyncLoader loader = null;
             AssetBundleInfo info = null;
@@ -63,31 +93,6 @@ namespace YH.AssetManage
             info.fullName = path;
 #endif
 
-            loader.info = info;
-            loader.assetManager = m_AssetManager;
-            return loader;
-        }
-
-        public AssetSyncLoader CreateAssetSyncLoader(string path)
-        {
-            AssetSyncLoader loader = null;
-            AssetInfo info = null;
-
-#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-            info = m_AssetManager.infoManager.FindAssetInfo(path);
-            //can't find asset info
-            if (info == null)
-            {
-                info = new AssetInfo();
-                info.fullName = path;
-            }
-
-            loader = new AssetSyncLoader();
-#else
-            loader = new AssetSyncLoader();
-            info = new AssetInfo();
-            info.fullName = path;
-#endif
             loader.info = info;
             loader.assetManager = m_AssetManager;
             return loader;
@@ -115,9 +120,9 @@ namespace YH.AssetManage
             return loader;
         }
 
-		public AssetBundleEmptyLoader CreateAssetBundleEmptyLoader(string path)
+		public AssetBundleAsyncEmptyLoader CreateAssetBundleAsyncEmptyLoader(string path)
 		{
-			return LoaderPool.AssetBundleEmptyLoaderPool.Get();
+			return LoaderPool.AssetBundleAsyncEmptyLoaderPool.Get();
 		}
 
         public void Clean()

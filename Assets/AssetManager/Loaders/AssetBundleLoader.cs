@@ -20,7 +20,18 @@ namespace YH.AssetManage
 
         public AssetBundleInfo info { get; set; }
 
-        protected void DoLoadComplete()
+		public virtual void Init(Action<AssetBundleLoader> beforeCompleteHandle, Action<AssetBundleLoader> afterCompleteHandle)
+		{
+			if (state == State.Idle)
+			{
+				//对加载前后做特殊处理
+				onBeforeComplete += beforeCompleteHandle;
+				onAfterComplete += afterCompleteHandle;
+				state = Loader.State.Inited;
+			}
+		}
+
+		protected void DoLoadComplete()
         {
             //先调用onBeforeComplete再调用onComplete,否则可能收不到Reference的onDispose事件。
             if (onBeforeComplete != null)

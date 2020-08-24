@@ -18,5 +18,7 @@ namespace YH.AssetManage
         //是否cache依赖的Bundle.
         //一般情况下建议开启。在一次加载完成后手动释放cache的bundle.
         public static bool CacheDependencyBundle = false;
-    }
+		//是否断开资源对AssetBundle的引用。通常和CacheDependencyBundle取值相同。
+		public static bool BreakAssetBundleAfterLoadAsset = false;
+	}
 }

@@ -7,7 +7,7 @@ using UnityEditor;
 
 namespace YH.AssetManage
 {
-    public class AssetBundleEmptyLoader : AssetBundleAsyncLoader
+    public class AssetAsyncEmptyLoader : AssetAsyncLoader
 	{
         public override bool isDone
         {
@@ -19,10 +19,6 @@ namespace YH.AssetManage
 
         public override void Start()
         {
-            if (info != null)
-            {
-                Debug.LogErrorFormat("[AssetManage]Load AssetBundle mode not open {0}", info.fullName);
-            }
             Complete();
         }
 

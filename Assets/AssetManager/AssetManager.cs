@@ -15,7 +15,7 @@ namespace YH.AssetManage
 
         //loading loaders
         Dictionary<string, AssetBundleAsyncLoader> m_AssetBundleLoadings = new Dictionary<string, AssetBundleAsyncLoader>();
-        Dictionary<string, AssetLoader> m_AssetLoadings = new Dictionary<string, AssetLoader>();
+        Dictionary<string, AssetAsyncLoader> m_AssetLoadings = new Dictionary<string, AssetAsyncLoader>();
 
         IInfoManager m_InfoManager;
         LoaderManager m_LoaderManager;
@@ -117,6 +117,13 @@ namespace YH.AssetManage
 
 		#region load asset bundle
 
+		/// <summary>
+		/// 创建一个AssetBundle加载器
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="tag"></param>
+		/// <param name="cache"></param>
+		/// <returns></returns>
 		public AssetBundleAsyncLoader CreateAssetBundleAsyncLoader(string path, int tag, bool cache)
 		{
 			AssetBundleAsyncLoader loader = null;
@@ -142,7 +149,7 @@ namespace YH.AssetManage
 					abr.Cache();
 				}
 
-				loader = m_LoaderManager.CreateAssetBundleEmptyLoader(path);
+				loader = m_LoaderManager.CreateAssetBundleAsyncEmptyLoader(path);
 				loader.result = abr;
 
 				loader.onAfterComplete += OnAssetBundleAfterLoaded;
@@ -175,56 +182,44 @@ namespace YH.AssetManage
 				loader.AddParamTag(tag);
 
 				loader.SetCacheResult(cache);
-
-				if (loader.state == Loader.State.Idle)
-				{
-					//对加载前后做特殊处理
-					loader.onBeforeComplete += OnAssetBundleBeforeLoaded;
-					loader.onAfterComplete += OnAssetBundleAfterLoaded;
-					loader.state = Loader.State.Inited;
-				}
+				//对加载前后做特殊处理。只要处理一次。
+				loader.Init(OnAssetBundleBeforeLoaded, OnAssetBundleAfterLoaded);
 			}
 			return loader;
 		}
 
-		public AssetBundleAsyncLoader CreateAssetBundleAsyncLoader(
-			string path, int tag, bool cache, 
-			Action<AssetBundleReference> completeHandle = null, 
-			Action<AssetBundleLoader> beforLoadComplete = null, 
-			Action<AssetBundleLoader> afterLoadComplete = null,
-			Action<AssetBundleAsyncLoader> assetBundleLoadComplete = null)
+		/// <summary>
+		/// 异步加载AssetBundle
+		/// </summary>
+		/// <param name="path">AssetBundle路径</param>
+		/// <param name="cache">是否要缓存</param>
+		/// <param name="completeHandle">加载完成回调</param>
+		/// <returns>loader</returns>
+		public AssetBundleLoader LoadAssetBundle(string path, bool cache, Action<AssetBundleReference> completeHandle=null)
+        {
+            return LoadAssetBundle(path,0, cache, completeHandle);
+        }
+
+		/// <summary>
+		/// async load asset bundle
+		/// 同一个资源只有一个正在加载的loader
+		/// </summary>
+		/// <param name="path">asset bundle path</param>
+		/// <param name="tag">tag for loaded asset bundle</param>
+		/// <param name="cache">cache asset bundle</param>
+		/// <param name="completeHandle">load complete callback</param>
+		/// <param name="beforLoadComplete">before load complete callback.use for custom loader</param>
+		/// <param name="afterLoadComplete">after load complete callback.use for custom loader</param>
+		/// <returns></returns>
+		public AssetBundleLoader LoadAssetBundle(string path, int tag, bool cache,
+			Action<AssetBundleReference> completeHandle = null,
+			Action<AssetBundleLoader> beforLoadComplete = null,
+			Action<AssetBundleLoader> afterLoadComplete = null)
 		{
-			AssetBundleAsyncLoader loader = null;
+			AssetBundleLoader loader = CreateAssetBundleAsyncLoader(path, tag, cache);
 
-			if (string.IsNullOrEmpty(path))
+			if (loader != null)
 			{
-				if (completeHandle != null)
-				{
-					completeHandle(null);
-				}
-				return loader;
-			}
-
-			if (m_AssetBundles.ContainsKey(path))
-			{
-#if ASSETMANAGER_LOG_ON
-                Debug.Log("[AssetManage]LoadAssetBundle asset bundle is loaded " + path + "," + Time.frameCount);
-#endif
-				//asset bundle is loaded
-				AssetBundleReference abr = m_AssetBundles[path];
-
-				//refresh 
-				abr.AddTag(tag);
-
-				if (cache)
-				{
-					abr.Cache();
-				}
-
-				loader = m_LoaderManager.CreateAssetBundleEmptyLoader(path);
-				loader.result = abr;
-
-				//call complete callback
 				if (completeHandle != null)
 				{
 					loader.onComplete += completeHandle;
@@ -240,91 +235,7 @@ namespace YH.AssetManage
 					loader.onAfterComplete += afterLoadComplete;
 				}
 
-				if (assetBundleLoadComplete != null)
-				{
-					loader.onAssetBundleLoaded += assetBundleLoadComplete;
-				}
-
-				loader.onAfterComplete += OnAssetBundleAfterLoaded;
-			}
-			else
-			{
-				if (m_AssetBundleLoadings.ContainsKey(path))
-				{
-#if ASSETMANAGER_LOG_ON
-                    Debug.Log("[AssetManage]LoadAssetBundle using loading loader " + path + "," + Time.frameCount);
-#endif
-					loader = m_AssetBundleLoadings[path];
-				}
-				else
-				{
-#if ASSETMANAGER_LOG_ON
-                    Debug.Log("[AssetManage]LoadAssetBundle create new loader " + path + "," + Time.frameCount);
-#endif
-					loader = m_LoaderManager.CreateAssetBundleAsyncLoader(path);
-					if (loader != null)
-					{
-						m_AssetBundleLoadings[path] = loader;
-					}
-					else
-					{
-						if (completeHandle != null)
-						{
-							completeHandle(null);
-						}
-						return null;
-					}
-				}
-
-				loader.AddParamTag(tag);
-
-				if (loader.cacheResult == false && cache)
-				{
-					loader.cacheResult = true;
-				}
-
-				if (completeHandle != null)
-				{
-					loader.onComplete += completeHandle;
-				}
-
-				if (loader.state == Loader.State.Idle)
-				{
-					loader.onBeforeComplete += OnAssetBundleBeforeLoaded;
-					loader.onAfterComplete += OnAssetBundleAfterLoaded;
-					loader.state = Loader.State.Inited;
-				}
-			}
-			return loader;
-		}
-
-		public AssetBundleLoader LoadAssetBundle(string path, bool cacheLoadedAsset, Action<AssetBundleReference> completeHandle=null)
-        {
-            return LoadAssetBundle(path,0, cacheLoadedAsset, completeHandle);
-        }
-
-		/// <summary>
-		/// async load asset bundle
-		/// 同一个资源只有一个正在加载的loader
-		/// </summary>
-		/// <param name="path"></param>
-		/// <param name="tag"></param>
-		/// <param name="cache"></param>
-		/// <param name="completeHandle"></param>
-		/// <returns></returns>
-		public AssetBundleLoader LoadAssetBundle(string path, int tag, bool cache,
-			Action<AssetBundleReference> completeHandle = null,
-			Action<AssetBundleLoader> beforLoadComplete = null,
-			Action<AssetBundleLoader> afterLoadComplete = null)
-		{
-			AssetBundleLoader loader = CreateAssetBundleAsyncLoader(path, tag, cache);
-
-			if (loader != null)
-			{
-				if (beforLoadComplete != null)
-				{
-					loader.onBeforeComplete += beforLoadComplete;
-				}
+				//这里不在做状态检查，交给loader自己处理。
 				m_LoaderManager.ActiveLoader(loader);
 			}
 			else if (completeHandle != null)
@@ -335,9 +246,15 @@ namespace YH.AssetManage
 			return loader;
 		}
 
-        public AssetBundleReference LoadAssetBundleSync(string path, bool cacheLoadedAsset = true)
+		/// <summary>
+		/// 同步加载AssetBundle
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="cache"></param>
+		/// <returns></returns>
+        public AssetBundleReference LoadAssetBundleSync(string path, bool cache = true)
         {
-            return LoadAssetBundleSync(path, 0, cacheLoadedAsset);
+            return LoadAssetBundleSync(path, 0, cache);
         }
 
         /// <summary>
@@ -345,9 +262,9 @@ namespace YH.AssetManage
         /// </summary>
         /// <param name="path"></param>
         /// <param name="tag"></param>
-        /// <param name="cacheLoadedAsset"></param>
+        /// <param name="cache"></param>
         /// <returns>AssetBundleReference retainted.ref count add one after load.</returns>
-        public AssetBundleReference LoadAssetBundleSync(string path, int tag, bool cacheLoadedAsset = true)
+        public AssetBundleReference LoadAssetBundleSync(string path, int tag, bool cache = true)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -365,7 +282,7 @@ namespace YH.AssetManage
                 //refresh 
                 abr.AddTag(tag);
 
-                if (cacheLoadedAsset)
+                if (cache)
                 {
                     abr.Cache();
                 }
@@ -387,7 +304,7 @@ namespace YH.AssetManage
                     if (loader != null)
                     {
                         loader.state = Loader.State.Inited;
-                        if (loader.cacheResult == false && cacheLoadedAsset)
+                        if (loader.cacheResult == false && cache)
                         {
                             loader.cacheResult = true;
                         }
@@ -404,151 +321,153 @@ namespace YH.AssetManage
 
             return abr;
         }
-#endregion
+		#endregion
 
-#region load asset
-        public AssetLoader LoadAsset(string path, Action<AssetReference> completeHandle=null, bool autoReleaseBundle = true)
+		#region load asset
+
+		public AssetAsyncLoader CreateAssetAsyncLoader(string path, int tag, Type type, bool autoReleaseBundle = true)
+		{
+			AssetAsyncLoader loader = null;
+			if (!string.IsNullOrEmpty(path))
+			{
+				path = AssetPaths.AddAssetPrev(path);
+			}
+			else
+			{
+				return loader;
+			}
+
+			if (m_Assets.ContainsKey(path))
+			{
+#if ASSETMANAGER_LOG_ON
+                Debug.Log("[AssetManage]LoadAsset asset is loaded "+path+","+Time.frameCount);
+#endif
+				AssetReference ar = m_Assets[path];
+
+				//refresh
+				ar.AddTag(tag);
+
+				loader = m_LoaderManager.CreateAssetAsyncEmptyLoader(path);
+				loader.result = ar;
+				loader.autoReleaseBundle = autoReleaseBundle;
+				//加载完成后由AssetManager释放loader
+				loader.onAfterComplete += OnAssetAfterLoaded;
+			}
+			else
+			{
+				if (m_AssetLoadings.ContainsKey(path))
+				{
+#if ASSETMANAGER_LOG_ON
+                    Debug.Log("[AssetManage]LoadAsset using loading loader " + path + "," + Time.frameCount);
+#endif
+					loader = m_AssetLoadings[path];
+				}
+				else
+				{
+#if ASSETMANAGER_LOG_ON
+                    Debug.Log("[AssetManage]LoadAsset create new loader " + path + "," + Time.frameCount);
+#endif
+					loader = m_LoaderManager.CreateAssetAsyncLoader(path);
+					m_AssetLoadings[path] = loader;
+				}
+
+				loader.AddParamTag(tag);
+
+				if (type != null)
+				{
+					loader.type = type;
+				}
+
+				loader.autoReleaseBundle = autoReleaseBundle;
+
+				//对加载前后做特殊处理。只要处理一次。
+				loader.Init(OnAssetBeforeLoaded, OnAssetAfterLoaded);
+			}
+
+			return loader;
+		}
+
+		public AssetLoader LoadAsset(string path, Action<AssetReference> completeHandle=null, bool autoReleaseBundle = true)
         {
-            return LoadAsset(path, 0,null, completeHandle, autoReleaseBundle);
+            return LoadAsset(path, 0,null, autoReleaseBundle, completeHandle);
         }
 
         public AssetLoader LoadAsset<T>(string path, Action<AssetReference> completeHandle=null, bool autoReleaseBundle = true)
         {
-            return LoadAsset(path, 0,  typeof(T), completeHandle, autoReleaseBundle);
+            return LoadAsset(path, 0,  typeof(T), autoReleaseBundle, completeHandle);
         }
 
         public AssetLoader LoadAsset<T>(string path, string tag,Action<AssetReference> completeHandle=null, bool autoReleaseBundle = true)
         {
-            return LoadAsset(path, 0,  typeof(T), completeHandle, autoReleaseBundle);
+            return LoadAsset(path, 0,  typeof(T), autoReleaseBundle, completeHandle);
         }
 
-        /// <summary>
-        /// 资源加载
-        /// 资源加载完成，返回一个关于资源的refrence，记录资源的使用情况。
-        /// 资源使用的三种方式：
-        ///     1.Retain(),使用完成时需要执行Release()。
-        ///     2.Retain(Object),使用完成时可以不用执行Release(Object)，等待UnloadUnuseds清理。
-        ///     3.Monitor(GameObject),当GameObject被删除时，会自动执行Release(Object)。
-        /// 对于手动删除资源最好执行RemoveAsset。
-        /// 同一个资源只有一个正在加载的loader。由Manager负责管理Loader。
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="tag"></param>
-        /// <param name="type"></param>
-        /// <param name="completeHandle"></param>
-        /// <returns></returns>
-        public AssetLoader LoadAsset(string path,int tag, Type type,Action<AssetReference> completeHandle=null,bool autoReleaseBundle=true,bool autoStart=true)
+		public AssetLoader LoadAsset<T>(string path, int tag, Type type,Action<AssetReference> completeHandle = null, bool autoReleaseBundle = true)
+		{
+			return LoadAsset(path, 0, typeof(T), autoReleaseBundle, completeHandle);
+		}
+		/// <summary>
+		/// 资源加载
+		/// 资源加载完成，返回一个关于资源的refrence，记录资源的使用情况。
+		/// 资源使用的三种方式：
+		///     1.Retain(),使用完成时需要执行Release()。
+		///     2.Retain(Object),使用完成时可以不用执行Release(Object)，等待UnloadUnuseds清理。
+		///     3.Monitor(GameObject),当GameObject被删除时，会自动执行Release(Object)。
+		/// 对于手动删除资源最好执行RemoveAsset。
+		/// 同一个资源只有一个正在加载的loader。由Manager负责管理Loader。
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="tag"></param>
+		/// <param name="type"></param>
+		/// <param name="completeHandle"></param>
+		/// <returns></returns>
+		public AssetLoader LoadAsset(string path,int tag, Type type,bool autoReleaseBundle,
+			Action<AssetReference> completeHandle=null, 
+			Action<AssetLoader> beforLoadComplete = null,
+			Action<AssetLoader> afterLoadComplete = null)
         {
-            AssetLoader loader = null;
-            if (!string.IsNullOrEmpty(path))
-            {
-                path = AssetPaths.AddAssetPrev(path);
-            }
-            else
-            {
-                if (completeHandle != null)
-                {
-                    completeHandle(null);
-                }
-                return loader;
-            }
+            AssetAsyncLoader loader = CreateAssetAsyncLoader(path,tag,type,autoReleaseBundle);
+			if (loader != null)
+			{
+				if (completeHandle != null)
+				{
+					loader.onComplete += completeHandle;
+				}
 
+				if (beforLoadComplete != null)
+				{
+					loader.onBeforeComplete += beforLoadComplete;
+				}
 
-            if (m_Assets.ContainsKey(path))
-            {
-#if ASSETMANAGER_LOG_ON
-                Debug.Log("[AssetManage]LoadAsset asset is loaded "+path+","+Time.frameCount);
-#endif
-                AssetReference ar = m_Assets[path];
+				if (afterLoadComplete != null)
+				{
+					loader.onAfterComplete += afterLoadComplete;
+				}
 
-                //refresh
-                ar.AddTag(tag);
-
-                //cache asset
-                ar.Cache();
-
-                loader = m_LoaderManager.CreateAssetAsyncLoader(path);
-                loader.forceDone = true;
-                loader.result = ar;
-
-                if (completeHandle != null)
-                {
-                    loader.onComplete += completeHandle;
-                }
-
-                loader.onAfterComplete += OnAssetAfterLoaded;
-                loader.state = Loader.State.Completed;
-                if (autoStart)
-                {
-                    m_LoaderManager.ActiveLoader(loader);
-                }
-            }
-            else
-            {
-                if (m_AssetLoadings.ContainsKey(path))
-                {
-#if ASSETMANAGER_LOG_ON
-                    Debug.Log("[AssetManage]LoadAsset using loading loader " + path + "," + Time.frameCount);
-#endif
-                    loader = m_AssetLoadings[path];
-                }
-                else
-                {
-#if ASSETMANAGER_LOG_ON
-                    Debug.Log("[AssetManage]LoadAsset create new loader " + path + "," + Time.frameCount);
-#endif
-                    loader = m_LoaderManager.CreateAssetAsyncLoader(path);
-                    m_AssetLoadings[path] = loader;
-                }
-                
-                loader.AddParamTag(tag);
-
-                if (type != null)
-                {
-                    loader.type = type;
-                }
-
-                if (!autoReleaseBundle)
-                {
-                    loader.autoReleaseBundle = autoReleaseBundle;
-                }
-
-                if (completeHandle != null)
-                {
-                    loader.onComplete += completeHandle;
-                }
-                
-                loader.IncreaseLoadingRequest();
-
-                //only once init
-                if (loader.state == Loader.State.Idle)
-                {
-                    loader.onBeforeComplete += OnAssetBeforeLoaded;
-                    loader.onAfterComplete += OnAssetAfterLoaded;
-                    loader.state = Loader.State.Inited;
-                    if (autoStart)
-                    {
-                        m_LoaderManager.ActiveLoader(loader);
-                    }
-                }
-            }
+				//这里不在做状态检查，交给loader自己处理。
+				m_LoaderManager.ActiveLoader(loader);
+			}
+			else if (completeHandle != null)
+			{
+				completeHandle(null);
+			}
 
             return loader;
         }
 
-        public AssetLoader LoadAssetWithAlias(string alias, int tag, Type type, Action<AssetReference> completeHandle=null)
-        {
-            AssetInfo assetInfo = m_InfoManager.FindAssetInfoWithAlias(alias);
-            if (assetInfo != null)
-            {
-                return LoadAsset(assetInfo.fullName, tag, type, completeHandle);
-            }
-            else
-            {
-                Debug.LogErrorFormat("[AssetManage]LoadAsset no alias {0} find ", alias);
-            }
-            return null;
-        }
+		public AssetLoader LoadAssetWithAlias(string alias, int tag, Type type, Action<AssetReference> completeHandle = null, bool autoReleaseBundle = true)
+		{
+			AssetInfo assetInfo = m_InfoManager.FindAssetInfoWithAlias(alias);
+			if (assetInfo != null)
+			{
+				return LoadAsset(assetInfo.fullName, tag, type, autoReleaseBundle, completeHandle);
+			}
+			else
+			{
+				Debug.LogErrorFormat("[AssetManage]LoadAsset no alias {0} find ", alias);
+			}
+			return null;
+		}
 
         public AssetReference LoadAssetSync(string path)
         {
@@ -748,20 +667,20 @@ namespace YH.AssetManage
             return YieldLoadAsset(path, 0, typeof(T));
         }
 
-        /// <summary>
-        /// 使用yield要注意loader的释放。使用using或手动调用dispose
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="tag"></param>
-        /// <param name="type"></param>
-        /// <param name="completeHandle"></param>
-        /// <returns></returns>
-        public AssetLoaderEnumerator YieldLoadAsset(string path, int tag, Type type)
-        {
-            AssetLoaderEnumerator assetLoaderEnumerator = new AssetLoaderEnumerator();
-            LoadAsset(path, tag, type, assetLoaderEnumerator.OnAssetLoadComlete);
-            return assetLoaderEnumerator;
-        }
+		/// <summary>
+		/// 使用yield要注意loader的释放。使用using或手动调用dispose
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="tag"></param>
+		/// <param name="type"></param>
+		/// <param name="completeHandle"></param>
+		/// <returns></returns>
+		public AssetLoaderEnumerator YieldLoadAsset(string path, int tag, Type type, bool autoReleaseBundle = true)
+		{
+			AssetLoaderEnumerator assetLoaderEnumerator = new AssetLoaderEnumerator();
+			LoadAsset(path, tag, type, autoReleaseBundle, assetLoaderEnumerator.OnAssetLoadComlete);
+			return assetLoaderEnumerator;
+		}
 
 #endregion
 
