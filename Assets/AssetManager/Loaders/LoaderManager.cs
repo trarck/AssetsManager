@@ -148,11 +148,8 @@ namespace YH.AssetManage
 
         public void ReleaseLoader(Loader loader)
         {
-            if (loader.emptyRef)
-            {
-                LoaderPool.Release(loader);
-            }
-        }
+			LoaderPool.Release(loader);
+		}
         //public void Update()
         //{
         //    //check request 

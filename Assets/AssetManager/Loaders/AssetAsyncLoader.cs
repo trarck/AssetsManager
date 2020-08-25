@@ -50,7 +50,7 @@ namespace YH.AssetManage
             if (m_AssetBundleLoader != null)
             {
                 m_AssetBundleLoader.onComplete -= OnAssetBundleLoadComplete;
-                m_AssetBundleLoader.DecreaseLoadingRequest();
+                m_AssetBundleLoader.DecreaseLoadingCount();
                 m_AssetBundleLoader = null;
             }
 

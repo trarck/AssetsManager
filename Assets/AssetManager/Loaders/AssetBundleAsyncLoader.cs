@@ -146,7 +146,7 @@ namespace YH.AssetManage
                     depLoader.onAssetBundleLoaded -= OnDependencyLoaded;
                     depLoader.onBeforeComplete -= OnBeforeDependencyComplete;
                     depLoader.onComplete -= OnDependencyComplete;
-                    depLoader.DecreaseLoadingRequest();
+                    depLoader.DecreaseLoadingCount();
                 }
                 m_DependencyLoaders.Clear();
             }

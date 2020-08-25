@@ -30,14 +30,17 @@ namespace YH.AssetManage
 
         HashSet<int> m_ParamTags = null;
         
-        protected int m_RefCount = 0;
+        //protected int m_RefCount = 0;
 
-        public abstract bool isDone { get; }
+		//正在加载的数量
+		protected int m_LoadingRefCount = 0;
+		//中止标识
+		protected bool m_Aborted = false;
+
+		public abstract bool isDone { get; }
 
         public bool autoReleaseBundle { get { return m_AutoReleaseBundle; } set { m_AutoReleaseBundle = value; } }
-        //正在加载时请求的数量
-        protected int m_LoadingRequestCount = 0;
-        protected bool m_Aborted = false;
+
 
         public HashSet<int> paramTags
         {
@@ -84,37 +87,38 @@ namespace YH.AssetManage
         }
 
         
-        public virtual void Retain()
-        {
-            ++m_RefCount;
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]({0}#{1}).Retain refCount={2}---{3}", this,GetHashCode(), m_RefCount, Time.frameCount);
-#endif
-        }
+//        public virtual void Retain()
+//        {
+//            ++m_RefCount;
+//#if ASSETMANAGER_LOG_ON
+//            Debug.LogFormat("[AssetManage]({0}#{1}).Retain refCount={2}---{3}", this,GetHashCode(), m_RefCount, Time.frameCount);
+//#endif
+//        }
 
-        public virtual void Release()
-        {
-            --m_RefCount;
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]({0}#{1}).Release refCount={2}---{3}", this, GetHashCode(), m_RefCount, Time.frameCount);
-#endif
-            //check sub overflow
-            if (m_RefCount < 0)
-            {
-                m_RefCount = 0;
-            }
-        }
+//        public virtual void Release()
+//        {
+//            --m_RefCount;
+//#if ASSETMANAGER_LOG_ON
+//            Debug.LogFormat("[AssetManage]({0}#{1}).Release refCount={2}---{3}", this, GetHashCode(), m_RefCount, Time.frameCount);
+//#endif
+//            //check sub overflow
+//            if (m_RefCount <= 0)
+//            {
+//				Abort();
+//                m_RefCount = 0;
+//            }
+//        }
 
-        /// <summary>
-        /// 检查是否有引用
-        /// </summary>
-        public bool emptyRef
-        {
-            get
-            {
-                return m_RefCount <= 0;
-            }
-        }
+//        /// <summary>
+//        /// 检查是否有引用
+//        /// </summary>
+//        public bool isEmptyRef
+//        {
+//            get
+//            {
+//                return m_RefCount <= 0;
+//            }
+//        }
 
         public virtual void Start()
         {
@@ -141,25 +145,28 @@ namespace YH.AssetManage
             state = State.Idle;
             m_ForceDone = false;
             m_CacheResult = false;
-            if (m_ParamTags != null)
+			m_AutoReleaseBundle = false;
+			if (m_ParamTags != null)
             {
                 m_ParamTags.Clear();
             }
-            m_LoadingRequestCount = 0;
+			//m_RefCount = 0;
+			m_LoadingRefCount = 0;
             m_Aborted = false;
             assetManager = null;
         }
 
-        public void IncreaseLoadingRequest()
+        public void IncreaseLoadingCount()
         {
-            ++m_LoadingRequestCount;
+            ++m_LoadingRefCount;
         }
 
-        public void DecreaseLoadingRequest()
+        public void DecreaseLoadingCount()
         {
-            if (--m_LoadingRequestCount <= 0)
+            if (--m_LoadingRefCount <= 0)
             {
-                Abort();
+				m_LoadingRefCount = 0;
+				Abort();
             }
         }
 
