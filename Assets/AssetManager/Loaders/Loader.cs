@@ -6,7 +6,7 @@ using UnityEngine;
 namespace YH.AssetManage
 {
     /// <summary>
-    /// Loader由管理器来管理，不需要自己的Dispose.
+    /// Loader的生命周期由管理器来管理，使用池循环使用。
     /// 加载同一个资源的loader同时只能存在一个。
     /// </summary>
     public abstract class Loader
@@ -29,8 +29,9 @@ namespace YH.AssetManage
         protected bool m_AutoReleaseBundle = true;
 
         HashSet<int> m_ParamTags = null;
-        
-        //protected int m_RefCount = 0;
+
+		//引用计数。通常情况下用不到。
+		protected int m_RefCount = 0;
 
 		//正在加载的数量
 		protected int m_LoadingRefCount = 0;
@@ -86,41 +87,35 @@ namespace YH.AssetManage
             }
         }
 
-        
-//        public virtual void Retain()
-//        {
-//            ++m_RefCount;
-//#if ASSETMANAGER_LOG_ON
-//            Debug.LogFormat("[AssetManage]({0}#{1}).Retain refCount={2}---{3}", this,GetHashCode(), m_RefCount, Time.frameCount);
-//#endif
-//        }
 
-//        public virtual void Release()
-//        {
-//            --m_RefCount;
-//#if ASSETMANAGER_LOG_ON
-//            Debug.LogFormat("[AssetManage]({0}#{1}).Release refCount={2}---{3}", this, GetHashCode(), m_RefCount, Time.frameCount);
-//#endif
-//            //check sub overflow
-//            if (m_RefCount <= 0)
-//            {
-//				Abort();
-//                m_RefCount = 0;
-//            }
-//        }
+		public virtual void Retain()
+		{
+			++m_RefCount;
+#if ASSETMANAGER_LOG_ON
+            Debug.LogFormat("[AssetManage]({0}#{1}).Retain refCount={2}---{3}", this,GetHashCode(), m_RefCount, Time.frameCount);
+#endif
+		}
 
-//        /// <summary>
-//        /// 检查是否有引用
-//        /// </summary>
-//        public bool isEmptyRef
-//        {
-//            get
-//            {
-//                return m_RefCount <= 0;
-//            }
-//        }
+		public virtual void Release()
+		{
+			--m_RefCount;
+#if ASSETMANAGER_LOG_ON
+            Debug.LogFormat("[AssetManage]({0}#{1}).Release refCount={2}---{3}", this, GetHashCode(), m_RefCount, Time.frameCount);
+#endif
+		}
 
-        public virtual void Start()
+		/// <summary>
+		/// 检查是否有引用
+		/// </summary>
+		public bool isEmptyRef
+		{
+			get
+			{
+				return m_RefCount <= 0;
+			}
+		}
+
+		public virtual void Start()
         {
 
         }

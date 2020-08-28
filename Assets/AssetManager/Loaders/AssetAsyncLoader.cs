@@ -117,7 +117,7 @@ namespace YH.AssetManage
                 Debug.LogFormat("[AssetManage]Load asset {0}", assetName);
 #endif
 
-                m_Request = RequestManager.CreateAssetLoaderRequest(assetBundleReference.assetBundle, assetName, type);
+                m_Request = assetManager.requestManager.CreateAssetRequest(assetBundleReference.assetBundle, assetName, type);
                 m_Request.onComplete += OnRequestComplete;
                 assetManager.requestManager.ActiveRequest(m_Request);
             }
@@ -134,7 +134,7 @@ namespace YH.AssetManage
             {
                 string resourcePath = Path.Combine(Path.GetDirectoryName(info.fullName), Path.GetFileNameWithoutExtension(info.fullName));
                 resourcePath = AssetPaths.RemoveAssetPrev(resourcePath);
-                m_Request = RequestManager.CreateResouceLoaderRequest(resourcePath, type);
+                m_Request = assetManager.requestManager.CreateAssetRequest(resourcePath, type);
                 m_Request.onComplete += OnRequestComplete;
                 assetManager.requestManager.ActiveRequest(m_Request);
             }
@@ -148,7 +148,7 @@ namespace YH.AssetManage
         void LoadScene()
         {
             //do nothing.scene just need load dependencies
-            m_Request = new EmptyLoaderRequest();
+            m_Request = assetManager.requestManager.CreateAssetRequest();
             m_Request.onComplete += OnRequestComplete;
             assetManager.requestManager.ActiveRequest(m_Request);
         }

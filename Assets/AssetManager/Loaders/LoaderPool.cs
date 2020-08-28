@@ -17,7 +17,6 @@ namespace YH.AssetManage
 		public static readonly ObjectPool<AssetBundleAsyncEmptyLoader> AssetBundleAsyncEmptyLoaderPool= new ObjectPool<AssetBundleAsyncEmptyLoader>(null, l => l.Clean());
 		public static readonly ObjectPool<AssetAsyncEmptyLoader> AssetAsyncEmptyLoaderPool = new ObjectPool<AssetAsyncEmptyLoader>(null, l => l.Clean());
 
-
 		public static void Release(Loader loader)
         {
 			if (loader is AssetAsyncLoader)

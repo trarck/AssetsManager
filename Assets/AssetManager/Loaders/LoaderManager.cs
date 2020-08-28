@@ -71,7 +71,9 @@ namespace YH.AssetManage
 
 		public AssetAsyncEmptyLoader CreateAssetAsyncEmptyLoader(string path)
 		{
-			return LoaderPool.AssetAsyncEmptyLoaderPool.Get();
+			AssetAsyncEmptyLoader loader = LoaderPool.AssetAsyncEmptyLoaderPool.Get();
+			loader.assetManager = m_AssetManager;
+			return loader;
 		}
 
 		public AssetBundleAsyncLoader CreateAssetBundleAsyncLoader(string path)
@@ -122,7 +124,9 @@ namespace YH.AssetManage
 
 		public AssetBundleAsyncEmptyLoader CreateAssetBundleAsyncEmptyLoader(string path)
 		{
-			return LoaderPool.AssetBundleAsyncEmptyLoaderPool.Get();
+			AssetBundleAsyncEmptyLoader loader = LoaderPool.AssetBundleAsyncEmptyLoaderPool.Get();
+			loader.assetManager = m_AssetManager;
+			return loader;
 		}
 
         public void Clean()
@@ -134,6 +138,7 @@ namespace YH.AssetManage
 
         public void ActiveLoader(Loader loader)
         {
+			loader.IncreaseLoadingCount();
             loader.Start();
             //if (m_ActiveLoaders.Count < m_MaxActiveLoader)
             //{
@@ -148,7 +153,10 @@ namespace YH.AssetManage
 
         public void ReleaseLoader(Loader loader)
         {
-			LoaderPool.Release(loader);
+			if (loader.isEmptyRef)
+			{
+				LoaderPool.Release(loader);
+			}
 		}
         //public void Update()
         //{

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace YH.AssetManage
 {
@@ -12,7 +13,12 @@ namespace YH.AssetManage
         void Update(float deltaTime);
         void Clean();
         Request CreateAssetBundleRequest(AssetBundleInfo assetBundleInfo);
-        void ActiveRequest(Request request);
+
+		Request CreateAssetRequest(AssetBundle assetBundle, string assetName, Type type);
+		Request CreateAssetRequest(string resourcePath, Type type);
+		Request CreateAssetRequest();
+
+		void ActiveRequest(Request request);
 
         void OnApplicationPause(bool pause);
         void OnApplicationQuit();

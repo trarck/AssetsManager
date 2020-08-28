@@ -14,7 +14,9 @@ namespace YH.AssetManage
         internal static readonly ObjectPool<AssetLoaderRequest> AssetLoaderRequestPool = new ObjectPool<AssetLoaderRequest>(null, l => l.Clean());
         internal static readonly ObjectPool<ResouceLoaderRequest> ResouceLoaderRequestPool = new ObjectPool<ResouceLoaderRequest>(null, l => l.Clean());
 
-        int m_MaxActiveRequest = 12;
+		internal static readonly ObjectPool<EmptyLoaderRequest> EmptyLoaderRequestPool = new ObjectPool<EmptyLoaderRequest>(null, l => l.Clean());
+
+		int m_MaxActiveRequest = 12;
         List<Request> m_ActiveRequests = new List<Request>();
         List<int> m_FinishedIndexs = new List<int>();
         Stack<Request> m_PrepareRequests = new Stack<Request>();
@@ -137,30 +139,35 @@ namespace YH.AssetManage
 
         protected void ReleaseRequest(Request request)
         {
-            if (request is BundleWebSaveRequest)
-            {
-                ReleaseBundleWebSaveRequest(request as BundleWebSaveRequest);
-            }
-            else if(request is BundleWebRequest)
-            {
-                ReleaseBundleWebRequest(request as BundleWebRequest);
-            }
-            else if (request is BundleCreateRequest)
-            {
-                ReleaseBundleCreateRequest(request as BundleCreateRequest);
-            }
-            else if (request is AssetLoaderRequest)
-            {
-                ReleaseAssetLoaderRequest(request as AssetLoaderRequest);
-            }
-            else if (request is ResouceLoaderRequest)
-            {
-                ReleaseResouceLoaderRequest(request as ResouceLoaderRequest);
-            }
+			if (request is BundleWebSaveRequest)
+			{
+				ReleaseBundleWebSaveRequest(request as BundleWebSaveRequest);
+			}
+			else if (request is BundleWebRequest)
+			{
+				ReleaseBundleWebRequest(request as BundleWebRequest);
+			}
+			else if (request is BundleCreateRequest)
+			{
+				ReleaseBundleCreateRequest(request as BundleCreateRequest);
+			}
+			else if (request is AssetLoaderRequest)
+			{
+				ReleaseAssetLoaderRequest(request as AssetLoaderRequest);
+			}
+			else if (request is ResouceLoaderRequest)
+			{
+				ReleaseResouceLoaderRequest(request as ResouceLoaderRequest);
+			}
+			else if (request is EmptyLoaderRequest)
+			{
+				EmptyLoaderRequestPool.Release(request as EmptyLoaderRequest);
+			}
         }
-#endregion
+		#endregion
 
-        public virtual Request CreateAssetBundleRequest(AssetBundleInfo assetBundleInfo)
+		#region create bundle request
+		public virtual Request CreateAssetBundleRequest(AssetBundleInfo assetBundleInfo)
         {
             if (assetBundleInfo == null)
             {
@@ -212,7 +219,7 @@ namespace YH.AssetManage
             }
         }
 
-#region create bundle request
+
 
         public static BundleWebRequest CreateBundleWebRequest(string url,string hash=null)
         {
@@ -258,11 +265,27 @@ namespace YH.AssetManage
             BundleWebSaveRequestPool.Release(request);
         }
 
-#endregion
+		#endregion
 
-#region create asset request
+		#region create asset request
 
-        public static AssetLoaderRequest CreateAssetLoaderRequest(AssetBundle assetBundle, string assetName, Type type)
+		public virtual Request CreateAssetRequest(AssetBundle assetBundle, string assetName, Type type)
+		{
+			return CreateAssetLoaderRequest(assetBundle, assetName, type);
+		}
+
+		public virtual Request CreateAssetRequest(string resourcePath, Type type)
+		{
+			return CreateResouceLoaderRequest(resourcePath, type);
+		}
+
+		public virtual Request CreateAssetRequest()
+		{
+			return EmptyLoaderRequestPool.Get();
+		}
+
+
+		public static AssetLoaderRequest CreateAssetLoaderRequest(AssetBundle assetBundle, string assetName, Type type)
         {
             AssetLoaderRequest request = AssetLoaderRequestPool.Get();
             request.assetBundle = assetBundle;
