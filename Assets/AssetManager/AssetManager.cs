@@ -133,22 +133,23 @@ namespace YH.AssetManage
 				return loader;
 			}
 
-			if (m_AssetBundles.ContainsKey(path))
+			AssetBundleReference abr = null;
+			if (m_AssetBundles.TryGetValue(path, out abr))
 			{
+				//asset bundle is loaded
 #if ASSETMANAGER_LOG_ON
                 Debug.Log("[AssetManage]LoadAssetBundle asset bundle is loaded " + path + "," + Time.frameCount);
 #endif
-				//asset bundle is loaded
-				AssetBundleReference abr = m_AssetBundles[path];
-
-				//refresh 
+				//refresh tag
 				abr.AddTag(tag);
 
+				//cache abr
 				if (cache)
 				{
 					abr.Cache();
 				}
 
+				//create call back loader
 				loader = m_LoaderManager.CreateAssetBundleAsyncEmptyLoader(path);
 				loader.result = abr;
 
@@ -156,14 +157,7 @@ namespace YH.AssetManage
 			}
 			else
 			{
-				if (m_AssetBundleLoadings.ContainsKey(path))
-				{
-#if ASSETMANAGER_LOG_ON
-                    Debug.Log("[AssetManage]LoadAssetBundle using loading loader " + path + "," + Time.frameCount);
-#endif
-					loader = m_AssetBundleLoadings[path];
-				}
-				else
+				if (!m_AssetBundleLoadings.TryGetValue(path,out loader))
 				{
 #if ASSETMANAGER_LOG_ON
                     Debug.Log("[AssetManage]LoadAssetBundle create new loader " + path + "," + Time.frameCount);
@@ -177,13 +171,20 @@ namespace YH.AssetManage
 					{
 						return null;
 					}
+
+					//对加载前后做特殊处理。只要处理一次。
+					loader.Init(OnAssetBundleBeforeLoaded, OnAssetBundleAfterLoaded);
+				}
+				else
+				{
+#if ASSETMANAGER_LOG_ON
+                    Debug.Log("[AssetManage]LoadAssetBundle using loading loader " + path + "," + Time.frameCount);
+#endif
 				}
 
 				loader.AddParamTag(tag);
 
 				loader.SetCacheResult(cache);
-				//对加载前后做特殊处理。只要处理一次。
-				loader.Init(OnAssetBundleBeforeLoaded, OnAssetBundleAfterLoaded);
 			}
 			return loader;
 		}
@@ -304,10 +305,7 @@ namespace YH.AssetManage
                     if (loader != null)
                     {
                         loader.state = Loader.State.Inited;
-                        if (loader.cacheResult == false && cache)
-                        {
-                            loader.cacheResult = true;
-                        }
+						loader.SetCacheResult(cache);
 
                         loader.Start();
                         abr = loader.result;
@@ -337,14 +335,13 @@ namespace YH.AssetManage
 				return loader;
 			}
 
-			if (m_Assets.ContainsKey(path))
+			AssetReference ar = null;
+			if (m_Assets.TryGetValue(path,out ar))
 			{
 #if ASSETMANAGER_LOG_ON
-                Debug.Log("[AssetManage]LoadAsset asset is loaded "+path+","+Time.frameCount);
+                Debug.Log("[AssetManage]CreateAssetAsyncLoader asset is loaded "+path+","+Time.frameCount);
 #endif
-				AssetReference ar = m_Assets[path];
-
-				//refresh
+				//refresh tag
 				ar.AddTag(tag);
 
 				loader = m_LoaderManager.CreateAssetAsyncEmptyLoader(path);
@@ -355,33 +352,39 @@ namespace YH.AssetManage
 			}
 			else
 			{
-				if (m_AssetLoadings.ContainsKey(path))
+				if (!m_AssetLoadings.TryGetValue(path,out loader))
 				{
 #if ASSETMANAGER_LOG_ON
-                    Debug.Log("[AssetManage]LoadAsset using loading loader " + path + "," + Time.frameCount);
+                    Debug.Log("[AssetManage]CreateAssetAsyncLoader create new loader " + path + "," + Time.frameCount);
 #endif
-					loader = m_AssetLoadings[path];
+					loader = m_LoaderManager.CreateAssetAsyncLoader(path);
+					m_AssetLoadings[path] = loader;
+
+					//对加载前后做特殊处理。只要处理一次。
+					loader.Init(OnAssetBeforeLoaded, OnAssetAfterLoaded);
+
+					if (type != null)
+					{
+						loader.type = type;
+					}
 				}
 				else
 				{
 #if ASSETMANAGER_LOG_ON
-                    Debug.Log("[AssetManage]LoadAsset create new loader " + path + "," + Time.frameCount);
+                    Debug.Log("[AssetManage]CreateAssetAsyncLoader using loading loader " + path + "," + Time.frameCount);
 #endif
-					loader = m_LoaderManager.CreateAssetAsyncLoader(path);
-					m_AssetLoadings[path] = loader;
+					//资源的名子是唯一的。所以类型也要唯一。
+					if (loader.type != type)
+					{
+						Debug.LogErrorFormat(
+							"[AssetManage]CreateAssetAsyncLoader asset {0} is loading.But loading type={1} different with current type={2} ,{3}"
+							, path, loader.type, type, +Time.frameCount);
+					}
 				}
 
 				loader.AddParamTag(tag);
 
-				if (type != null)
-				{
-					loader.type = type;
-				}
-
-				loader.autoReleaseBundle = autoReleaseBundle;
-
-				//对加载前后做特殊处理。只要处理一次。
-				loader.Init(OnAssetBeforeLoaded, OnAssetAfterLoaded);
+				loader.autoReleaseBundle = autoReleaseBundle;	  
 			}
 
 			return loader;
@@ -1160,18 +1163,16 @@ namespace YH.AssetManage
                 //asset loader always standalone
                 ar.Cache();
                 ar.onDispose += OnAssetDispose;
-                //remove from loading
-                if (m_AssetLoadings.ContainsKey(ar.name))
-                {
-                    m_AssetLoadings.Remove(ar.name);
-                }
             }
-            else if(loader.info!=null)
+
+			//remove from loading
+			AssetInfo info = loader.info;
+			if (info!=null)
             {
                 //remove from loading
-                if (m_AssetLoadings.ContainsKey(loader.info.fullName))
+                if (m_AssetLoadings.ContainsKey(info.fullName))
                 {
-                    m_AssetLoadings.Remove(loader.info.fullName);
+                    m_AssetLoadings.Remove(info.fullName);
                 }
             }
             else

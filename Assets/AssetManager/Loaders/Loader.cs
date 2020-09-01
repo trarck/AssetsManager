@@ -40,7 +40,20 @@ namespace YH.AssetManage
 
 		public abstract bool isDone { get; }
 
-        public bool autoReleaseBundle { get { return m_AutoReleaseBundle; } set { m_AutoReleaseBundle = value; } }
+        public bool autoReleaseBundle
+		{
+			get
+			{
+				return m_AutoReleaseBundle;
+			}
+			set
+			{
+				if (m_AutoReleaseBundle && value == false)
+				{
+					m_AutoReleaseBundle = value;
+				}
+			}
+		}
 
 
         public HashSet<int> paramTags
