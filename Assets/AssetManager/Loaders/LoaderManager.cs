@@ -4,19 +4,53 @@ using UnityEngine;
 
 namespace YH.AssetManage
 {
-    public class LoaderManager
+    public class LoaderManager:ILoaderManager
     {
         AssetManager m_AssetManager;
 
-        //int m_MaxActiveLoader = 100;
-        //List<Loader> m_ActiveLoaders = ListPool<Loader>.Get();
-        //List<int> m_FinishedIndexs = ListPool<int>.Get();
-        //Stack<Loader> m_PrepareLoaders = StackPool<Loader>.Get();
+		//int m_MaxActiveLoader = 100;
+		//List<Loader> m_ActiveLoaders = ListPool<Loader>.Get();
+		//List<int> m_FinishedIndexs = ListPool<int>.Get();
+		//Stack<Loader> m_PrepareLoaders = StackPool<Loader>.Get();
 
-        public LoaderManager(AssetManager assetManager)
-        {
-            m_AssetManager = assetManager;
-        }
+		IRequestManager m_RequestManager;
+		IInfoManager m_InfoManager;
+
+		public IRequestManager requestManager
+		{
+			get
+			{
+				return m_RequestManager;
+			}
+			set
+			{
+				m_RequestManager = value;
+			}
+		}
+
+		public IInfoManager infoManager
+		{
+			get
+			{
+				return m_InfoManager;
+			}
+			set
+			{
+				m_InfoManager = value;
+			}
+		}
+
+
+		public void Init()
+		{
+			
+		}
+
+		public void Init(IInfoManager infoManager, IRequestManager requestManager)
+		{
+			this.infoManager = infoManager;
+			this.requestManager = requestManager;
+		}
 
         public AssetAsyncLoader CreateAssetAsyncLoader(string path)
         {
@@ -69,7 +103,7 @@ namespace YH.AssetManage
 			return loader;
 		}
 
-		public AssetAsyncEmptyLoader CreateAssetAsyncEmptyLoader(string path)
+		public AssetAsyncLoader CreateAssetExistLoader(string path)
 		{
 			AssetAsyncEmptyLoader loader = LoaderPool.AssetAsyncEmptyLoaderPool.Get();
 			loader.assetManager = m_AssetManager;
@@ -122,7 +156,7 @@ namespace YH.AssetManage
             return loader;
         }
 
-		public AssetBundleAsyncEmptyLoader CreateAssetBundleAsyncEmptyLoader(string path)
+		public AssetBundleAsyncLoader CreateAssetBundleExistLoader(string path)
 		{
 			AssetBundleAsyncEmptyLoader loader = LoaderPool.AssetBundleAsyncEmptyLoaderPool.Get();
 			loader.assetManager = m_AssetManager;

@@ -13,17 +13,19 @@ namespace YH.AssetManage
         Dictionary<string, AssetInfo> m_AssetInfos = new Dictionary<string, AssetInfo>();
         Dictionary<string, AssetBundleInfo> m_AssetBundleInfos = new Dictionary<string, AssetBundleInfo>();
 
-        AssetManager m_AssetManager;
+        MonoBehaviour m_CoroutineExecuter;
+		Coroutine m_LoadPackageFileCoroutine;
 
         bool m_Inited = false;
         int m_RetryTimes=AMSetting.RequestRetryTimes;
 
         public event Action<bool> onInitComplete;
 
-        public InfoManager(AssetManager assetManager)
+        public InfoManager(MonoBehaviour coroutineExecuter)
         {
-            m_AssetManager = assetManager;
+			m_CoroutineExecuter = coroutineExecuter;
         }
+
         public void Init()
         {
 
@@ -50,7 +52,7 @@ namespace YH.AssetManage
 #if ASSETMANAGER_LOG_ON
             Debug.LogFormat("[AssetManage]Load File {0} ", url);
 #endif
-            m_AssetManager.StartCoroutine(LoadPackageFile(url));
+			m_LoadPackageFileCoroutine = m_CoroutineExecuter.StartCoroutine(LoadPackageFile(url));
         }
 
         IEnumerator LoadPackageFile(string fileUrl)
@@ -249,6 +251,11 @@ namespace YH.AssetManage
             onInitComplete = null;
             m_AssetInfos.Clear();
             m_AssetBundleInfos.Clear();
+
+			if (m_LoadPackageFileCoroutine != null && m_CoroutineExecuter != null)
+			{
+				m_CoroutineExecuter.StopCoroutine(m_LoadPackageFileCoroutine);
+			}
         }
 
         protected void InitComplete(bool result)

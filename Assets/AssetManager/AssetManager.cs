@@ -61,27 +61,30 @@ namespace YH.AssetManage
             //system events
             SetupSystemEvents();
 
-            //crate loader manager
-            m_LoaderManager = new LoaderManager(this);
-
-            //create rquest manager
-            m_RequestManager = new RequestManager(this);
-            m_RequestManager.Init();
+			//create rquest manager
+			m_RequestManager = new RequestManager();
+			m_RequestManager.Init();
 
             //create info manager
             m_InfoManager = new InfoManager(this);
             m_InfoManager.Init();
-            if (callback != null)
-            {
-                m_InfoManager.onInitComplete += callback;
-            }
 
-            if (string.IsNullOrEmpty(allManifestFile))
-            {
-                allManifestFile = AssetPaths.bundleManifestFile;
-            }
-            m_InfoManager.Load(AssetPaths.GetFullPath(allManifestFile));
-        }
+			//crate loader manager
+			m_LoaderManager = new LoaderManager();
+			m_LoaderManager.Init(m_InfoManager, m_RequestManager);
+
+			//加载info文件
+			if (callback != null)
+			{
+				m_InfoManager.onInitComplete += callback;
+			}
+
+			if (string.IsNullOrEmpty(allManifestFile))
+			{
+				allManifestFile = AssetPaths.bundleManifestFile;
+			}
+			m_InfoManager.Load(AssetPaths.GetFullPath(allManifestFile));
+		}
 
         /// <summary>
         /// 用于自定义构建
@@ -114,6 +117,14 @@ namespace YH.AssetManage
             m_AssetBundleLoadings.Clear();
             m_AssetLoadings.Clear();
         }
+
+		void Update()
+		{
+			if (m_RequestManager != null)
+			{
+				m_RequestManager.Update(Time.deltaTime);
+			}
+		}
 
 		#region load asset bundle
 
@@ -150,7 +161,7 @@ namespace YH.AssetManage
 				}
 
 				//create call back loader
-				loader = m_LoaderManager.CreateAssetBundleAsyncEmptyLoader(path);
+				loader = m_LoaderManager.CreateAssetBundleExistLoader(path);
 				loader.result = abr;
 
 				loader.onAfterComplete += OnAssetBundleAfterLoaded;
@@ -344,7 +355,7 @@ namespace YH.AssetManage
 				//refresh tag
 				ar.AddTag(tag);
 
-				loader = m_LoaderManager.CreateAssetAsyncEmptyLoader(path);
+				loader = m_LoaderManager.CreateAssetExistLoader(path);
 				loader.result = ar;
 				loader.autoReleaseBundle = autoReleaseBundle;
 				//加载完成后由AssetManager释放loader
@@ -687,13 +698,6 @@ namespace YH.AssetManage
 
 #endregion
 
-        void Update()
-        {
-            if (m_RequestManager!=null)
-            {
-                m_RequestManager.Update(Time.deltaTime);
-            }
-        }
 
 #region exter function
         public AssetBundleLoader LoadScene(string path, int tag, Action<AssetBundleReference> completeHandle)

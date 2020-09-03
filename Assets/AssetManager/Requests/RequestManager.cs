@@ -21,16 +21,8 @@ namespace YH.AssetManage
         List<int> m_FinishedIndexs = new List<int>();
         Stack<Request> m_PrepareRequests = new Stack<Request>();
         
-
-        AssetManager m_AssetManager=null;
-
         //cache manager
         CacheManager m_CacheManager=null;
-
-        public RequestManager(AssetManager assetManager)
-        {
-            m_AssetManager = assetManager;
-        }
 
         public virtual void Init()
         {
