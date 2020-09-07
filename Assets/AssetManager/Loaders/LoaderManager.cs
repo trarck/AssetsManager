@@ -6,8 +6,6 @@ namespace YH.AssetManage
 {
     public class LoaderManager:ILoaderManager
     {
-        AssetManager m_AssetManager;
-
 		//int m_MaxActiveLoader = 100;
 		//List<Loader> m_ActiveLoaders = ListPool<Loader>.Get();
 		//List<int> m_FinishedIndexs = ListPool<int>.Get();
@@ -58,7 +56,7 @@ namespace YH.AssetManage
             AssetInfo info = null;
 
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-            info = m_AssetManager.infoManager.FindAssetInfo(path);
+            info = infoManager.FindAssetInfo(path);
             //can't find asset info
             if (info == null)
             {
@@ -74,7 +72,7 @@ namespace YH.AssetManage
             info.fullName = path;
 #endif
             loader.info = info;
-            loader.assetManager = m_AssetManager;
+            loader.loaderManager = this;
             return loader;
         }
 
@@ -84,7 +82,7 @@ namespace YH.AssetManage
 			AssetInfo info = null;
 
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-			info = m_AssetManager.infoManager.FindAssetInfo(path);
+			info = infoManager.FindAssetInfo(path);
 			//can't find asset info
 			if (info == null)
 			{
@@ -99,14 +97,14 @@ namespace YH.AssetManage
             info.fullName = path;
 #endif
 			loader.info = info;
-			loader.assetManager = m_AssetManager;
+			loader.loaderManager = this;
 			return loader;
 		}
 
 		public AssetAsyncLoader CreateAssetExistLoader(string path)
 		{
 			AssetAsyncEmptyLoader loader = LoaderPool.AssetAsyncEmptyLoaderPool.Get();
-			loader.assetManager = m_AssetManager;
+			loader.loaderManager = this;
 			return loader;
 		}
 
@@ -115,7 +113,7 @@ namespace YH.AssetManage
 			AssetBundleAsyncLoader loader = null;
             AssetBundleInfo info = null;
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-            info = m_AssetManager.infoManager.FindAssetBundleInfo(path);
+            info = infoManager.FindAssetBundleInfo(path);
             if (info == null)
             {
                 Debug.LogErrorFormat("[AssetManage]Can't find asset bundle info {0}", path);
@@ -130,7 +128,7 @@ namespace YH.AssetManage
 #endif
 
             loader.info = info;
-            loader.assetManager = m_AssetManager;
+            loader.loaderManager = this;
             return loader;
         }
 
@@ -140,12 +138,12 @@ namespace YH.AssetManage
 
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
             AssetBundleInfo info = null;
-            info = m_AssetManager.infoManager.FindAssetBundleInfo(path);
+            info = infoManager.FindAssetBundleInfo(path);
             if (info != null)
             {
                 loader = LoaderPool.AssetBundleSyncLoaderPool.Get();
                 loader.info = info;
-                loader.assetManager = m_AssetManager;
+                loader.loaderManager = this;
             }
             else
             {
@@ -159,7 +157,7 @@ namespace YH.AssetManage
 		public AssetBundleAsyncLoader CreateAssetBundleExistLoader(string path)
 		{
 			AssetBundleAsyncEmptyLoader loader = LoaderPool.AssetBundleAsyncEmptyLoaderPool.Get();
-			loader.assetManager = m_AssetManager;
+			loader.loaderManager = this;
 			return loader;
 		}
 

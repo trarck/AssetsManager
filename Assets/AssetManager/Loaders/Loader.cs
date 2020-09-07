@@ -72,9 +72,9 @@ namespace YH.AssetManage
             }
         }
 
-        public AssetManager assetManager { get; set; }
+		public ILoaderManager loaderManager { get; set; }
 
-        public bool forceDone
+		public bool forceDone
         {
             get
             {
@@ -161,7 +161,7 @@ namespace YH.AssetManage
 			//m_RefCount = 0;
 			m_LoadingRefCount = 0;
             m_Aborted = false;
-            assetManager = null;
+            loaderManager = null;
         }
 
         public void IncreaseLoadingCount()
