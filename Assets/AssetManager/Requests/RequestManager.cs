@@ -27,9 +27,12 @@ namespace YH.AssetManage
         public virtual void Init()
         {
 #if ASSETMANAGE_BUNDLE_CACHE_ON
-            m_CacheManager = new CacheManager();
-            m_CacheManager.cacheInfoFile = AssetPaths.ToBundlePath(cacheManager.cacheInfoFile);
-            m_CacheManager.LoadCacheInfo();
+			if (AssetPaths.HaveRemoteUrl())
+			{
+				m_CacheManager = new CacheManager();
+				m_CacheManager.cacheInfoFile = AssetPaths.ToBundlePath(cacheManager.cacheInfoFile);
+				m_CacheManager.LoadCacheInfo();
+			}
 #endif
         }
 
@@ -166,41 +169,41 @@ namespace YH.AssetManage
                 return null;
             }
 
-            if (m_CacheManager!=null)
-            {
-                //use cache
-                if (m_CacheManager.IsCached(assetBundleInfo.fullName,assetBundleInfo.hash))
-                {
-                    //load from cache
-                    string assetPath = AssetPaths.GetFullPath(assetBundleInfo.fullName);
-                    return CreateBundleCreateRequest(assetPath);
-                }
-                else
-                {
-                    //download and save to cache
-                    string url = AssetPaths.GetUrl(assetBundleInfo.fullName);
-                    string savePath = AssetPaths.ToBundlePath(assetBundleInfo.fullName);
-                    BundleWebSaveRequest webSaveRequest= CreateBundleWebSaveRequest(url,savePath,assetBundleInfo.hash, assetBundleInfo.fullName);
-                    webSaveRequest.onSaveComplete += OnBundleWebRequestSaveComplete;
-                    return webSaveRequest;
-                }
-            }
-            else
-            {
-                //no cache
-                string assetPath = AssetPaths.GetFullPath(assetBundleInfo.fullName);
+			if (m_CacheManager != null)
+			{
+				//use cache
+				if (m_CacheManager.IsCached(assetBundleInfo.fullName, assetBundleInfo.hash))
+				{
+					//load from cache
+					string assetPath = AssetPaths.GetFullPath(assetBundleInfo.fullName);
+					return CreateBundleCreateRequest(assetPath);
+				}
+				else
+				{
+					//download and save to cache
+					string url = AssetPaths.GetUrl(assetBundleInfo.fullName);
+					string savePath = AssetPaths.ToBundlePath(assetBundleInfo.fullName);
+					BundleWebSaveRequest webSaveRequest = CreateBundleWebSaveRequest(url, savePath, assetBundleInfo.hash, assetBundleInfo.fullName);
+					webSaveRequest.onSaveComplete += OnBundleWebRequestSaveComplete;
+					return webSaveRequest;
+				}
+			}
+			else
+			{
+				//no cache
+				string assetPath = AssetPaths.GetFullPath(assetBundleInfo.fullName);
 #if ASSETMANAGER_LOG_ON
                 Debug.LogFormat("[AssetManage]LoadBundle {0}---{1}", assetPath, Time.frameCount);
 #endif
-                if (assetPath.Contains("://"))
-                {
-                    return CreateBundleWebRequest(assetPath);
-                }
-                else
-                {
-                    return CreateBundleCreateRequest(assetPath);
-                }
-            }
+				if (assetPath.Contains("://"))
+				{
+					return CreateBundleWebRequest(assetPath);
+				}
+				else
+				{
+					return CreateBundleCreateRequest(assetPath);
+				}
+			}
         }
 
         private void OnBundleWebRequestSaveComplete(BundleWebSaveRequest request)

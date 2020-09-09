@@ -14,7 +14,7 @@ namespace YH.AssetManage.Extension
             if (m_State == State.Idle)
             {
                 m_State = State.Loading;
-                AssetManager.Instance.LoadAsset(path, tag, type, OnAssetLoadComplete, autoReleaseBundle);
+                AssetManager.Instance.LoadAsset(path, tag, type, autoReleaseBundle, OnAssetLoadComplete);
             }
         }
 

@@ -167,11 +167,11 @@ namespace YH.AssetManage
 
         protected virtual void LoadBundle()
         {
-            if (assetManager!=null && assetManager.requestManager!=null)
+            if (loaderManager!=null && loaderManager.requestManager!=null)
             {
-                m_Request = assetManager.requestManager.CreateAssetBundleRequest(info);
+                m_Request = loaderManager.requestManager.CreateAssetBundleRequest(info);
                 m_Request.onComplete += OnBundleRequestComplete;
-                assetManager.requestManager.ActiveRequest(m_Request);
+				loaderManager.requestManager.ActiveRequest(m_Request);
             }
             else
             {
@@ -209,13 +209,13 @@ namespace YH.AssetManage
             {
                 string dep = dependencies[i];
 
-                //if (dep.Contains("blue_s"))
-                //{
-                //    assetManager.StartCoroutine(testLoader(dep));
-                //    continue;
-                //}
+				//if (dep.Contains("blue_s"))
+				//{
+				//    assetManager.StartCoroutine(testLoader(dep));
+				//    continue;
+				//}
 
-                AssetBundleAsyncLoader depLoader = assetManager.LoadAssetBundle(dep, AMSetting.CacheDependencyBundle, OnDependencyComplete) as AssetBundleAsyncLoader;
+				AssetBundleAsyncLoader depLoader = loaderManager.LoadAssetBundleAsync(dep, 0, AMSetting.CacheDependencyBundle, OnDependencyComplete) as AssetBundleAsyncLoader;
                 if (depLoader != null)
                 {
                     depLoader.onAssetBundleLoaded += OnDependencyLoaded;

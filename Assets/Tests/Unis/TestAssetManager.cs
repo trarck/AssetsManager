@@ -15,7 +15,9 @@ namespace Tests
         public void OneTimeSetUp()
         {
             Debug.Log("OneTimeSetUp");
-            m_AssetManager = AssetManager.Instance;
+			GameObject obj = new GameObject();
+			obj.name = "in OneTimeSetUp";
+			m_AssetManager = AssetManager.Instance;
             m_AssetManager.Init();
         }
 
@@ -29,6 +31,8 @@ namespace Tests
         [SetUp]
         public void SetUp()
         {
+			GameObject obj = new GameObject();
+			obj.name = "in setup";
             Debug.Log("Setup");
         }
 

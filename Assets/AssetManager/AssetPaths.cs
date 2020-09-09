@@ -262,7 +262,6 @@ namespace YH.AssetManage
             }
             else
             {
-
                 if (remoteUrl.EndsWith("/"))
                 {
                     return remoteUrl + filename;
@@ -273,5 +272,10 @@ namespace YH.AssetManage
                 }
             }
         }
+
+		public static bool HaveRemoteUrl()
+		{
+			return !string.IsNullOrEmpty(remoteUrl);
+		}
     }
 }

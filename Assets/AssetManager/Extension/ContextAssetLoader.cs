@@ -58,7 +58,7 @@ namespace YH.AssetManage.Extension
                 Debug.LogFormat("[AssetManage]ContextAssetLoader Start load asset {0}.", path);
 #endif
                 //这里暂时使用匿名函数。
-                AssetLoader loader = AssetManager.Instance.LoadAsset(path, tag, type, completeHandle, autoReleaseBundle);
+                AssetLoader loader = AssetManager.Instance.LoadAsset(path, tag, type, autoReleaseBundle, completeHandle);
                 loader.onBeforeComplete += OnAssetBeforeComplete;
                 m_AssetLoaders.Add(loader);
                 m_AssetCompleteHandles[loader] = completeHandle;

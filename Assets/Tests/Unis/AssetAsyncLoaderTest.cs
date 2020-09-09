@@ -41,27 +41,33 @@ public class AssetAsyncLoaderTest
 	public IEnumerator SimpleLoader()
     {
         AssetReference result = null;
+		AssetLoaderEnumerator assetLoaderEnumerator = new AssetLoaderEnumerator();
 
-        yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
-        {
-            Debug.Log("ddddd");
-            Debug.Log(ar);
-            result = ar;
-        });
-        Debug.Log("bbbb,"+Time.frameCount);
-        Assert.AreNotEqual(result, null);
-
-        yield return m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+		 m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
         {
             result = ar;
-        });
+			assetLoaderEnumerator.OnAssetLoadComlete(ar);
+
+		});
+		yield return assetLoaderEnumerator;
         Assert.AreNotEqual(result, null);
 
-        yield return m_AssetManager.LoadAsset("ArtResources/Textures/bnt_Blue_S.png", (ar) =>
+		assetLoaderEnumerator = new AssetLoaderEnumerator();
+		m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+        {
+            result = ar;
+			assetLoaderEnumerator.OnAssetLoadComlete(ar);
+		});
+		yield return assetLoaderEnumerator;
+		Assert.AreNotEqual(result, null);
+
+		assetLoaderEnumerator = new AssetLoaderEnumerator();
+		m_AssetManager.LoadAsset("ArtResources/Textures/bnt_Blue_S.png", (ar) =>
         {
             result = ar;
         });
-        Assert.AreNotEqual(result, null);
+		yield return assetLoaderEnumerator;
+		Assert.AreNotEqual(result, null);
     }
 
     [UnityTest]
@@ -70,17 +76,22 @@ public class AssetAsyncLoaderTest
         AssetReference result1 = null;
         AssetReference result2 = null;
 
-        m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+		AssetLoaderEnumerator assetLoaderEnumerator = new AssetLoaderEnumerator();
+
+		m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
         {
             result1 = ar;
         });
 
-        yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+        m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
         {
             result2 = ar;
-        });
+			assetLoaderEnumerator.OnAssetLoadComlete(ar);
 
-        Assert.AreEqual(result1, result2);
+		});
+		yield return assetLoaderEnumerator;
+
+		Assert.AreEqual(result1, result2);
 
     }
 
@@ -89,24 +100,28 @@ public class AssetAsyncLoaderTest
     [UnityTest]
     public IEnumerator LoaderAndDestroy()
     {
-        Object obj = null;
+		AssetLoaderEnumerator assetLoaderEnumerator = new AssetLoaderEnumerator();
 
-        yield return m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+		Object obj = null;
+
+        m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
         {
-            Debug.Log("BBB," + Time.frameCount);
-            Debug.Log(ar + "," + Time.frameCount);
             if (ar != null)
             {
-                Debug.Log(ar.asset);
-                obj = GameObject.Instantiate(ar.asset);
+				assetLoaderEnumerator.OnAssetLoadComlete(ar);
+				obj = GameObject.Instantiate(ar.asset);
                 //ar.Retain(m_Obj);
                 ar.Monitor(obj as GameObject);
             }
-        });
-        Debug.Log("DDD,"+Time.frameCount);
-        Assert.AreEqual(1, m_AssetManager.assets.Count);
+        },false);
+
+		yield return assetLoaderEnumerator;
+
+		assetLoaderEnumerator.Dispose();
+
+		Assert.AreEqual(1, m_AssetManager.assets.Count);
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-        Assert.AreEqual(3, m_AssetManager.assetBundles.Count);
+        Assert.AreEqual(2, m_AssetManager.assetBundles.Count);
 #else
         Assert.AreEqual(0,m_AssetManager.assetBundles.Count);
 #endif

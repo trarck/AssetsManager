@@ -103,7 +103,23 @@ namespace YH.AssetManage
             base.Clean();
         }
 
-        public virtual AssetReference result
+		public override void Complete()
+		{
+			base.Complete();
+			DoLoadComplete();
+		}
+
+		public override void Error()
+		{
+			base.Error();
+			if (info != null)
+			{
+				Debug.LogErrorFormat("[AssetManage]Load asset {0} fail", info.fullName);
+			}
+			DoLoadComplete();
+		}
+
+		public virtual AssetReference result
         {
             get
             {

@@ -60,7 +60,7 @@ namespace YH.AssetManage
             for (int i = 0, l = dependencies.Length; i < l; ++i)
             {
                 string dep = dependencies[i];
-                AssetBundleReference abr = assetManager.LoadAssetBundleSync(dep, 0, AMSetting.CacheDependencyBundle);
+                AssetBundleReference abr = loaderManager.LoadAssetBundleSync(dep, 0, AMSetting.CacheDependencyBundle);
                 if (abr == null)
                 {
                     if (AMSetting.BreakOnBundleLoadDependencyError)

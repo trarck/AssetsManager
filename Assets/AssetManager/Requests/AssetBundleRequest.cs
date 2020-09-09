@@ -151,11 +151,7 @@ namespace YH.AssetManage
         {
             get
             {
-                if (m_Www != null)
-                {
-                    return m_Www.isNetworkError || m_Www.isHttpError;
-                }
-                return false;
+                return haveWWWError;
             }
         }
 
@@ -192,6 +188,18 @@ namespace YH.AssetManage
         {
             return string.Format("BundleWebRequest:{0},isDone:{1},progress:{2}",  bundleUrl, isDone,m_Www!=null ?m_Www.downloadProgress:-1 );
         }
+
+		protected bool haveWWWError
+		{
+			get
+			{
+				if (m_Www != null)
+				{
+					return m_Www.isNetworkError || m_Www.isHttpError;
+				}
+				return false;
+			}
+		}
     }
 
     public class BundleWebSaveRequest : BundleWebRequest
@@ -207,7 +215,12 @@ namespace YH.AssetManage
         {
             get
             {
-                if (m_CreateRequest != null)
+				if (m_Aborted || haveWWWError)
+				{
+					return true;
+				}
+
+				if (m_CreateRequest != null)
                 {
                     return m_CreateRequest.isDone && m_SaveComplete;
                 }
@@ -259,21 +272,42 @@ namespace YH.AssetManage
 #if ASSETMANAGER_LOG_ON
                 Debug.LogFormat("[AssetManage]BundleWebSaveRequest Download Complete {0},{1}", bundleUrl, Time.frameCount);
 #endif
-                m_CreateRequest = AssetBundle.LoadFromMemoryAsync(m_WebRequestAsyncOperation.webRequest.downloadHandler.data);
-                //save to cache
+				if (!haveWWWError)
+				{
+					m_CreateRequest = AssetBundle.LoadFromMemoryAsync(m_WebRequestAsyncOperation.webRequest.downloadHandler.data);
+					//save to cache
 #if ASSET_MANAGE_SAVE_CACHE_SYNC
             SaveSync(saveFilePath, m_Www.downloadHandler.data);
 #else
-                //Async save.
-                if (!haveError)
-                {
-                    SaveAsync(saveFilePath, m_Www.downloadHandler.data);
-                }
+					//Async save.
+					SaveAsync(saveFilePath, m_Www.downloadHandler.data);
 #endif
-            }
+				}
+				else
+				{
+					Debug.LogFormat("[AssetManage]BundleWebSaveRequest Download fail {0},{1}", m_Www.error, Time.frameCount);
+				}
+			}
         }
 
-        public override void Clean()
+		public override bool haveError
+		{
+			get
+			{
+				if (haveWWWError)
+				{
+					return true;
+				}
+
+				if (m_CreateRequest != null && isDone)
+				{
+					return m_CreateRequest.assetBundle == null;
+				}
+				return false;
+			}
+		}
+
+		public override void Clean()
         {
             saveFilePath = null;
             m_CreateRequest = null;

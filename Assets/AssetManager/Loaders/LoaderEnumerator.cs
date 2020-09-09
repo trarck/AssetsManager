@@ -8,8 +8,9 @@ namespace YH.AssetManage
     public class LoaderEnumerator : IEnumerator,IDisposable
     {
         protected bool m_LoadComplete = false;
+		private bool m_DisposedValue = false;
 
-        public object Current
+		public object Current
         {
             get
             {
@@ -35,11 +36,41 @@ namespace YH.AssetManage
 
         }
 
-        public virtual void Dispose()
-        {
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				// TODO: 释放托管状态(托管对象)。
+			}
 
-        }
-    }
+			// TODO: 释放未托管的资源(未托管的对象)并在以下内容中替代终结器。
+			// TODO: 将大型字段设置为 null。
+		}
+
+		// TODO: 仅当以上 Dispose(bool disposing) 拥有用于释放未托管资源的代码时才替代终结器。
+		~LoaderEnumerator()
+		{
+			// 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+			if (!m_DisposedValue)
+			{
+				Dispose(false);
+				m_DisposedValue = true;
+			}
+		}
+
+		// 添加此代码以正确实现可处置模式。
+		public void Dispose()
+		{
+			// 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+			if (!m_DisposedValue)
+			{
+				Dispose(true);
+				m_DisposedValue = true;
+			}
+			// TODO: 如果在以上内容中替代了终结器，则取消注释以下行。
+			GC.SuppressFinalize(this);
+		}
+	}
 
     public class AssetLoaderEnumerator: LoaderEnumerator
     {
@@ -51,10 +82,10 @@ namespace YH.AssetManage
             this.assetReference = assetReference;
         }
 
-        public override void Dispose()
+		protected override void Dispose(bool disposing)
         {
-            assetReference = null;
-            base.Dispose();
+			assetReference = null;
+            base.Dispose(disposing);
         }
 
         public AssetReference assetReference
@@ -90,10 +121,10 @@ namespace YH.AssetManage
             this.assetBundleReference = assetBundleReference;
         }
 
-        public override void Dispose()
+        protected override void Dispose(bool disposing)
         {
             assetBundleReference = null;
-            base.Dispose();
+            base.Dispose(disposing);
         }
 
         public AssetBundleReference assetBundleReference

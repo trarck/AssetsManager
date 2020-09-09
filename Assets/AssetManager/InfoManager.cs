@@ -246,7 +246,7 @@ namespace YH.AssetManage
             return null;
         }
 
-        public void Clear()
+        public void Clean()
         {
             onInitComplete = null;
             m_AssetInfos.Clear();

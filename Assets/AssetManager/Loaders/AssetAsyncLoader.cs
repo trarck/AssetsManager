@@ -24,7 +24,7 @@ namespace YH.AssetManage
                 state = State.Loading;
                 if (!string.IsNullOrEmpty(info.bundleName))
                 {
-                    m_AssetBundleLoader=assetManager.LoadAssetBundle(info.bundleName, AMSetting.CacheDependencyBundle, OnAssetBundleLoadComplete);
+					m_AssetBundleLoader = loaderManager.LoadAssetBundleAsync(info.bundleName, 0, AMSetting.CacheDependencyBundle, OnAssetBundleLoadComplete);
                 }
                 else
                 {
@@ -163,8 +163,6 @@ namespace YH.AssetManage
 
             if (!request.haveError)
             {
-                state = State.Completed;
-
                 result = new AssetReference(request.data, info.fullName);
                 m_Result.AddTags(paramTags);
                 if (assetBundleReference != null)
@@ -172,22 +170,12 @@ namespace YH.AssetManage
                     result.assetBundleReference = assetBundleReference;
                 }
 
-                DoLoadComplete();
+                Complete();
             }
             else
             {
                 Error();
             }
-        }
-
-        public override void Error()
-        {
-            state = State.Error;
-            if (info != null)
-            {
-                Debug.LogErrorFormat("[AssetManage]Load asset {0} fail", info.fullName);
-            }
-            DoLoadComplete();
         }
 
         public override void Clean()

@@ -24,7 +24,7 @@ namespace YH.AssetManage
 
                 if (!string.IsNullOrEmpty(info.bundleName))
                 {
-                    assetBundleReference=assetManager.LoadAssetBundleSync(info.bundleName, 0,AMSetting.CacheDependencyBundle);
+					assetBundleReference = loaderManager.LoadAssetBundleSync(info.bundleName, 0, AMSetting.CacheDependencyBundle);
                     if (assetBundleReference!=null)
                     {
                         assetBundleReference.Release();

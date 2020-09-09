@@ -47,7 +47,7 @@ namespace YH.AssetManage.Extension
                 //取消上个资源的回调
                 m_InternalLoader.onComplete -= OnAssetLoadComplete;
                 //加载新的资源
-                m_InternalLoader = AssetManager.Instance.LoadAsset(path, tag, type, OnAssetLoadComplete, autoReleaseBundle);
+                m_InternalLoader = AssetManager.Instance.LoadAsset(path, tag, type, autoReleaseBundle, OnAssetLoadComplete);
             }
             else 
             {
@@ -55,7 +55,7 @@ namespace YH.AssetManage.Extension
                 Debug.LogFormat("[AssetManage]LoadAsset {0}", path);
 #endif
                 m_State = State.Loading;
-                m_InternalLoader = AssetManager.Instance.LoadAsset(path, tag, type, OnAssetLoadComplete, autoReleaseBundle);
+                m_InternalLoader = AssetManager.Instance.LoadAsset(path, tag, type, autoReleaseBundle, OnAssetLoadComplete);
             }
         }
 

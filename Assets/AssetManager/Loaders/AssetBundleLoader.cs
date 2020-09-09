@@ -121,13 +121,13 @@ namespace YH.AssetManage
 
         public override void Complete()
         {
-            state = State.Completed;
+			base.Complete();
             DoLoadComplete();
         }
 
         public override void Error()
         {
-            state = State.Error;
+			base.Error();
             DoLoadComplete();
         }
     }

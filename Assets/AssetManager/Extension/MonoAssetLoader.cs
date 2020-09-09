@@ -35,7 +35,7 @@ namespace YH.AssetManage.Extension
             if (!m_Destroyed)
             {
                 //这里暂时使用匿名函数。
-                AssetManager.Instance.LoadAsset(path, tag, type, (assetReference) =>
+                AssetManager.Instance.LoadAsset(path, tag, type, autoReleaseBundle, (assetReference) =>
                 {
                 //如果已经删除，则不处理。
                 if (!m_Destroyed)
@@ -45,7 +45,7 @@ namespace YH.AssetManage.Extension
                             completeHandle(assetReference);
                         }
                     }
-                }, autoReleaseBundle);
+                });
             }
         }
 

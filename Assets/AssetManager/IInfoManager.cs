@@ -14,7 +14,9 @@ namespace YH.AssetManage
         event Action<bool> onInitComplete;
 
         void Init();
-        void Load(string filePath);
+		void Clean();
+
+		void Load(string filePath);
         void LoadFromStream(Stream steam);
         void SaveBinary(string fileName);
         void SaveBinaryStream(Stream stream);
@@ -23,6 +25,6 @@ namespace YH.AssetManage
         AssetInfo FindAssetInfoWithAlias(string alias);
         AssetBundleInfo FindAssetBundleInfo(string key);
 
-        void Clear();
+   
     }
 }
