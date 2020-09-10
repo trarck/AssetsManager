@@ -40,7 +40,7 @@ namespace Tests
 		}
 
 		[UnityTest]
-		public IEnumerator SimpleLoader()
+		public IEnumerator TestSimpleLoader()
 		{
 			AssetReference result1 = null;
 			AssetReference result2 = null;
@@ -76,7 +76,7 @@ namespace Tests
 		}
 
 		[UnityTest]
-		public IEnumerator LoadDuplicate()
+		public IEnumerator TestLoadDuplicate()
 		{
 			AssetReference result1 = null;
 			AssetReference result2 = null;
@@ -105,7 +105,7 @@ namespace Tests
 		// A UnityTest behaves like a coroutine in PlayMode
 		// and allows you to yield null to skip a frame in EditMode
 		[UnityTest]
-		public IEnumerator LoaderAndDestroy()
+		public IEnumerator TestLoaderAndDestroy()
 		{
 			int loadCount = 1;
 
@@ -151,7 +151,7 @@ namespace Tests
 		}
 
 		[Test]
-		public void SyncLoad()
+		public void TestSyncLoad()
 		{
 			AssetReference ar = m_AssetManager.LoadAssetSync("ArtResources/Prefabs/MyPrefab.prefab");
 			Assert.AreNotEqual(ar, null);
@@ -161,7 +161,7 @@ namespace Tests
 		}
 
 		[UnityTest]
-		public IEnumerator SyncThenAsyncLoad()
+		public IEnumerator TestSyncThenAsyncLoad()
 		{
 			//先同步再异步
 			AssetReference ar = m_AssetManager.LoadAssetSync("ArtResources/Prefabs/MyPrefab.prefab");
@@ -182,7 +182,7 @@ namespace Tests
 		}
 
 		[UnityTest]
-		public IEnumerator AsyncThenSyncLoad()
+		public IEnumerator TestAsyncThenSyncLoad()
 		{
 			//先异步再同步
 			int loadCount = 1;
