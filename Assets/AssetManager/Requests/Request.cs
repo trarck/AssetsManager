@@ -48,9 +48,7 @@ namespace YH.AssetManage
 
         public virtual void Update()
         {
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]{0},{1}", ToString(), Time.frameCount);
-#endif
+            AMDebug.LogFormat("[AssetManage]{0}", ToString());
         }
 
         public virtual void Complete()

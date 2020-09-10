@@ -49,9 +49,7 @@ namespace YH.AssetManage
 
         public void LoadFromPackage(string url)
         {
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]Load File {0} ", url);
-#endif
+            AMDebug.LogFormat("[AssetManage]Load File {0} ", url);
 			m_LoadPackageFileCoroutine = m_CoroutineExecuter.StartCoroutine(LoadPackageFile(url));
         }
 
@@ -79,9 +77,7 @@ namespace YH.AssetManage
                             Directory.CreateDirectory(bundleDir);
                         }
                         string localInfoFilePath = AssetPaths.Combine(bundleDir, AssetPaths.bundleManifestFile);
-#if ASSETMANAGER_LOG_ON
-                        Debug.LogFormat("[AssetManage]Save all.manifest to {0} ", localInfoFilePath);
-#endif
+                        AMDebug.LogFormat("[AssetManage]Save all.manifest to {0} ", localInfoFilePath);
                         File.WriteAllBytes(localInfoFilePath,webRequest.downloadHandler.data);
 
                         using (MemoryStream stream = new MemoryStream(webRequest.downloadHandler.data))
@@ -91,7 +87,7 @@ namespace YH.AssetManage
                     }
                     else
                     {
-                        Debug.LogErrorFormat("[AssetManage]LoadPackageFile:{0} error: {1} ", fileUrl, webRequest.error);
+                        AMDebug.LogErrorFormat("[AssetManage]LoadPackageFile:{0} error: {1} ", fileUrl, webRequest.error);
                         success = false;
                     }
 
@@ -260,9 +256,7 @@ namespace YH.AssetManage
 
         protected void InitComplete(bool result)
         {
-#if ASSETMANAGER_LOG_ON
-            Debug.Log("[AssetManage]Info Manager init complete");
-#endif
+            AMDebug.Log("[AssetManage]Info Manager init complete");
             m_Inited = true;
             if (onInitComplete != null)
             {

@@ -60,33 +60,24 @@ namespace YH.AssetManage
 
 		protected void DoLoadComplete()
         {
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]AssetLoader {0}, DoLoadComplete,{1}", info!=null?info.fullName:"", Time.frameCount);
-#endif
+			AMDebug.LogFormat("[AssetManage]AssetLoader {0} DoLoadComplete", info!=null?info.fullName:"");
             //先调用onBeforeComplete再调用onComplete,否则可能收不到Reference的onDispose事件。
             if (onBeforeComplete != null)
             {
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[AssetManage]AssetLoader {0}, onBeforeComplete,{1}", info != null ? info.fullName : "", Time.frameCount);
-#endif
-                onBeforeComplete(this);
+                AMDebug.LogFormat("[AssetManage]AssetLoader {0} onBeforeComplete", info != null ? info.fullName : "");
+				onBeforeComplete(this);
             }
 
             if (onComplete != null)
             {
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[AssetManage]AssetLoader {0}, onComplete,{1}", info != null ? info.fullName : "", Time.frameCount);
-#endif
-                onComplete(result);
+                AMDebug.LogFormat("[AssetManage]AssetLoader {0} onComplete", info != null ? info.fullName : "");
+				onComplete(result);
             }
 
             if (onAfterComplete != null)
             {
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[AssetManage]AssetLoader {0}, onAfterComplete,{1}", info != null ? info.fullName : "", Time.frameCount);
-
-#endif
-                onAfterComplete(this);
+                AMDebug.LogFormat("[AssetManage]AssetLoader {0} onAfterComplete", info != null ? info.fullName : "");
+				onAfterComplete(this);
             }
         }
 
@@ -112,12 +103,11 @@ namespace YH.AssetManage
 		public override void Error()
 		{
 			base.Error();
-			#if ASSETMANAGER_LOG_ON
+
 			if (info != null)
 			{
-				Debug.LogErrorFormat("[AssetManage]Load asset {0} fail ---{1}", info.fullName, Time.frameCount);
+				AMDebug.LogErrorFormat("[AssetManage]Load asset {0} fail", info.fullName);
 			}
-			#endif
 			DoLoadComplete();
 		}
 

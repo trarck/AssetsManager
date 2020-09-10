@@ -21,7 +21,7 @@ namespace YH.AssetManage
         {
             if (info != null)
             {
-                Debug.LogErrorFormat("[AssetManage]Load AssetBundle mode not open {0}", info.fullName);
+                AMDebug.LogErrorFormat("[AssetManage]Load AssetBundle mode not open {0}", info.fullName);
             }
             Complete();
         }

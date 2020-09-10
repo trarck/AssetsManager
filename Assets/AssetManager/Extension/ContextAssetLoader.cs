@@ -54,9 +54,7 @@ namespace YH.AssetManage.Extension
         {
             if (m_Context != null && m_Context.enable)
             {
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[AssetManage]ContextAssetLoader Start load asset {0}.", path);
-#endif
+                AMDebug.LogFormat("[AssetManage]ContextAssetLoader Start load asset {0}.", path);
                 //这里暂时使用匿名函数。
                 AssetLoader loader = AssetManager.Instance.LoadAsset(path, tag, type, autoReleaseBundle, completeHandle);
                 loader.onBeforeComplete += OnAssetBeforeComplete;
@@ -65,9 +63,7 @@ namespace YH.AssetManage.Extension
             }
             else
             {
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[ContextAssetLoader] Can't lad asset {0}.The context is disable", path);
-#endif
+                AMDebug.LogFormat("[ContextAssetLoader] Can't lad asset {0}.The context is disable", path);
             }
         }
         #endregion
@@ -83,9 +79,7 @@ namespace YH.AssetManage.Extension
         {
             if (m_Context != null && m_Context.enable)
             {
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[AssetManage]ContextAssetLoader Start load asset bundle {0}.", path);
-#endif
+                AMDebug.LogFormat("[AssetManage]ContextAssetLoader Start load asset bundle {0}.", path);
                 //这里暂时使用匿名函数。
                 AssetBundleLoader loader = AssetManager.Instance.LoadAssetBundle(path, tag, cacheLoadedAsset, completeHandle);
                 if (loader!=null)
@@ -97,9 +91,7 @@ namespace YH.AssetManage.Extension
             }
             else
             {
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[ContextAssetLoader] Can't load asset bundle {0}.The context is disable", path);
-#endif
+                AMDebug.LogFormat("[ContextAssetLoader] Can't load asset bundle {0}.The context is disable", path);
             }
         }
         #endregion
@@ -116,11 +108,9 @@ namespace YH.AssetManage.Extension
         {
             if (m_Context != null && m_Context.enable)
             {
-#if ASSETMANAGER_LOG_ON
-                Debug.Log("[AssetManage]ContextAssetLoader Start load assets.");
-#endif
+                AMDebug.Log("[AssetManage]ContextAssetLoader Start load assets.");
 
-                int needCount = assets.Count;
+				int needCount = assets.Count;
                 int loadCount = 0;
                 bool checkAll = false;
 
@@ -140,7 +130,7 @@ namespace YH.AssetManage.Extension
                             }
                             else
                             {
-                                Debug.LogErrorFormat("[AssetManage]LoadAssets can't load {0}", asset);
+                                AMDebug.LogErrorFormat("[AssetManage]LoadAssets can't load {0}", asset);
                             }
                             //all finished
                             --needCount;
@@ -174,9 +164,7 @@ namespace YH.AssetManage.Extension
             }
             else
             {
-#if ASSETMANAGER_LOG_ON
-                Debug.Log("[AssetManage]ContextAssetLoader Can't load assets .The context is disable");
-#endif
+                AMDebug.Log("[AssetManage]ContextAssetLoader Can't load assets .The context is disable");
             }
         }
 
@@ -185,9 +173,7 @@ namespace YH.AssetManage.Extension
         #region Event
         void OnAssetBeforeComplete(AssetLoader loader)
         {
-#if ASSETMANAGER_LOG_ON
-            Debug.Log("[AssetManage]ContextAssetLoader OnAssetBeforeComplete.");
-#endif
+            AMDebug.Log("[AssetManage]ContextAssetLoader OnAssetBeforeComplete.");
             //check enable
             if (m_Context != null && !m_Context.enable)
             {
@@ -203,9 +189,7 @@ namespace YH.AssetManage.Extension
 
         void OnAssetBundleBeforeComplete(AssetBundleLoader loader)
         {
-#if ASSETMANAGER_LOG_ON
-            Debug.Log("[AssetManage]ContextAssetLoader OnAssetBundleBeforeComplete.");
-#endif
+            AMDebug.Log("[AssetManage]ContextAssetLoader OnAssetBundleBeforeComplete.");
             //check enable
             if (m_Context != null && !m_Context.enable)
             {
@@ -221,9 +205,7 @@ namespace YH.AssetManage.Extension
 
         void OnContextDisable()
         {
-#if ASSETMANAGER_LOG_ON
-            Debug.Log("[AssetManage]ContextAssetLoader OnContextDisable.");
-#endif
+            AMDebug.Log("[AssetManage]ContextAssetLoader OnContextDisable.");
             if (s_CacheContextAssetLoaders.ContainsKey(m_Context))
             {
                 s_CacheContextAssetLoaders.Remove(m_Context);
@@ -238,9 +220,7 @@ namespace YH.AssetManage.Extension
 
         public void Clean()
         {
-#if ASSETMANAGER_LOG_ON
-            Debug.Log("[AssetManage]ContextAssetLoader Clean.");
-#endif
+            AMDebug.Log("[AssetManage]ContextAssetLoader Clean.");
             if (m_Context != null)
             {
                 m_Context.onDisable -= OnContextDisable;
@@ -252,9 +232,7 @@ namespace YH.AssetManage.Extension
 
         public void ClearLoaders()
         {
-#if ASSETMANAGER_LOG_ON
-            Debug.Log("[AssetManage]ContextAssetLoader ClearLoaders.");
-#endif
+            AMDebug.Log("[AssetManage]ContextAssetLoader ClearLoaders.");
             if (m_AssetLoaders != null && m_AssetLoaders.Count > 0)
             {
                 foreach (var loader in m_AssetLoaders)

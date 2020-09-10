@@ -25,9 +25,7 @@ namespace YH.AssetManage.Extension
             }
             set
             {
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[AssetManage]Context Set enable={0}.",value);
-#endif
+                AMDebug.LogFormat("[AssetManage]Context Set enable={0}.",value);
                 if (m_Enable != value)
                 {
                     m_Enable = value;

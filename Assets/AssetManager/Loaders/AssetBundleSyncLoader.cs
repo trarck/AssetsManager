@@ -36,13 +36,13 @@ namespace YH.AssetManage
                     }
                     else
                     {
-                        Debug.LogError("[AssetManage]Load AssetBundle with no info");
+                        AMDebug.LogError("[AssetManage]Load AssetBundle with no info");
                         Error();
                     }
                 }
                 else
                 {
-                    Debug.LogError("[AssetManage]Load AssetBundle with no info");
+					AMDebug.LogError("[AssetManage]Load AssetBundle with no info");
                     Error();
                 }
             }
@@ -82,11 +82,8 @@ namespace YH.AssetManage
         void LoadBundle()
         {
             string assetPath = AssetPaths.GetFullPath(info.fullName);
-#if ASSETMANAGER_LOG_ON
-            Debug.Log("[AssetManage]LoadBundle " + assetPath + "," + Time.frameCount);
-#endif
+            AMDebug.LogFormat("[AssetManage]LoadBundle {0}" ,assetPath);
             LoadFromFileSync(assetPath);
-            
         }
 
         protected void LoadFromFileSync(string path)
@@ -98,9 +95,7 @@ namespace YH.AssetManage
             }
             else
             {
-#if ASSETMANAGER_LOG_ON
-                Debug.Log("[AssetManage]LoadBundle fail " + path + "," + Time.frameCount);
-#endif
+                AMDebug.LogFormat("[AssetManage]LoadBundle fail {0}", path);
                 Error();
             }
         }

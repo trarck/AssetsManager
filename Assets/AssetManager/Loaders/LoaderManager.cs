@@ -119,9 +119,7 @@ namespace YH.AssetManage
 
 			if (m_ReferenceManager.TryGetAsset(path, out ar))
 			{
-#if ASSETMANAGER_LOG_ON
-                Debug.Log("[AssetManage]LoadAssetSync asset is loaded " + path + "," + Time.frameCount);
-#endif
+                AMDebug.LogFormat("[AssetManage]LoadAssetSync asset is loaded {0}", path);
 				//refresh
 				ar.AddTag(tag);
 
@@ -132,17 +130,13 @@ namespace YH.AssetManage
 			{
 				if (IsAssetLoading(path))
 				{
-#if ASSETMANAGER_LOG_ON
-                    Debug.Log("[AssetManage]LoadAssetSync async load staring " + path + "," + Time.frameCount);
-#endif
+                    AMDebug.LogFormat("[AssetManage]LoadAssetSync async load staring {0}", path);
 					//TODO Stop async loader
 					return null;
 				}
 				else
 				{
-#if ASSETMANAGER_LOG_ON
-                    Debug.Log("[AssetManage]LoadAssetSync create new loader " + path + "," + Time.frameCount);
-#endif
+                    AMDebug.LogFormat("[AssetManage]LoadAssetSync create new loader {0}", path);
 					loader = CreateAssetSyncLoader(path);
 				}
 
@@ -172,7 +166,7 @@ namespace YH.AssetManage
             //can't find asset info
             if (info == null)
             {
-                Debug.LogErrorFormat("[AssetManage]Can't find asset info {0}.Load from resource.", path);
+                AMDebug.LogErrorFormat("[AssetManage]Can't find asset info {0}.Load from resource.", path);
                 info = new AssetInfo();
                 info.fullName = path;
             }
@@ -235,9 +229,7 @@ namespace YH.AssetManage
 			AssetReference ar = null;
 			if (m_ReferenceManager.TryGetAsset(path, out ar))
 			{
-#if ASSETMANAGER_LOG_ON
-                Debug.Log("[AssetManage]CreateAssetAsyncLoader asset is loaded "+path+","+Time.frameCount);
-#endif
+                AMDebug.LogFormat("[AssetManage]CreateAssetAsyncLoader asset is loaded {0}",path);
 				//refresh tag
 				ar.AddTag(tag);
 
@@ -251,9 +243,7 @@ namespace YH.AssetManage
 			{
 				if (!m_AssetLoadings.TryGetValue(path, out loader))
 				{
-#if ASSETMANAGER_LOG_ON
-                    Debug.Log("[AssetManage]CreateAssetAsyncLoader create new loader " + path + "," + Time.frameCount);
-#endif
+					AMDebug.LogFormat("[AssetManage]CreateAssetAsyncLoader create new loader {0}", path);
 					loader = CreateAssetAsyncLoader(path);
 					m_AssetLoadings[path] = loader;
 
@@ -267,15 +257,13 @@ namespace YH.AssetManage
 				}
 				else
 				{
-#if ASSETMANAGER_LOG_ON
-                    Debug.Log("[AssetManage]CreateAssetAsyncLoader using loading loader " + path + "," + Time.frameCount);
-#endif
+                    AMDebug.LogFormat("[AssetManage]CreateAssetAsyncLoader using loading loader {0}", path);
 					//资源的名子是唯一的。所以类型也要唯一。
 					if (loader.type != type)
 					{
-						Debug.LogErrorFormat(
-							"[AssetManage]CreateAssetAsyncLoader asset {0} is loading.But loading type={1} different with current type={2} ,{3}"
-							, path, loader.type, type, +Time.frameCount);
+						AMDebug.LogErrorFormat(
+							"[AssetManage]CreateAssetAsyncLoader asset {0} is loading.But loading type={1} different with current type={2}"
+							, path, loader.type, type);
 					}
 				}
 
@@ -395,9 +383,7 @@ namespace YH.AssetManage
 
 			if (m_ReferenceManager.TryGetAssetBundle(path, out abr))
 			{
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[AssetManage]LoadAssetBundleSync bundle is loaded {0},{1}", path, Time.frameCount);
-#endif
+                AMDebug.LogFormat("[AssetManage]LoadAssetBundleSync bundle is loaded {0}", path);
 				//refresh 
 				abr.AddTag(tag);
 
@@ -410,15 +396,13 @@ namespace YH.AssetManage
 			{
 				if (IsAssetBundleLoading(path))
 				{
-					Debug.LogErrorFormat("[AssetManage]LoadAssetBundleSync async loader is active {0},{1}", path, Time.frameCount);
+					AMDebug.LogErrorFormat("[AssetManage]LoadAssetBundleSync async loader is active {0}", path);
 					//TODO Stop async
 					return null;
 				}
 				else
 				{
-#if ASSETMANAGER_LOG_ON
-                    Debug.LogFormat("[AssetManage]LoadAssetBundleSync create new loader {0},{1}", path, Time.frameCount);
-#endif
+                    AMDebug.LogFormat("[AssetManage]LoadAssetBundleSync create new loader {0}", path);
 					AssetBundleSyncLoader loader = CreateAssetBundleSyncLoader(path);
 					if (loader != null)
 					{
@@ -447,7 +431,7 @@ namespace YH.AssetManage
             info = infoManager.FindAssetBundleInfo(path);
             if (info == null)
             {
-                Debug.LogErrorFormat("[AssetManage]Can't find asset bundle info {0}", path);
+                AMDebug.LogErrorFormat("[AssetManage]Can't find asset bundle info {0}", path);
                 return null;
             }
             loader = LoaderPool.AssetBundleAsyncLoaderPool.Get();
@@ -478,7 +462,7 @@ namespace YH.AssetManage
             }
             else
             {
-                Debug.LogErrorFormat("[AssetManage]Can't find asset bundle info {0}", path);
+                AMDebug.LogErrorFormat("[AssetManage]Can't find asset bundle info {0}", path);
             }
 #endif
 
@@ -505,9 +489,7 @@ namespace YH.AssetManage
 			if (m_ReferenceManager.TryGetAssetBundle(path, out abr))
 			{
 				//asset bundle is loaded
-#if ASSETMANAGER_LOG_ON
-                Debug.Log("[AssetManage]LoadAssetBundle asset bundle is loaded " + path + "," + Time.frameCount);
-#endif
+                AMDebug.LogFormat("[AssetManage]LoadAssetBundle asset bundle is loaded {0}",  path );
 				//refresh tag
 				abr.AddTag(tag);
 
@@ -527,9 +509,7 @@ namespace YH.AssetManage
 			{
 				if (!m_AssetBundleLoadings.TryGetValue(path, out loader))
 				{
-#if ASSETMANAGER_LOG_ON
-                    Debug.Log("[AssetManage]LoadAssetBundle create new loader " + path + "," + Time.frameCount);
-#endif
+                    AMDebug.LogFormat("[AssetManage]LoadAssetBundle create new loader {0}" , path );
 					loader = CreateAssetBundleAsyncLoader(path);
 					if (loader != null)
 					{
@@ -545,9 +525,7 @@ namespace YH.AssetManage
 				}
 				else
 				{
-#if ASSETMANAGER_LOG_ON
-                    Debug.Log("[AssetManage]LoadAssetBundle using loading loader " + path + "," + Time.frameCount);
-#endif
+					AMDebug.LogFormat("[AssetManage]LoadAssetBundle using loading loader {0}" , path);
 				}
 
 				loader.AddParamTag(tag);

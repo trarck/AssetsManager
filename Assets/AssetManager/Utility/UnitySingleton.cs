@@ -17,9 +17,9 @@ namespace YH.AssetManage
                     m_Instance = FindObjectOfType(typeof(T)) as T;
                     if (m_Instance == null)
                     {
-                        Debug.Log("create instance");
+						//AMDebug.Log("create instance");
 
-                        GameObject singletonObj = new GameObject();
+						GameObject singletonObj = new GameObject();
 						singletonObj.name = "(singleton)" + typeof(T).ToString();
 						//方法一
 						DontDestroyOnLoad(singletonObj);
@@ -28,12 +28,12 @@ namespace YH.AssetManage
 						//DontSave标志表示不会在加载新场景删除，所以不用DontDestroyOnLoad
 						//singletonObj.hideFlags = HideFlags.HideAndDontSave;
 
-                        Debug.Log("add instance before");
-                        m_Instance = singletonObj.AddComponent<T>();
+						//AMDebug.Log("add instance before");
+						m_Instance = singletonObj.AddComponent<T>();
 
-                        Debug.Log("add instance after");
-                    }
-                }
+						//AMDebug.Log("add instance after");
+					}
+				}
                 return m_Instance;
             }
         }

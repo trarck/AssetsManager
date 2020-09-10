@@ -117,7 +117,7 @@ namespace YH.AssetManage
                 }
                 else
                 {
-                    Debug.LogError("[AssetManage]Load AssetBundle with no info");
+                    AMDebug.LogError("[AssetManage]Load AssetBundle with no info");
                     Error();
                 }
             }
@@ -175,9 +175,7 @@ namespace YH.AssetManage
             }
             else
             {
-#if ASSETMANAGER_LOG_ON
-            Debug.LogError("[AssetManage]LoadBundle: no request manager.");
-#endif
+				AMDebug.LogError("[AssetManage]LoadBundle: no request manager.");
             }
         }
 
@@ -188,9 +186,7 @@ namespace YH.AssetManage
             m_WaitDependencyCompleteCount = dependencies.Length;
             m_DependenciesHaveError = false;
 
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]Load Dependencies {0}---{1}" , dependencies.Length , Time.frameCount);
-#endif
+            AMDebug.LogFormat("[AssetManage]Load Dependencies {0}" , dependencies.Length);
             if (m_DependencyLoaders == null)
             {
                 m_DependencyLoaders = new List<AssetBundleAsyncLoader>();
@@ -240,9 +236,9 @@ namespace YH.AssetManage
 
         protected void OnDependencyLoaded(AssetBundleAsyncLoader loader)
         {
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]DependencyLoaded {0}=>{1}---{2}" , info!=null?info.fullName:"Null" , loader.info != null ? loader.info.fullName : "Null", Time.frameCount);
-#endif
+            AMDebug.LogFormat("[AssetManage]DependencyLoaded {0}=>{1}" , 
+				info!=null?info.fullName:"Null" , 
+				loader.info != null ? loader.info.fullName : "Null");
             if (--m_WaitDependencyLoadCount == 0)
             {
                 m_DependenciesIsLoaded = true;
@@ -251,9 +247,8 @@ namespace YH.AssetManage
 
         protected void OnBeforeDependencyComplete(AssetBundleLoader loader)
         {
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]OnBeforeDependencyComplete remove from loader {0}=>{1}---{2} ", info != null ? info.fullName : "Null", loader.info != null ? loader.info.fullName : "Null", Time.frameCount);
-#endif
+            AMDebug.LogFormat("[AssetManage]OnBeforeDependencyComplete remove from loader {0}=>{1}", 
+				info != null ? info.fullName : "Null", loader.info != null ? loader.info.fullName : "Null");
 
             //依赖项已经加载完成要从m_DependencyLoaders里移除。
             for (int i = 0, l = m_DependencyLoaders.Count; i < l; ++i)
@@ -271,13 +266,11 @@ namespace YH.AssetManage
             if (abr != null && !abr.IsEmpty())
             {
                 AddDependency(abr);
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[AssetManage]DependencyComplete {0}=>{1},{2}---{3} " , info.fullName , abr.name , m_WaitDependencyCompleteCount, Time.frameCount);
-#endif
+                AMDebug.LogFormat("[AssetManage]DependencyComplete {0}=>{1},{2} " , info.fullName , abr.name , m_WaitDependencyCompleteCount);
             }
             else
             {
-                Debug.LogError("[AssetManage]Download dependency error");
+                AMDebug.LogError("[AssetManage]Download dependency error");
                 m_DependenciesHaveError = true;
             }
 
@@ -299,9 +292,7 @@ namespace YH.AssetManage
                 m_Request = null;
             }
 
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]BundleRequestComplete {0}---{1}" , info.fullName ,Time.frameCount);
-#endif
+            AMDebug.LogFormat("[AssetManage]BundleRequestComplete {0}" , info.fullName);
             if (!request.haveError)
             {
                 state = State.Loaded;
@@ -320,7 +311,7 @@ namespace YH.AssetManage
             }
             else
             {
-                Debug.LogErrorFormat("[AssetManage]BundleRequest fail {0}---{1}" , info.fullName,Time.frameCount);
+                AMDebug.LogErrorFormat("[AssetManage]BundleRequest fail {0}" , info.fullName);
                 Error();
             }
         }

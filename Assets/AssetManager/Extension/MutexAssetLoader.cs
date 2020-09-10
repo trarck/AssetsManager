@@ -41,9 +41,7 @@ namespace YH.AssetManage.Extension
         {
             if (m_State == State.Loading)
             {
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[AssetManage]LoadAsset State is loading.Remove last load new {0}", path);
-#endif
+                AMDebug.LogFormat("[AssetManage]LoadAsset State is loading.Remove last load new {0}", path);
                 //取消上个资源的回调
                 m_InternalLoader.onComplete -= OnAssetLoadComplete;
                 //加载新的资源
@@ -51,9 +49,7 @@ namespace YH.AssetManage.Extension
             }
             else 
             {
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[AssetManage]LoadAsset {0}", path);
-#endif
+                AMDebug.LogFormat("[AssetManage]LoadAsset {0}", path);
                 m_State = State.Loading;
                 m_InternalLoader = AssetManager.Instance.LoadAsset(path, tag, type, autoReleaseBundle, OnAssetLoadComplete);
             }

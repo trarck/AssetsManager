@@ -24,17 +24,13 @@ namespace YH.AssetManage
         public virtual void Retain()
         {
             ++m_RefCount;
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]({0}).Retain refCount={1},name={2},{3}" ,this,m_RefCount,name, Time.frameCount);
-#endif
+            AMDebug.LogFormat("[AssetManage]({0}).Retain refCount={1},name={2}" ,this,m_RefCount,name);
         }
 
         public virtual void Release()
         {
             --m_RefCount;
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]({0}).Release refCount={1},name={2},{3}", this, m_RefCount, name, Time.frameCount);
-#endif
+            AMDebug.LogFormat("[AssetManage]({0}).Release refCount={1},name={2}", this, m_RefCount, name);
             //check sub overflow
             if (m_RefCount < 0)
             {
@@ -46,9 +42,7 @@ namespace YH.AssetManage
 
         public virtual void Retain(Object owner)
         {
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]({0}).Retain refCount={1},name={2},owner={3},{4}", this, m_RefCount, name, owner, Time.frameCount);
-#endif
+            AMDebug.LogFormat("[AssetManage]({0}).Retain refCount={1},name={2},owner={3}", this, m_RefCount, name, owner);
             if (owner == null)
             {
                 throw new Exception("AssetBundleReference Retain a null Object");
@@ -67,9 +61,7 @@ namespace YH.AssetManage
 
         public virtual void Release(Object owner)
         {
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]({0}).Release refCount={1},name={2},owner={3},{4}", this, m_RefCount, name, owner, Time.frameCount);
-#endif
+            AMDebug.LogFormat("[AssetManage]({0}).Release refCount={1},name={2},owner={3}", this, m_RefCount, name, owner);
             for (int i = 0, l = m_Owners.Count; i < l; ++i)
             {
                 if (owner.Equals(m_Owners[i].Target))

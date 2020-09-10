@@ -77,8 +77,8 @@ namespace YH.AssetManage
             }
             else
             {
-                Error();
-                Debug.LogError("[AssetManage]Load Asset with no info");
+				AMDebug.LogError("[AssetManage]Load Asset with no info");
+				Error();
             }
         }
 
@@ -100,7 +100,7 @@ namespace YH.AssetManage
             }
             else
             {
-                Debug.LogError("[AssetManage]Load Asset with no info");
+				AMDebug.LogError("[AssetManage]Load Asset with no info");
                 Error();
             }
         }
@@ -110,7 +110,7 @@ namespace YH.AssetManage
             state = State.Error;
             if (info != null)
             {
-                Debug.LogErrorFormat("[AssetManage]Load asset {0} fail", info.fullName);
+				AMDebug.LogErrorFormat("[AssetManage]Load asset {0} fail", info.fullName);
             }
         }
 

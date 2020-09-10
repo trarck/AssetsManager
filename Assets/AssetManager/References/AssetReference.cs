@@ -41,9 +41,7 @@ namespace YH.AssetManage
 
                 if (m_AssetBundleReference != null)
                 {
-#if ASSETMANAGER_LOG_ON
-                    Debug.LogFormat("[AssetManage]AssetReference:Release {0},{1}",name, m_AssetBundleReference!=null? m_AssetBundleReference.name:"Null");
-#endif
+                    AMDebug.LogFormat("[AssetManage]AssetReference:Release {0},{1}",name, m_AssetBundleReference!=null? m_AssetBundleReference.name:"Null");
                     m_AssetBundleReference.Release();
                 }
                 m_AssetBundleReference = value;
@@ -106,9 +104,7 @@ namespace YH.AssetManage
                 return;
             }
 
-#if ASSETMANAGER_LOG_ON
-            Debug.Log("[AssetManage]Asset dispose " + name + "," + Time.frameCount);
-#endif
+            AMDebug.LogFormat("[AssetManage]Asset dispose {0}", name);
 
             base.Dispose(disposing, forceRemoveAll);
 
@@ -145,13 +141,13 @@ namespace YH.AssetManage
             base.Reset();
         }
 
-        //public override void Retain()
-        //{
-        //    Debug.LogFormat("{0} Retain", asset);
-        //    base.Retain();
-        //}
+		//public override void Retain()
+		//{
+		//    AMDebug.LogFormat("{0} Retain", asset);
+		//    base.Retain();
+		//}
 
-        public override bool IsEmpty()
+		public override bool IsEmpty()
         {
             return asset == null;
         }

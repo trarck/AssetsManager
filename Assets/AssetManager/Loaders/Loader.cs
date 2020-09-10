@@ -104,17 +104,13 @@ namespace YH.AssetManage
 		public virtual void Retain()
 		{
 			++m_RefCount;
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]({0}#{1}).Retain refCount={2}---{3}", this,GetHashCode(), m_RefCount, Time.frameCount);
-#endif
+            AMDebug.LogFormat("[AssetManage]({0}#{1}).Retain refCount={2}", this,GetHashCode(), m_RefCount);
 		}
 
 		public virtual void Release()
 		{
 			--m_RefCount;
-#if ASSETMANAGER_LOG_ON
-            Debug.LogFormat("[AssetManage]({0}#{1}).Release refCount={2}---{3}", this, GetHashCode(), m_RefCount, Time.frameCount);
-#endif
+            AMDebug.LogFormat("[AssetManage]({0}#{1}).Release refCount={2}", this, GetHashCode(), m_RefCount);
 		}
 
 		/// <summary>

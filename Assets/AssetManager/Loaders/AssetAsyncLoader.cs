@@ -113,9 +113,7 @@ namespace YH.AssetManage
 #else
                 string assetName = AssetPaths.AddAssetPrev(info.fullName);
 #endif
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[AssetManage]Load asset {0}", assetName);
-#endif
+                AMDebug.LogFormat("[AssetManage]Load asset {0}", assetName);
 
                 m_Request = loaderManager.requestManager.CreateAssetRequest(assetBundleReference.assetBundle, assetName, type);
                 m_Request.onComplete += OnRequestComplete;
@@ -123,7 +121,7 @@ namespace YH.AssetManage
             }
             else
             {
-                Debug.LogError("[AssetManage]Load Asset with no info");
+                AMDebug.LogError("[AssetManage]Load Asset with no info");
                 Error();
             }
         }
@@ -141,7 +139,7 @@ namespace YH.AssetManage
             else
             {
                 Error();
-                Debug.LogError("[AssetManage]Load Asset with no info");
+                AMDebug.LogError("[AssetManage]Load Asset with no info");
             }
         }
 

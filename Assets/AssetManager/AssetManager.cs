@@ -147,77 +147,6 @@ namespace YH.AssetManage
 
 		#region load asset bundle
 
-		/// <summary>
-		/// 创建一个AssetBundle加载器
-		/// </summary>
-		/// <param name="path"></param>
-		/// <param name="tag"></param>
-		/// <param name="cache"></param>
-		/// <returns></returns>
-//		public AssetBundleAsyncLoader CreateAssetBundleAsyncLoader(string path, int tag, bool cache)
-//		{
-//			AssetBundleAsyncLoader loader = null;
-
-//			if (string.IsNullOrEmpty(path))
-//			{
-//				return loader;
-//			}
-
-//			AssetBundleReference abr = null;
-//			if (m_ReferenceManager.TryGetAssetBundle(path, out abr))
-//			{
-//				//asset bundle is loaded
-//#if ASSETMANAGER_LOG_ON
-//                Debug.Log("[AssetManage]LoadAssetBundle asset bundle is loaded " + path + "," + Time.frameCount);
-//#endif
-//				//refresh tag
-//				abr.AddTag(tag);
-
-//				//cache abr
-//				if (cache)
-//				{
-//					abr.Cache();
-//				}
-
-//				//create call back loader
-//				loader = m_LoaderManager.CreateAssetBundleExistLoader(path);
-//				loader.result = abr;
-
-//				loader.onAfterComplete += OnAssetBundleAfterLoaded;
-//			}
-//			else
-//			{
-//				if (!m_AssetBundleLoadings.TryGetValue(path,out loader))
-//				{
-//#if ASSETMANAGER_LOG_ON
-//                    Debug.Log("[AssetManage]LoadAssetBundle create new loader " + path + "," + Time.frameCount);
-//#endif
-//					loader = m_LoaderManager.CreateAssetBundleAsyncLoader(path);
-//					if (loader != null)
-//					{
-//						m_AssetBundleLoadings[path] = loader;
-//					}
-//					else
-//					{
-//						return null;
-//					}
-
-//					//对加载前后做特殊处理。只要处理一次。
-//					loader.Init(OnAssetBundleBeforeLoaded, OnAssetBundleAfterLoaded);
-//				}
-//				else
-//				{
-//#if ASSETMANAGER_LOG_ON
-//                    Debug.Log("[AssetManage]LoadAssetBundle using loading loader " + path + "," + Time.frameCount);
-//#endif
-//				}
-
-//				loader.AddParamTag(tag);
-
-//				loader.SetCacheResult(cache);
-//			}
-//			return loader;
-//		}
 
 		/// <summary>
 		/// 异步加载AssetBundle
@@ -276,73 +205,6 @@ namespace YH.AssetManage
 
 		#region load asset
 
-//		public AssetAsyncLoader CreateAssetAsyncLoader(string path, int tag, Type type, bool autoReleaseBundle = true)
-//		{
-//			AssetAsyncLoader loader = null;
-//			if (!string.IsNullOrEmpty(path))
-//			{
-//				path = AssetPaths.AddAssetPrev(path);
-//			}
-//			else
-//			{
-//				return loader;
-//			}
-
-//			AssetReference ar = null;
-//			if (m_ReferenceManager.TryGetAsset(path,out ar))
-//			{
-//#if ASSETMANAGER_LOG_ON
-//                Debug.Log("[AssetManage]CreateAssetAsyncLoader asset is loaded "+path+","+Time.frameCount);
-//#endif
-//				//refresh tag
-//				ar.AddTag(tag);
-
-//				loader = m_LoaderManager.CreateAssetExistLoader(path);
-//				loader.result = ar;
-//				loader.autoReleaseBundle = autoReleaseBundle;
-//				//加载完成后由AssetManager释放loader
-//				loader.onAfterComplete += OnAssetAfterLoaded;
-//			}
-//			else
-//			{
-//				if (!m_AssetLoadings.TryGetValue(path,out loader))
-//				{
-//#if ASSETMANAGER_LOG_ON
-//                    Debug.Log("[AssetManage]CreateAssetAsyncLoader create new loader " + path + "," + Time.frameCount);
-//#endif
-//					loader = m_LoaderManager.CreateAssetAsyncLoader(path);
-//					m_AssetLoadings[path] = loader;
-
-//					//对加载前后做特殊处理。只要处理一次。
-//					loader.Init(OnAssetBeforeLoaded, OnAssetAfterLoaded);
-
-//					if (type != null)
-//					{
-//						loader.type = type;
-//					}
-//				}
-//				else
-//				{
-//#if ASSETMANAGER_LOG_ON
-//                    Debug.Log("[AssetManage]CreateAssetAsyncLoader using loading loader " + path + "," + Time.frameCount);
-//#endif
-//					//资源的名子是唯一的。所以类型也要唯一。
-//					if (loader.type != type)
-//					{
-//						Debug.LogErrorFormat(
-//							"[AssetManage]CreateAssetAsyncLoader asset {0} is loading.But loading type={1} different with current type={2} ,{3}"
-//							, path, loader.type, type, +Time.frameCount);
-//					}
-//				}
-
-//				loader.AddParamTag(tag);
-
-//				loader.autoReleaseBundle = autoReleaseBundle;	  
-//			}
-
-//			return loader;
-//		}
-
 		public AssetLoader LoadAsset(string path, Action<AssetReference> completeHandle=null, bool autoReleaseBundle = true)
         {
             return LoadAsset(path, 0,null, autoReleaseBundle, completeHandle);
@@ -389,7 +251,7 @@ namespace YH.AssetManage
 			}
 			else
 			{
-				Debug.LogErrorFormat("[AssetManage]LoadAsset no alias {0} find ", alias);
+				AMDebug.LogErrorFormat("[AssetManage]LoadAsset no alias {0} find ", alias);
 			}
 			return null;
 		}
@@ -436,7 +298,7 @@ namespace YH.AssetManage
                         }
                         else
                         {
-                            Debug.LogErrorFormat("[AssetManage]LoadAssets can't load {0}", asset);
+                            AMDebug.LogErrorFormat("[AssetManage]LoadAssets can't load {0}", asset);
                         }
 
                         --needCount;

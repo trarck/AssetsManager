@@ -94,7 +94,7 @@ namespace YH.AssetManage
             }
             catch(Exception e)
             {
-                Debug.LogError(e);
+				AMDebug.LogError(e);
             }
 
             CheckAndStartRequests();
@@ -192,9 +192,7 @@ namespace YH.AssetManage
 			{
 				//no cache
 				string assetPath = AssetPaths.GetFullPath(assetBundleInfo.fullName);
-#if ASSETMANAGER_LOG_ON
-                Debug.LogFormat("[AssetManage]LoadBundle {0}---{1}", assetPath, Time.frameCount);
-#endif
+                AMDebug.LogFormat("[AssetManage]LoadBundle {0}", assetPath);
 				if (assetPath.Contains("://"))
 				{
 					return CreateBundleWebRequest(assetPath);
