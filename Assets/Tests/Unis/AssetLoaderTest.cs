@@ -225,5 +225,32 @@ namespace Tests
 			Assert.AreEqual(result1, null);
 			Debug.unityLogger.filterLogType = LogType.Log;
 		}
+
+
+		[UnityTest]
+		public IEnumerator TestYeildLoadAsset()
+		{
+			AssetLoaderEnumerator assetLoaderEnumerator = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
+			yield return assetLoaderEnumerator;
+			AssetReference result = assetLoaderEnumerator.assetReference;
+			Assert.AreNotEqual(result, null);
+			assetLoaderEnumerator.Dispose();
+		}
+
+		[UnityTest]
+		public IEnumerator TestYeildLoadSameAsset()
+		{
+			AssetLoaderEnumerator assetLoaderEnumerator = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
+			yield return assetLoaderEnumerator;
+			AssetReference result = assetLoaderEnumerator.assetReference;
+			Assert.AreNotEqual(result, null);
+			assetLoaderEnumerator.Dispose();
+
+			assetLoaderEnumerator = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
+			yield return assetLoaderEnumerator;
+			result = assetLoaderEnumerator.assetReference;
+			Assert.AreNotEqual(result, null);
+			assetLoaderEnumerator.Dispose();
+		}
 	}
 }
