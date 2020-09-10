@@ -7,8 +7,8 @@ using YH.AssetManage;
 
 namespace Tests
 {
-    public class TestAssetManager
-    {
+    public class AssetManagerTest
+	{
         AssetManager m_AssetManager;
 
         [OneTimeSetUp]
@@ -37,7 +37,7 @@ namespace Tests
         {
             Debug.Log("TearDown");
 
-            //m_AssetManager.UnloadUnuseds();
+            m_AssetManager.UnloadUnuseds();
         }
 
         #region Asset

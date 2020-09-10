@@ -54,7 +54,7 @@ namespace Tests
 
 
 		[UnityTest]
-		public IEnumerator TestAssetBundleMiss()
+		public IEnumerator TestLoadAsset()
 		{
 			int loadCount = 1;
 			AssetReference ar = null;
@@ -68,6 +68,16 @@ namespace Tests
 				yield return null;
 			}
 			Assert.AreEqual(ar, null);
+		}
+
+		[UnityTest]
+		public IEnumerator TestYeildLoadAsset()
+		{
+			AssetLoaderEnumerator assetLoaderEnumerator = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
+			yield return assetLoaderEnumerator;
+			AssetReference result = assetLoaderEnumerator.assetReference;
+			Assert.AreEqual(result, null);
+			assetLoaderEnumerator.Dispose();
 		}
 	}
 }
