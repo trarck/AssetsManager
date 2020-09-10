@@ -201,5 +201,29 @@ namespace Tests
 			AssetReference ar = m_AssetManager.LoadAssetSync("ArtResources/Prefabs/MyPrefab.prefab");
 			Assert.AreNotEqual(ar, null);
 		}
+
+		[UnityTest]
+		public IEnumerator TestNotExists()
+		{
+			//要关闭错误日志，否则携程会中断。
+			Debug.unityLogger.filterLogType = LogType.Exception;
+			AssetReference result1 = null;
+
+			int loadCount = 1;
+
+			m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefabXXX.prefab", (ar) =>
+			{
+				result1 = ar;
+				--loadCount;
+			});
+
+			while (loadCount > 0)
+			{
+				yield return null;
+			}
+
+			Assert.AreEqual(result1, null);
+			Debug.unityLogger.filterLogType = LogType.Log;
+		}
 	}
 }
