@@ -15,8 +15,6 @@ namespace Tests
         public void OneTimeSetUp()
         {
             Debug.Log("OneTimeSetUp");
-			GameObject obj = new GameObject();
-			obj.name = "in OneTimeSetUp";
 			m_AssetManager = AssetManager.Instance;
             m_AssetManager.Init();
         }
@@ -31,8 +29,6 @@ namespace Tests
         [SetUp]
         public void SetUp()
         {
-			GameObject obj = new GameObject();
-			obj.name = "in setup";
             Debug.Log("Setup");
         }
 
@@ -100,10 +96,12 @@ namespace Tests
             assetLoaderEnumerator.Dispose();
         }
 
-        #endregion
 
-        #region AssetBundle
-        [Test]
+
+		#endregion
+
+		#region AssetBundle
+		[Test]
         public void TestLoadAssetBundleSync()
         {
             AssetBundleReference result = m_AssetManager.LoadAssetBundleSync("prefabs/myprefab", false);

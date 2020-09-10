@@ -112,10 +112,12 @@ namespace YH.AssetManage
 		public override void Error()
 		{
 			base.Error();
+			#if ASSETMANAGER_LOG_ON
 			if (info != null)
 			{
-				Debug.LogErrorFormat("[AssetManage]Load asset {0} fail", info.fullName);
+				Debug.LogErrorFormat("[AssetManage]Load asset {0} fail ---{1}", info.fullName, Time.frameCount);
 			}
+			#endif
 			DoLoadComplete();
 		}
 

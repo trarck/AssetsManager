@@ -320,7 +320,7 @@ namespace YH.AssetManage
             }
             else
             {
-                Debug.LogError("[AssetManage]BundleRequest fail " + info.fullName);
+                Debug.LogErrorFormat("[AssetManage]BundleRequest fail {0}---{1}" , info.fullName,Time.frameCount);
                 Error();
             }
         }

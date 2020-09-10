@@ -22,11 +22,11 @@ namespace YH.AssetManage
                         GameObject singletonObj = new GameObject();
 						singletonObj.name = "(singleton)" + typeof(T).ToString();
 						//方法一
-						//DontDestroyOnLoad(singletonObj);
+						DontDestroyOnLoad(singletonObj);
 
 						//方法二
 						//DontSave标志表示不会在加载新场景删除，所以不用DontDestroyOnLoad
-						singletonObj.hideFlags = HideFlags.HideAndDontSave;
+						//singletonObj.hideFlags = HideFlags.HideAndDontSave;
 
                         Debug.Log("add instance before");
                         m_Instance = singletonObj.AddComponent<T>();

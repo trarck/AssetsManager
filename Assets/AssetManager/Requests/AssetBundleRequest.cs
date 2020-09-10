@@ -285,7 +285,9 @@ namespace YH.AssetManage
 				}
 				else
 				{
+					#if ASSETMANAGER_LOG_ON
 					Debug.LogFormat("[AssetManage]BundleWebSaveRequest Download fail {0},{1}", m_Www.error, Time.frameCount);
+					#endif
 				}
 			}
         }
