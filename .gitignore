@@ -37,3 +37,5 @@ Thumbs.db
 /apk
 /Packages
 /Logs/Packages-Update.log
+/Assets/ArtResources/Tests/
+/.vsconfig
