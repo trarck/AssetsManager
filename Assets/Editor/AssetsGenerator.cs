@@ -36,6 +36,8 @@ public class GenerateAssetConfig
     public string baseFolder;
     public string outFolder;
     public int generateCount;
+    public bool foreceRegenerate = false;
+
     public string fileFilter = "*";
 
     public bool useSubFolder = true;
@@ -91,6 +93,11 @@ public class AssetGenerator
             m_Items.Clear();
         }
 
+        if (!config.foreceRegenerate)
+        {
+            LoadItems();
+        }
+
         AssetDatabase.StartAssetEditing();
     }
 
@@ -114,8 +121,9 @@ public class AssetGenerator
 
         string folderName = "";
         int folderFileCount = 0;
+        int needGenerateCount = config.foreceRegenerate ? config.generateCount : (config.generateCount - m_Items.Count);
 
-        for (int i = 0; i < config.generateCount; ++i)
+        for (int i = 0; i < needGenerateCount; ++i)
         {
             string sourceFile = origFiles[i % originCount];
             string ext = Path.GetExtension(sourceFile);
@@ -159,7 +167,7 @@ public class AssetGenerator
         {
             m_Items.Clear();
         }
-        string[] generateFiles = Directory.GetFiles(config.baseFolder, config.fileFilter, SearchOption.AllDirectories);
+        string[] generateFiles = Directory.GetFiles(config.outFolder, config.fileFilter, SearchOption.AllDirectories);
         m_Items.AddRange(generateFiles);
     }
 
