@@ -105,3 +105,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Ref: {fileID: 1440521611927896, guid: 16baa621eb2b12b4d8bff92817259223, type: 3}
+  m_Test: TestA
