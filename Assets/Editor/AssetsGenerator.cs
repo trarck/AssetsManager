@@ -167,8 +167,11 @@ public class AssetGenerator
         {
             m_Items.Clear();
         }
-        string[] generateFiles = Directory.GetFiles(config.outFolder, config.fileFilter, SearchOption.AllDirectories);
-        m_Items.AddRange(generateFiles);
+        if (Directory.Exists(config.outFolder))
+        {
+            string[] generateFiles = Directory.GetFiles(config.outFolder, config.fileFilter, SearchOption.AllDirectories);
+            m_Items.AddRange(generateFiles);
+        }
     }
 
     protected string GetFolderRandomString()
