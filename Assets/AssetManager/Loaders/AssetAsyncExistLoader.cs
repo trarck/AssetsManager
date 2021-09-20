@@ -1,11 +1,4 @@
-﻿#if UNITY_EDITOR
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
-
-namespace YH.AssetManage
+﻿namespace YH.AssetManage
 {
     public class AssetAsyncExistLoader : AssetAsyncLoader
 	{
@@ -24,4 +17,3 @@ namespace YH.AssetManage
 
     }
 }
-#endif

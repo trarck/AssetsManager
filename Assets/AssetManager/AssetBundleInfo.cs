@@ -77,7 +77,7 @@ namespace YH.AssetManage
             for(int i=0,l=assets.Count;i<l;++i)
             {
                 writer.Write(assets[i].fullName);
-                writer.Write(assets[i].aliasName);
+                writer.Write(assets[i].aliasName==null?"": assets[i].aliasName);
             }
 
             writer.Write(dependencies.Length);
