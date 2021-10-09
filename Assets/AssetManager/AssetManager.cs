@@ -15,12 +15,12 @@ namespace YH.AssetManage
 
         bool m_Inited = false;
 
-#if UNITY_EDITOR
-		void Awake()
-        {
-            Init(AssetPaths.bundleManifestFile);
-        }
-#endif
+//#if UNITY_EDITOR
+//		void Awake()
+//        {
+//            Init(AssetPaths.bundleManifestFile);
+//        }
+//#endif
 
 		public void Init(string allManifestFile=null,Action<bool> callback=null)
         {

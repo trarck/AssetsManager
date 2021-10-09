@@ -4,6 +4,7 @@
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Color("Color",Color) =(1,1,1,1)
+        _TestProp("Test Propt", Int) = 2
     }
     SubShader
     {
@@ -36,6 +37,7 @@
             sampler2D _MainTex;
             float4 _MainTex_ST;
             fixed4 _Color;
+            fixed _TestProp;
 
             v2f vert (appdata v)
             {
@@ -50,7 +52,17 @@
             {
                 // sample the texture
                 fixed4 col = tex2D(_MainTex, i.uv)*_Color;
-                
+                if (_TestProp == 1) {
+                    col.rgb = fixed3(1, 0, 0);
+                }
+                else if (_TestProp == 2) 
+                {
+                    col.rgb = fixed3(0, 1, 0);
+                }
+                else 
+                {
+                    col.rgb = fixed3(0, 0, 1);
+                }
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;

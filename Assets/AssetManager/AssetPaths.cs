@@ -14,7 +14,7 @@ namespace YH.AssetManage
 
         public static string bundlesPath="AssetBundles";
 
-        public static string bundleManifestFile = "all.manifest";
+        public static string bundleManifestFile = "all.manifest.json";
 
         public static string bundlesEditorBuildOutPath = "AssetBundles";
 
