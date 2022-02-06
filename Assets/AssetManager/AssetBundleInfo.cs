@@ -91,12 +91,14 @@ namespace YH.AssetManage
     [System.Serializable]
     public class BundleManifest
     {
+        public int magicHead = 0x494d4241;
         public int format = 1;
         public string version = "1";   
         public List<AssetBundleInfo> bundleInfos;
 
         public void Read(BinaryReader reader)
         {
+            int magicHead = reader.ReadInt32();
             format = reader.ReadInt32();
             version = reader.ReadString();
             int bundleCount = reader.ReadInt32();
@@ -110,6 +112,7 @@ namespace YH.AssetManage
         }
         public void Write(BinaryWriter writer)
         {
+            writer.Write(magicHead);
             writer.Write(format);
             writer.Write(version);
             writer.Write(bundleInfos.Count);

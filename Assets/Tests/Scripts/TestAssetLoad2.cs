@@ -64,20 +64,21 @@ public class TestOperation : IEnumerator,System.IDisposable
     #endregion
 }
 
-public class TestAssetLoad : MonoBehaviour
+public class TestAssetLoad2 : MonoBehaviour
 {
-    [SerializeField]
     AssetManager m_AssetManager;
 
     Object m_Obj;
     // Use this for initialization
     void Start()
     {
-        YH.AssetsMonitor.Instance.CheckAssets();
+        Debug.Log("Start");
+        //YH.AssetsMonitor.Instance.CheckAssets();
+        m_AssetManager = AssetManager.Instance;
 
-        m_AssetManager.Init(null,(r) =>
+        m_AssetManager.Init("all.manifest.json", (r) =>
         {
-            StartCoroutine(Testloop2());
+            StartCoroutine(Testloop());
         });
     }
 
@@ -226,7 +227,7 @@ public class TestAssetLoad : MonoBehaviour
 
     IEnumerator Testloop()
     {
-        AssetLoaderEnumerator loader = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/CircelRefs/APreab.prefab");
+        AssetLoaderEnumerator loader = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/TestMatProp.prefab");
         yield return loader;
         AssetReference ar = loader.assetReference;
         Debug.Log(ar + "," + Time.frameCount);

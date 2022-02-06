@@ -22,6 +22,7 @@ public class Init : MonoBehaviour {
 
     void GotoMain()
     {
+        StartCoroutine(Testloop());
         //AssetManager.Instance.LoadAsset("Scenes/Main.unity", (ar) =>
         //{
         //    Debug.Log("LoadCompete");
@@ -29,10 +30,24 @@ public class Init : MonoBehaviour {
         //    SceneManager.LoadScene("Scenes/Main");
         //});
 
-        AssetManager.Instance.LoadScene("Scenes/Main.unity",AssetTag.Main, (abr) =>
-        {
-            Debug.Log("LoadCompete");
-            SceneManager.LoadScene("Scenes/Main");
-        });
+        //AssetManager.Instance.LoadScene("Scenes/Main.unity",AssetTag.Main, (abr) =>
+        //{
+        //    Debug.Log("LoadCompete");
+        //    SceneManager.LoadScene("Scenes/Main");
+        //});
     }
+
+    IEnumerator Testloop()
+    {
+        AssetLoaderEnumerator loader = AssetManager.Instance.YieldLoadAsset("ArtResources/Prefabs/TestMatProp.prefab");
+        yield return loader;
+        AssetReference ar = loader.assetReference;
+        Debug.Log(ar + "," + Time.frameCount);
+        if (ar != null)
+        {
+            GameObject.Instantiate(ar.asset);
+        }
+        loader.Dispose();
+    }
+
 }
