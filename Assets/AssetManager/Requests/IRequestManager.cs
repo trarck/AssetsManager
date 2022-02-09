@@ -9,6 +9,7 @@ namespace YH.AssetManage
 {
     public interface IRequestManager
     {
+        int MaxActiveRequest { get; set; }
         void Init();
         void Update(float deltaTime);
         void Clean();

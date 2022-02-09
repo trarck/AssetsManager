@@ -26,16 +26,16 @@ namespace YH.AssetManage
         {
             if (m_Inited)
             {
-                if (m_InfoManager.inited)
+                if (m_InfoManager.loading)
+                {
+                    m_InfoManager.onLoadComplete += callback;
+                }
+                else
                 {
                     if (callback != null)
                     {
                         callback(true);
                     }
-                }
-                else
-                {
-                    m_InfoManager.onInitComplete += callback;
                 }
                 return;
             }
@@ -66,7 +66,7 @@ namespace YH.AssetManage
 			//加载info文件
 			if (callback != null)
 			{
-				m_InfoManager.onInitComplete += callback;
+				m_InfoManager.onLoadComplete += callback;
 			}
 
 			if (string.IsNullOrEmpty(allManifestFile))
@@ -127,7 +127,7 @@ namespace YH.AssetManage
 			}
         }
 
-		void Update()
+		public void Update()
 		{
 			if (m_RequestManager != null)
 			{

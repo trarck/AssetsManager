@@ -8,10 +8,12 @@ namespace YH.AssetManage
 {
     public interface IInfoManager
     {
-        bool inited { get; }
+        bool loading { get; }
         string version { get; }
         int format { get; }
-        event Action<bool> onInitComplete;
+        event Action<bool> onLoadComplete;
+        Dictionary<string, AssetBundleInfo> AssetBundleInfos { get; }
+        Dictionary<string, AssetInfo> AssetInfos { get; }
 
         void Init();
 		void Clean();

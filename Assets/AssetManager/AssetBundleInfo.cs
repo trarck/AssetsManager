@@ -103,11 +103,13 @@ namespace YH.AssetManage
             version = reader.ReadString();
             int bundleCount = reader.ReadInt32();
 
+            bundleInfos =new  List<AssetBundleInfo>(bundleCount);
             AssetBundleInfo bundleInfo = null;
             for (uint i = 0; i < bundleCount; ++i)
             {
                 bundleInfo = new AssetBundleInfo();
                 bundleInfo.Read(reader);
+                bundleInfos.Add(bundleInfo);
             }
         }
         public void Write(BinaryWriter writer)

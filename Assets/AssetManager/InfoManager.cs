@@ -16,10 +16,26 @@ namespace YH.AssetManage
         MonoBehaviour m_CoroutineExecuter;
 		Coroutine m_LoadPackageFileCoroutine;
 
-        bool m_Inited = false;
+        bool m_Loading = false;
         int m_RetryTimes=AMSetting.RequestRetryTimes;
 
-        public event Action<bool> onInitComplete;
+        public event Action<bool> onLoadComplete;
+
+        public Dictionary<string,AssetBundleInfo> AssetBundleInfos
+        {
+            get
+            {
+                return m_AssetBundleInfos;
+            }
+        }
+
+        public Dictionary<string,AssetInfo> AssetInfos
+        {
+            get
+            {
+                return m_AssetInfos;
+            }
+        }
 
         public InfoManager(MonoBehaviour coroutineExecuter)
         {
@@ -33,6 +49,8 @@ namespace YH.AssetManage
 
         public void Load(string filePath)
         {
+            m_Loading = true;
+
             if (filePath.Contains("://"))
             {
                 if (!filePath.Contains(Application.version))
@@ -91,7 +109,7 @@ namespace YH.AssetManage
                         success = false;
                     }
 
-                    InitComplete(success);
+                    doLoadComplete(success);
                 }
             }
         }
@@ -113,7 +131,7 @@ namespace YH.AssetManage
             }
 #endif
 
-            InitComplete(success);
+            doLoadComplete(success);
         }
 
         public void LoadFromStream(Stream steam)
@@ -128,8 +146,6 @@ namespace YH.AssetManage
             {
                 LoadFromTextStream(steam);
             }
-
-            UpdateManifest();
         }
 
         public void LoadFromTextStream(Stream steam)
@@ -137,7 +153,8 @@ namespace YH.AssetManage
             steam.Position = 0;
             StreamReader reader = new StreamReader(steam);
             string content = reader.ReadToEnd();
-            m_BundleManifest = JsonUtility.FromJson<BundleManifest>(content);
+            BundleManifest bundleManifest = JsonUtility.FromJson<BundleManifest>(content);
+            AddBundleManifest(bundleManifest);
         }
 
         public void LoadFromBinaryStream(Stream steam)
@@ -147,8 +164,25 @@ namespace YH.AssetManage
             //skip head sign
             //reader.ReadInt32();
             steam.Position = 4;
-            m_BundleManifest = new BundleManifest();
-            m_BundleManifest.Read(reader);
+            BundleManifest bundleManifest = new BundleManifest();
+            bundleManifest.Read(reader);
+
+            AddBundleManifest(bundleManifest);
+        }
+
+        private void AddBundleManifest(BundleManifest bundleManifest)
+        {
+            if (m_BundleManifest != null)
+            {
+                //merge to m_BundleManifest
+                m_BundleManifest.bundleInfos.AddRange(bundleManifest.bundleInfos);
+            }
+            else
+            {
+                m_BundleManifest = bundleManifest;
+            }
+
+            UpdateManifest(bundleManifest);
         }
 
         public void SaveBinary(string fileName)
@@ -170,25 +204,25 @@ namespace YH.AssetManage
             }
         }
 
-        protected void UpdateManifest()
+        protected void UpdateManifest(BundleManifest bundleManifest)
         {
-            if (m_BundleManifest == null)
+            if (bundleManifest == null)
             {
                 return;
             }
 
             //create asset bundle map
             AssetBundleInfo bundleInfo = null;
-            for (int i = 0, l = m_BundleManifest.bundleInfos.Count; i < l; ++i)
+            for (int i = 0, l = bundleManifest.bundleInfos.Count; i < l; ++i)
             {
-                bundleInfo = m_BundleManifest.bundleInfos[i];
+                bundleInfo = bundleManifest.bundleInfos[i];
                 m_AssetBundleInfos.Add(bundleInfo.fullName, bundleInfo);
             }
 
             AssetInfo assetInfo = null;
-            for (int i = 0, l = m_BundleManifest.bundleInfos.Count; i < l; ++i)
+            for (int i = 0, l = bundleManifest.bundleInfos.Count; i < l; ++i)
             {
-                bundleInfo = m_BundleManifest.bundleInfos[i];
+                bundleInfo = bundleManifest.bundleInfos[i];
 
                 //create asset info map
                 for (int j = 0, k = bundleInfo.assets.Count; j < k; ++j)
@@ -244,7 +278,7 @@ namespace YH.AssetManage
 
         public void Clean()
         {
-            onInitComplete = null;
+            onLoadComplete = null;
             m_AssetInfos.Clear();
             m_AssetBundleInfos.Clear();
 
@@ -254,21 +288,21 @@ namespace YH.AssetManage
 			}
         }
 
-        protected void InitComplete(bool result)
+        protected void doLoadComplete(bool result)
         {
-            AMDebug.Log("[AssetManage]Info Manager init complete");
-            m_Inited = true;
-            if (onInitComplete != null)
+            AMDebug.Log("[AssetManage]Info Manager load complete");
+            m_Loading = false;
+            if (onLoadComplete != null)
             {
-                onInitComplete(result);
+                onLoadComplete(result);
             }
         }
 
-        public bool inited
+        public bool loading
         {
             get
             {
-                return m_Inited;
+                return m_Loading;
             }
         }
 

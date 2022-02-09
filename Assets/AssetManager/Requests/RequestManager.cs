@@ -16,13 +16,19 @@ namespace YH.AssetManage
 
 		internal static readonly ObjectPool<EmptyLoaderRequest> EmptyLoaderRequestPool = new ObjectPool<EmptyLoaderRequest>(null, l => l.Clean());
 
-		int m_MaxActiveRequest = 12;
+		int m_MaxActiveRequest = 20;
         List<Request> m_ActiveRequests = new List<Request>();
         List<int> m_FinishedIndexs = new List<int>();
         Stack<Request> m_PrepareRequests = new Stack<Request>();
         
         //cache manager
         CacheManager m_CacheManager=null;
+
+        public int MaxActiveRequest
+        {
+            get { return m_MaxActiveRequest; }
+            set { m_MaxActiveRequest = value; }
+        }
 
         public virtual void Init()
         {
