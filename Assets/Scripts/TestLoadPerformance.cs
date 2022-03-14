@@ -65,10 +65,6 @@ public class TestLoadPerformance : MonoBehaviour
         if(m_Elapsed > m_Duration)
         {
             m_Elapsed = 0;
-            if (m_MemValue != null)
-            {
-                SetPropertySize(m_MemValue, RPGTools.Device.instance.GetMemoryAppSize());
-            }
         }
     }
 
@@ -97,16 +93,11 @@ public class TestLoadPerformance : MonoBehaviour
             return;
         }
 
-        long startMem = RPGTools.Device.instance.GetMemoryAppSize();
-        //AddMessage(String.Format("Before LoadBundleSync Mem:{0}", startMem));
         float startTime = Time.realtimeSinceStartup;
         var abr = m_AssetManager.LoadAssetBundleSync(bundlePath);
         float loadTime = Time.realtimeSinceStartup - startTime;
-        long endMem = RPGTools.Device.instance.GetMemoryAppSize();
-        //AddMessage(String.Format("After LoadBundleSync Mem:{0}", endMem));
 
         AddMessage("sync load bundle used:" + loadTime.ToString());
-        AddMessage("sync load bundle mem change:" + (endMem-startMem));
         if (abr != null)
         {
             AddMessage("load bunde success.");
@@ -128,14 +119,11 @@ public class TestLoadPerformance : MonoBehaviour
             return;
         }
 
-        long startMem = RPGTools.Device.instance.GetMemoryAppSize();
         float startTime = Time.realtimeSinceStartup;
         m_AssetManager.LoadAssetBundle(bundlePath, true, (abr) =>
         {
             float loadTime = Time.realtimeSinceStartup - startTime;
-            long endMem = RPGTools.Device.instance.GetMemoryAppSize();
             AddMessage("async load bundle used:" + loadTime.ToString());
-            AddMessage("async load bundle mem change:" + (endMem - startMem));
             if (abr != null)
             {
 
@@ -160,13 +148,10 @@ public class TestLoadPerformance : MonoBehaviour
 
         if (m_AssetBundle != null)
         {
-            long startMem = RPGTools.Device.instance.GetMemoryAppSize();
             float startTime = Time.realtimeSinceStartup;
             GameObject obj = m_AssetBundle.LoadAsset<GameObject>(assetPath);
             float loadTime = Time.realtimeSinceStartup - startTime;
-            long endMem = RPGTools.Device.instance.GetMemoryAppSize();
             AddMessage("sync load asset used:" + loadTime.ToString());
-            AddMessage("sync load asset mem change:" + (endMem - startMem));
             if (obj != null)
             {
                 AddMessage("load asset success.");
@@ -195,14 +180,11 @@ public class TestLoadPerformance : MonoBehaviour
 
     private IEnumerator _LoadAssetCoroutine(string assetPath)
     {
-        long startMem = RPGTools.Device.instance.GetMemoryAppSize();
         float startTime = Time.realtimeSinceStartup;
         var request = m_AssetBundle.LoadAssetAsync<GameObject>(assetPath);
         yield return request;
         float loadTime = Time.realtimeSinceStartup - startTime;
-        long endMem = RPGTools.Device.instance.GetMemoryAppSize();
         AddMessage("async load asset used:" + loadTime.ToString());
-        AddMessage("async load asset mem change:" + (endMem - startMem));
         if (request.asset != null)
         {
             AddMessage("load asset success.");
