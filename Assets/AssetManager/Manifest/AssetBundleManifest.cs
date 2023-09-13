@@ -3,6 +3,23 @@ using System.Collections.Generic;
 
 namespace YH.AssetManage
 {
+    public enum AssetBundleType
+    {
+        StandeAlone = 1,
+        Reference = 2
+    }
+
+    [System.Serializable]
+    public class AssetInfo
+    {
+        public string fullName;
+        /// <summary>
+        /// custom define name
+        /// </summary>
+        public string aliasName;
+        public string bundleName;
+    }
+
     public class AssetBundleInfo
     {
         //bundle content hash

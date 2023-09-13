@@ -153,7 +153,7 @@ namespace YH.AssetManage
             steam.Position = 0;
             StreamReader reader = new StreamReader(steam);
             string content = reader.ReadToEnd();
-            BundleManifest bundleManifest = JsonUtility.FromJson<BundleManifest>(content);
+            AssetBundleManifest bundleManifest = JsonUtility.FromJson<AssetBundleManifest>(content);
             AddBundleManifest(bundleManifest);
         }
 
@@ -164,13 +164,13 @@ namespace YH.AssetManage
             //skip head sign
             //reader.ReadInt32();
             steam.Position = 4;
-            BundleManifest bundleManifest = new BundleManifest();
+            AssetBundleManifest bundleManifest = new AssetBundleManifest();
             bundleManifest.Read(reader);
 
             AddBundleManifest(bundleManifest);
         }
 
-        private void AddBundleManifest(BundleManifest bundleManifest)
+        private void AddBundleManifest(AssetBundleManifest bundleManifest)
         {
             if (m_BundleManifest != null)
             {
@@ -204,7 +204,7 @@ namespace YH.AssetManage
             }
         }
 
-        protected void UpdateManifest(BundleManifest bundleManifest)
+        protected void UpdateManifest(AssetBundleManifest bundleManifest)
         {
             if (bundleManifest == null)
             {
@@ -213,14 +213,14 @@ namespace YH.AssetManage
 
             //create asset bundle map
             AssetBundleInfo bundleInfo = null;
-            for (int i = 0, l = bundleManifest.bundleInfos.Count; i < l; ++i)
+            for (int i = 0, l = bundleManifest._Bundles.Count; i < l; ++i)
             {
-                bundleInfo = bundleManifest.bundleInfos[i];
+                bundleInfo = bundleManifest._Bundles[i];
                 m_AssetBundleInfos.Add(bundleInfo.fullName, bundleInfo);
             }
 
             AssetInfo assetInfo = null;
-            for (int i = 0, l = bundleManifest.bundleInfos.Count; i < l; ++i)
+            for (int i = 0, l = bundleManifest._Bundles.Count; i < l; ++i)
             {
                 bundleInfo = bundleManifest.bundleInfos[i];
 
