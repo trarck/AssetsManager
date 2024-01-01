@@ -7,10 +7,10 @@ namespace YH.AssetManage
     public class LoaderManager:ILoaderManager
     {
 		//正在加载assetbundle的loader
-		Dictionary<string, AssetBundleAsyncLoader> m_AssetBundleLoadings = new Dictionary<string, AssetBundleAsyncLoader>();
+		Dictionary<ulong, AssetBundleAsyncLoader> m_AssetBundleLoadings = new Dictionary<ulong, AssetBundleAsyncLoader>();
 		
 		//正在加载asset的loader
-		Dictionary<string, AssetAsyncLoader> m_AssetLoadings = new Dictionary<string, AssetAsyncLoader>();
+		Dictionary<ulong, AssetAsyncLoader> m_AssetLoadings = new Dictionary<ulong, AssetAsyncLoader>();
 
 		IRequestManager m_RequestManager;
 		IInfoManager m_InfoManager;
@@ -72,12 +72,152 @@ namespace YH.AssetManage
 
 		#region Asset
 
-		public AssetLoader LoadAssetAsync(string path, int tag, Type type, bool autoReleaseBundle,
+		public AssetLoadInfo CreateAssetLoadInfo(string path, ulong pathHash)
+        {
+			AssetLoadInfo info = null;
+
+#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
+			info = infoManager.GetAssetInfo(path);
+			//can't find asset info
+			if (info == null)
+			{
+				AMDebug.LogWarningFormat("[LoaderManage]Can't find asset info {0}. Load from resource.", path);
+				info = new AssetLoadInfo();
+				info.path = path;
+				if (pathHash != 0)
+				{
+					info.pathHash = pathHash;
+				}
+				else if (!string.IsNullOrEmpty(path))
+				{
+					info.pathHash = xxHash.xxHash64.ComputeHash(path);
+				}
+			}
+#else
+            info = new AssetLoadInfo();
+            info.path = path;
+			if (pathHash != 0)
+            {
+				info.pathHash = pathHash;
+			}
+			else if (!string.IsNullOrEmpty(path))
+            {
+				info.pathHash = xxHash.xxHash64.ComputeHash(path);
+			}
+#endif
+			return info;
+		}
+
+		public AssetAsyncLoader CreateAssetAsyncLoader(string path, ulong pathHash=0)
+        {
+			AssetAsyncLoader loader = null;
+#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
+            loader = LoaderPool.AssetAsyncLoaderPool.Get();// new AssetAsyncLoader();
+#else
+            loader = new AssetEditorLoader();
+#endif
+			loader.info = CreateAssetLoadInfo(path, pathHash);
+            loader.loaderManager = this;
+            return loader;
+        }
+
+		public AssetSyncLoader CreateAssetSyncLoader(string path, ulong pathHash=0)
+		{
+			AssetSyncLoader loader = null;
+#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
+			loader = new AssetSyncLoader();
+#else
+            loader = new AssetEditorLoader();
+#endif
+			loader.info = CreateAssetLoadInfo(path, pathHash);
+			loader.loaderManager = this;
+			return loader;
+		}
+
+		public AssetAsyncLoader CreateAssetCacheLoader(string path)
+		{
+			AssetAsyncCacheLoader loader = LoaderPool.AssetAsyncExistLoaderPool.Get();
+			loader.loaderManager = this;
+			return loader;
+		}
+
+		public AssetAsyncLoader CreateOrGetAssetAsyncLoader(string path, int tag, Type type, bool autoReleaseBundle = true)
+		{
+			AssetAsyncLoader loader = null;
+			if (string.IsNullOrEmpty(path))
+			{
+				return loader;
+			}
+
+			ulong assetPathHash = xxHash.xxHash64.ComputeHash(path);
+
+			//1. 检查是不是加载完成。
+			AssetReference ar = null;
+			if (m_ReferenceManager.TryGetAsset(assetPathHash, out ar))
+			{
+				//1.1使用已加载的资源
+                AMDebug.LogFormat("[LoaderManage]CreateAssetAsyncLoader  using loaded loader  {0}", path);
+				//refresh tag
+				ar.AddTag(tag);
+
+				loader = CreateAssetCacheLoader(path);
+				loader.result = ar;
+				loader.autoReleaseBundle = autoReleaseBundle;
+				//加载完成后由AssetManager释放loader
+				loader.onAfterComplete += OnAssetAfterLoaded;
+				return loader;
+			}
+
+			//2. 检查是不是有正在loading
+			if (m_AssetLoadings.TryGetValue(assetPathHash, out loader))
+			{
+				//2.1 使用正在加载的loader
+				AMDebug.LogFormat("[LoaderManage]CreateAssetAsyncLoader using loading loader {0}", path);
+				//资源的名子是唯一的。所以类型也要唯一。
+				if (loader.type != type)
+				{
+					AMDebug.LogErrorFormat(
+						"[LoaderManage]CreateAssetAsyncLoader asset {0} is loading.But loading type={1} different with current type={2}",
+						path, loader.type, type);
+				}
+
+                if (loader.autoReleaseBundle != autoReleaseBundle)
+                {
+					AMDebug.LogErrorFormat(
+					  "[LoaderManage]CreateAssetAsyncLoader asset {0} is loading. " +
+					  "But parameter autoReleaseBundle={1} different with current autoReleaseBundle={2},wil be override.",
+					  path, loader.type, type);
+				}
+			}
+			else
+			{
+				//3 创建新的loader
+				AMDebug.LogFormat("[LoaderManage]CreateAssetAsyncLoader create new loader {0}", path);
+				loader = CreateAssetAsyncLoader(path, assetPathHash);
+				m_AssetLoadings[assetPathHash] = loader;
+
+				//对加载前后做特殊处理。只要处理一次。
+				loader.Init(OnAssetBeforeLoaded, OnAssetAfterLoaded);
+
+				if (type != null)
+				{
+					loader.type = type;
+				}
+			}
+
+			loader.AddParamTag(tag);
+
+			loader.autoReleaseBundle = autoReleaseBundle;
+
+			return loader;
+		}
+
+		public AssetLoaderOperation LoadAssetAsync(string path, int tag, Type type, bool autoReleaseBundle,
 			Action<AssetReference> completeHandle = null,
 			Action<AssetLoader> beforLoadComplete = null,
 			Action<AssetLoader> afterLoadComplete = null)
 		{
-			AssetAsyncLoader loader = CreateSingleAssetAsyncLoader(path, tag, type, autoReleaseBundle);
+			AssetAsyncLoader loader = CreateOrGetAssetAsyncLoader(path, tag, type, autoReleaseBundle);
 			if (loader != null)
 			{
 				if (completeHandle != null)
@@ -103,23 +243,25 @@ namespace YH.AssetManage
 				completeHandle(null);
 			}
 
-			return loader;
+			return new AssetLoaderOperation(loader);
 		}
 
 		public AssetReference LoadAssetSync(string path, int tag, Type type)
 		{
-			if (!string.IsNullOrEmpty(path))
+			if (string.IsNullOrEmpty(path))
 			{
-				path = AssetPaths.AddAssetPrev(path);
+				return null;
 			}
 
 			AssetReference ar = null;
 
 			AssetLoader loader = null;
 
-			if (m_ReferenceManager.TryGetAsset(path, out ar))
+			ulong assetPathHash = xxHash.xxHash64.ComputeHash(path);
+
+			if (m_ReferenceManager.TryGetAsset(assetPathHash, out ar))
 			{
-                AMDebug.LogFormat("[AssetManage]LoadAssetSync asset is loaded {0}", path);
+				AMDebug.LogFormat("[LoaderManage]LoadAssetSync asset is loaded {0}", path);
 				//refresh
 				ar.AddTag(tag);
 
@@ -128,15 +270,15 @@ namespace YH.AssetManage
 			}
 			else
 			{
-				if (IsAssetLoading(path))
+				if (IsAssetLoading(assetPathHash))
 				{
-                    AMDebug.LogFormat("[AssetManage]LoadAssetSync async load staring {0}", path);
+					AMDebug.LogFormat("[LoaderManage]LoadAssetSync async load staring {0}", path);
 					//TODO Stop async loader
 					return null;
 				}
 				else
 				{
-                    AMDebug.LogFormat("[AssetManage]LoadAssetSync create new loader {0}", path);
+					AMDebug.LogFormat("[LoaderManage]LoadAssetSync create new loader {0}", path);
 					loader = CreateAssetSyncLoader(path);
 				}
 
@@ -156,139 +298,175 @@ namespace YH.AssetManage
 			return ar;
 		}
 
-		public AssetAsyncLoader CreateAssetAsyncLoader(string path)
-        {
-			AssetAsyncLoader loader = null;
-            AssetInfo info = null;
 
-#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-            info = infoManager.FindAssetInfo(path);
-            //can't find asset info
-            if (info == null)
-            {
-                AMDebug.LogErrorFormat("[AssetManage]Can't find asset info {0}.Load from resource.", path);
-                info = new AssetInfo();
-                info.fullName = path;
-            }
-
-            loader = LoaderPool.AssetAsyncLoaderPool.Get();// new AssetAsyncLoader();
-#else
-            loader = new AssetEditorLoader();
-            info = new AssetInfo();
-            info.fullName = path;
-#endif
-            loader.info = info;
-            loader.loaderManager = this;
-            return loader;
-        }
-
-		public AssetSyncLoader CreateAssetSyncLoader(string path)
-		{
-			AssetSyncLoader loader = null;
-			AssetInfo info = null;
-
-#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-			info = infoManager.FindAssetInfo(path);
-			//can't find asset info
-			if (info == null)
-			{
-				info = new AssetInfo();
-				info.fullName = path;
-			}
-
-			loader = new AssetSyncLoader();
-#else
-            loader = new AssetSyncLoader();
-            info = new AssetInfo();
-            info.fullName = path;
-#endif
-			loader.info = info;
-			loader.loaderManager = this;
-			return loader;
-		}
-
-		public AssetAsyncLoader CreateAssetExistLoader(string path)
-		{
-			AssetAsyncExistLoader loader = LoaderPool.AssetAsyncExistLoaderPool.Get();
-			loader.loaderManager = this;
-			return loader;
-		}
-
-		public AssetAsyncLoader CreateSingleAssetAsyncLoader(string path, int tag, Type type, bool autoReleaseBundle = true)
+		public AssetAsyncLoader CreateOrGetAssetAsyncLoader(ulong assetPathHash, int tag, Type type, bool autoReleaseBundle = true)
 		{
 			AssetAsyncLoader loader = null;
-			if (!string.IsNullOrEmpty(path))
-			{
-				path = AssetPaths.AddAssetPrev(path);
-			}
-			else
+			if (assetPathHash==0)
 			{
 				return loader;
 			}
 
+			//1. 检查是不是加载完成。
 			AssetReference ar = null;
-			if (m_ReferenceManager.TryGetAsset(path, out ar))
+			if (m_ReferenceManager.TryGetAsset(assetPathHash, out ar))
 			{
-                AMDebug.LogFormat("[AssetManage]CreateAssetAsyncLoader asset is loaded {0}",path);
+				//1.1使用已加载的资源
+				AMDebug.LogFormat("[LoaderManage]CreateAssetAsyncLoader  using loaded loader  {0}", assetPathHash);
 				//refresh tag
 				ar.AddTag(tag);
 
-				loader = CreateAssetExistLoader(path);
+				loader = CreateAssetCacheLoader(null);
 				loader.result = ar;
 				loader.autoReleaseBundle = autoReleaseBundle;
 				//加载完成后由AssetManager释放loader
 				loader.onAfterComplete += OnAssetAfterLoaded;
+				return loader;
+			}
+
+			//2. 检查是不是有正在loading
+			if (m_AssetLoadings.TryGetValue(assetPathHash, out loader))
+			{
+				//2.1 使用正在加载的loader
+				AMDebug.LogFormat("[LoaderManage]CreateAssetAsyncLoader using loading loader {0}", assetPathHash);
+				//资源的名子是唯一的。所以类型也要唯一。
+				if (loader.type != type)
+				{
+					AMDebug.LogErrorFormat(
+						"[LoaderManage]CreateAssetAsyncLoader asset {0} is loading.But loading type={1} different with current type={2}",
+						assetPathHash, loader.type, type);
+				}
+
+				if (loader.autoReleaseBundle != autoReleaseBundle)
+				{
+					AMDebug.LogErrorFormat(
+					  "[LoaderManage]CreateAssetAsyncLoader asset {0} is loading. " +
+					  "But parameter autoReleaseBundle={1} different with current autoReleaseBundle={2},wil be override.",
+					  assetPathHash, loader.type, type);
+				}
 			}
 			else
 			{
-				if (!m_AssetLoadings.TryGetValue(path, out loader))
+				//3 创建新的loader
+				AMDebug.LogFormat("[LoaderManage]CreateAssetAsyncLoader create new loader {0}", assetPathHash);
+				loader = CreateAssetAsyncLoader(null, assetPathHash);
+				m_AssetLoadings[assetPathHash] = loader;
+
+				//对加载前后做特殊处理。只要处理一次。
+				loader.Init(OnAssetBeforeLoaded, OnAssetAfterLoaded);
+
+				if (type != null)
 				{
-					AMDebug.LogFormat("[AssetManage]CreateAssetAsyncLoader create new loader {0}", path);
-					loader = CreateAssetAsyncLoader(path);
-					m_AssetLoadings[path] = loader;
-
-					//对加载前后做特殊处理。只要处理一次。
-					loader.Init(OnAssetBeforeLoaded, OnAssetAfterLoaded);
-
-					if (type != null)
-					{
-						loader.type = type;
-					}
+					loader.type = type;
 				}
-				else
-				{
-                    AMDebug.LogFormat("[AssetManage]CreateAssetAsyncLoader using loading loader {0}", path);
-					//资源的名子是唯一的。所以类型也要唯一。
-					if (loader.type != type)
-					{
-						AMDebug.LogErrorFormat(
-							"[AssetManage]CreateAssetAsyncLoader asset {0} is loading.But loading type={1} different with current type={2}"
-							, path, loader.type, type);
-					}
-				}
-
-				loader.AddParamTag(tag);
-
-				loader.autoReleaseBundle = autoReleaseBundle;
 			}
+
+			loader.AddParamTag(tag);
+
+			loader.autoReleaseBundle = autoReleaseBundle;
 
 			return loader;
 		}
 
+		public AssetLoaderOperation LoadAssetAsync(ulong assetPathHash, int tag, Type type, bool autoReleaseBundle,
+			Action<AssetReference> completeHandle = null,
+			Action<AssetLoader> beforLoadComplete = null,
+			Action<AssetLoader> afterLoadComplete = null)
+		{
+			AssetAsyncLoader loader = CreateOrGetAssetAsyncLoader(assetPathHash, tag, type, autoReleaseBundle);
+			if (loader != null)
+			{
+				if (completeHandle != null)
+				{
+					loader.onComplete += completeHandle;
+				}
+
+				if (beforLoadComplete != null)
+				{
+					loader.onBeforeComplete += beforLoadComplete;
+				}
+
+				if (afterLoadComplete != null)
+				{
+					loader.onAfterComplete += afterLoadComplete;
+				}
+
+				//这里不在做状态检查，交给loader自己处理。
+				ActiveLoader(loader);
+			}
+			else if (completeHandle != null)
+			{
+				completeHandle(null);
+			}
+
+			return new AssetLoaderOperation(loader);
+		}
+
+		public AssetReference LoadAssetSync(ulong assetPathHash, int tag, Type type)
+		{
+			if (assetPathHash == 0)
+			{
+				return null;
+			}
+
+			AssetReference ar = null;
+
+			AssetLoader loader = null;
+
+			if (m_ReferenceManager.TryGetAsset(assetPathHash, out ar))
+			{
+				AMDebug.LogFormat("[LoaderManage]LoadAssetSync asset is loaded {0}", assetPathHash);
+				//refresh
+				ar.AddTag(tag);
+
+				//cache asset
+				ar.Cache();
+			}
+			else
+			{
+				if (IsAssetLoading(assetPathHash))
+				{
+					AMDebug.LogFormat("[LoaderManage]LoadAssetSync async load staring {0}", assetPathHash);
+					//TODO Stop async loader
+					return null;
+				}
+				else
+				{
+					AMDebug.LogFormat("[LoaderManage]LoadAssetSync create new loader {0}", assetPathHash);
+					loader = CreateAssetSyncLoader(null, assetPathHash);
+				}
+
+				loader.AddParamTag(tag);
+
+				if (type != null)
+				{
+					loader.type = type;
+				}
+				loader.state = Loader.State.Inited;
+				loader.Start();
+				ar = loader.result;
+				OnAssetBeforeLoaded(loader);
+				OnAssetAfterLoaded(loader);
+			}
+
+			return ar;
+		}
+
+
 		public void RemoveAssetLoading(AssetLoader loader)
 		{
-			AssetInfo info = loader.info;
+			AssetLoadInfo info = loader.info;
 			if (info != null)
 			{
 				//remove from loading
-				if (m_AssetLoadings.ContainsKey(info.fullName))
+				if (m_AssetLoadings.ContainsKey(info.pathHash))
 				{
-					m_AssetLoadings.Remove(info.fullName);
+					m_AssetLoadings.Remove(info.pathHash);
 				}
 			}
 			else
 			{
-				string key = null;
+				ulong key = 0;
 				foreach (var iter in m_AssetLoadings)
 				{
 					if (iter.Value == loader)
@@ -297,16 +475,16 @@ namespace YH.AssetManage
 					}
 				}
 
-				if (!string.IsNullOrEmpty(key))
+				if (key!=0)
 				{
 					m_AssetLoadings.Remove(key);
 				}
 			}
 		}
 
-		public bool IsAssetLoading(string path)
+		public bool IsAssetLoading(ulong pathHash)
 		{
-			return m_AssetLoadings.ContainsKey(path);
+			return m_AssetLoadings.ContainsKey(pathHash);
 		}
 
 		public void OnAssetBeforeLoaded(AssetLoader loader)
@@ -335,13 +513,124 @@ namespace YH.AssetManage
 		#endregion
 
 		#region AssetBundle
+		public AssetBundleLoadInfo CreateAssetBundleLoaderInfo(ulong bundleId)
+		{
+			AssetBundleLoadInfo info = null;
+#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
+			info = infoManager.GetAssetBundleInfo(bundleId);
+			if (info == null)
+			{
+				AMDebug.LogErrorFormat("[LoaderManage]Can't find asset bundle info {0}", bundleId);
+				return null;
+			}
+#else
+            //just for message
+            info = new AssetBundleInfo();
+            info.bundleId = path;
+#endif
+			return info;
+		}
 
-		public AssetBundleLoader LoadAssetBundleAsync(string path, int tag, bool cache,
+		public AssetBundleAsyncLoader CreateNewAssetBundleAsyncLoader(ulong bundleId)
+        {
+			AssetBundleAsyncLoader loader = null;
+#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
+            loader = LoaderPool.AssetBundleAsyncLoaderPool.Get();
+#else
+            loader = new AssetBundleEmptyLoader();
+#endif
+			loader.info = CreateAssetBundleLoaderInfo(bundleId);
+            loader.loaderManager = this;
+            return loader;
+        }
+
+		public AssetBundleAsyncLoader CreateAssetBundleCacheLoader(ulong bundleId)
+		{
+			AssetBundleAsyncCacheLoader loader = LoaderPool.AssetBundleAsyncExistLoaderPool .Get();
+			loader.loaderManager = this;
+			return loader;
+		}
+
+		public AssetBundleAsyncLoader CreateAssetBundleAsyncLoader(ulong bundleId, int tag, bool cache)
+		{
+			AssetBundleAsyncLoader loader = null;
+
+			if (bundleId==0)
+			{
+				return loader;
+			}
+
+			AssetBundleReference abr = null;
+			if (m_ReferenceManager.TryGetAssetBundle(bundleId, out abr))
+			{
+				//asset bundle is loaded
+                AMDebug.LogFormat("[LoaderManage]LoadAssetBundle asset bundle is loaded {0}",  bundleId );
+				//refresh tag
+				abr.AddTag(tag);
+
+				//cache abr
+				if (cache)
+				{
+					abr.Cache();
+				}
+
+				//create call back loader
+				loader = CreateAssetBundleCacheLoader(bundleId);
+				loader.result = abr;
+
+				loader.onAfterComplete += OnAssetBundleAfterLoaded;
+			}
+			else
+			{
+				if (!m_AssetBundleLoadings.TryGetValue(bundleId, out loader))
+				{
+                    AMDebug.LogFormat("[LoaderManage]LoadAssetBundle create new loader {0}" , bundleId );
+					loader = CreateNewAssetBundleAsyncLoader(bundleId);
+					if (loader != null)
+					{
+						m_AssetBundleLoadings[bundleId] = loader;
+					}
+					else
+					{
+						return null;
+					}
+
+					//对加载前后做特殊处理。只要处理一次。
+					loader.Init(OnAssetBundleBeforeLoaded, OnAssetBundleAfterLoaded);
+				}
+				else
+				{
+					AMDebug.LogFormat("[LoaderManage]LoadAssetBundle using loading loader {0}" , bundleId);
+				}
+
+				loader.AddParamTag(tag);
+
+				loader.SetCacheResult(cache);
+			}
+			return loader;
+		}
+
+		public AssetBundleSyncLoader CreateAssetBundleSyncLoader(ulong bundleId)
+		{
+			AssetBundleSyncLoader loader = null;
+
+#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
+			loader = LoaderPool.AssetBundleSyncLoaderPool.Get();
+#else
+			AMDebug.LogWarningFormat("[LoaderManager]Not need  load bundle {0}, create empty", path);
+            loader = new AssetBundleEmptyLoader();
+#endif
+			loader.info = CreateAssetBundleLoaderInfo(bundleId);
+			loader.loaderManager = this;
+			return loader;
+		}
+
+		public AssetBundleLoader LoadAssetBundleAsync(ulong bundleId, int tag, bool cache,
 			Action<AssetBundleReference> completeHandle = null,
 			Action<AssetBundleLoader> beforLoadComplete = null,
 			Action<AssetBundleLoader> afterLoadComplete = null)
 		{
-			AssetBundleLoader loader = CreateSingleAssetBundleAsyncLoader(path, tag, cache);
+			AssetBundleLoader loader = CreateAssetBundleAsyncLoader(bundleId, tag, cache);
 
 			if (loader != null)
 			{
@@ -372,18 +661,18 @@ namespace YH.AssetManage
 		}
 
 
-		public AssetBundleReference LoadAssetBundleSync(string path, int tag, bool cache = true)
+		public AssetBundleReference LoadAssetBundleSync(ulong bundleId, int tag, bool cache = true)
 		{
-			if (string.IsNullOrEmpty(path))
+			if (bundleId==0)
 			{
 				return null;
 			}
 
 			AssetBundleReference abr = null;
 
-			if (m_ReferenceManager.TryGetAssetBundle(path, out abr))
+			if (m_ReferenceManager.TryGetAssetBundle(bundleId, out abr))
 			{
-                AMDebug.LogFormat("[AssetManage]LoadAssetBundleSync bundle is loaded {0}", path);
+				AMDebug.LogFormat("[LoaderManage]LoadAssetBundleSync bundle is loaded {0}", bundleId);
 				//refresh 
 				abr.AddTag(tag);
 
@@ -394,16 +683,16 @@ namespace YH.AssetManage
 			}
 			else
 			{
-				if (IsAssetBundleLoading(path))
+				if (IsAssetBundleLoading(bundleId))
 				{
-					AMDebug.LogErrorFormat("[AssetManage]LoadAssetBundleSync async loader is active {0}", path);
+					AMDebug.LogErrorFormat("[LoaderManage]LoadAssetBundleSync async loader is active {0}", bundleId);
 					//TODO Stop async
 					return null;
 				}
 				else
 				{
-                    AMDebug.LogFormat("[AssetManage]LoadAssetBundleSync create new loader {0}", path);
-					AssetBundleSyncLoader loader = CreateAssetBundleSyncLoader(path);
+					AMDebug.LogFormat("[LoaderManage]LoadAssetBundleSync create new loader {0}", bundleId);
+					AssetBundleSyncLoader loader = CreateAssetBundleSyncLoader(bundleId);
 					if (loader != null)
 					{
 						loader.state = Loader.State.Inited;
@@ -423,131 +712,19 @@ namespace YH.AssetManage
 		}
 
 
-		public AssetBundleAsyncLoader CreateAssetBundleAsyncLoader(string path)
-        {
-			AssetBundleAsyncLoader loader = null;
-            AssetBundleInfo info = null;
-#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-            info = infoManager.FindAssetBundleInfo(path);
-            if (info == null)
-            {
-                AMDebug.LogErrorFormat("[AssetManage]Can't find asset bundle info {0}", path);
-                return null;
-            }
-            loader = LoaderPool.AssetBundleAsyncLoaderPool.Get();
-#else
-            loader = new AssetBundleEmptyLoader();
-            //just for message
-            info = new AssetBundleInfo();
-            info.fullName = path;
-#endif
-
-            loader.info = info;
-            loader.loaderManager = this;
-            return loader;
-        }
-
-        public AssetBundleSyncLoader CreateAssetBundleSyncLoader(string path)
-        {
-            AssetBundleSyncLoader loader = null;
-
-#if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-            AssetBundleInfo info = null;
-            info = infoManager.FindAssetBundleInfo(path);
-            if (info != null)
-            {
-                loader = LoaderPool.AssetBundleSyncLoaderPool.Get();
-                loader.info = info;
-                loader.loaderManager = this;
-            }
-            else
-            {
-                AMDebug.LogErrorFormat("[AssetManage]Can't find asset bundle info {0}", path);
-            }
-#endif
-
-            return loader;
-        }
-
-		public AssetBundleAsyncLoader CreateAssetBundleExistLoader(string path)
-		{
-			AssetBundleAsyncExistLoader loader = LoaderPool.AssetBundleAsyncExistLoaderPool .Get();
-			loader.loaderManager = this;
-			return loader;
-		}
-
-		public AssetBundleAsyncLoader CreateSingleAssetBundleAsyncLoader(string path, int tag, bool cache)
-		{
-			AssetBundleAsyncLoader loader = null;
-
-			if (string.IsNullOrEmpty(path))
-			{
-				return loader;
-			}
-
-			AssetBundleReference abr = null;
-			if (m_ReferenceManager.TryGetAssetBundle(path, out abr))
-			{
-				//asset bundle is loaded
-                AMDebug.LogFormat("[AssetManage]LoadAssetBundle asset bundle is loaded {0}",  path );
-				//refresh tag
-				abr.AddTag(tag);
-
-				//cache abr
-				if (cache)
-				{
-					abr.Cache();
-				}
-
-				//create call back loader
-				loader = CreateAssetBundleExistLoader(path);
-				loader.result = abr;
-
-				loader.onAfterComplete += OnAssetBundleAfterLoaded;
-			}
-			else
-			{
-				if (!m_AssetBundleLoadings.TryGetValue(path, out loader))
-				{
-                    AMDebug.LogFormat("[AssetManage]LoadAssetBundle create new loader {0}" , path );
-					loader = CreateAssetBundleAsyncLoader(path);
-					if (loader != null)
-					{
-						m_AssetBundleLoadings[path] = loader;
-					}
-					else
-					{
-						return null;
-					}
-
-					//对加载前后做特殊处理。只要处理一次。
-					loader.Init(OnAssetBundleBeforeLoaded, OnAssetBundleAfterLoaded);
-				}
-				else
-				{
-					AMDebug.LogFormat("[AssetManage]LoadAssetBundle using loading loader {0}" , path);
-				}
-
-				loader.AddParamTag(tag);
-
-				loader.SetCacheResult(cache);
-			}
-			return loader;
-		}
-
 		public void RemoveAssetBundleLoading(AssetBundleLoader loader)
 		{
-			AssetBundleInfo info = loader.info;
+			AssetBundleLoadInfo info = loader.info;
 			if (info != null)
 			{
-				if (m_AssetBundleLoadings.ContainsKey(info.fullName))
+				if (m_AssetBundleLoadings.ContainsKey(info.bundleId))
 				{
-					m_AssetBundleLoadings.Remove(info.fullName);
+					m_AssetBundleLoadings.Remove(info.bundleId);
 				}
 			}
 			else
 			{
-				string key = null;
+				ulong key = 0;
 				foreach (var iter in m_AssetBundleLoadings)
 				{
 					if (iter.Value == loader)
@@ -556,7 +733,7 @@ namespace YH.AssetManage
 					}
 				}
 
-				if (!string.IsNullOrEmpty(key))
+				if (key>0)
 				{
 					m_AssetBundleLoadings.Remove(key);
 				}
@@ -564,9 +741,9 @@ namespace YH.AssetManage
 
 		}
 
-		public bool IsAssetBundleLoading(string path)
+		public bool IsAssetBundleLoading(ulong bundleId)
 		{
-			return m_AssetBundleLoadings.ContainsKey(path);
+			return m_AssetBundleLoadings.ContainsKey(bundleId);
 		}
 
 		public void OnAssetBundleBeforeLoaded(AssetBundleLoader loader)
@@ -605,7 +782,5 @@ namespace YH.AssetManage
 				LoaderPool.Release(loader);
 			}
 		}
-      
-
     }
 }

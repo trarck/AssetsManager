@@ -347,11 +347,13 @@ namespace YH.AssetManage
         }
     }
 
-    public class BundleCreateRequest : Request
+    public class BundleCreateAsyncRequest : Request
     {
         AssetBundleCreateRequest m_CreateRequest;
         
-        public string bundlePath { get; set; }
+        public string path { get; set; }
+
+        public uint offset { get; set; }
 
         public override bool isDone
         {
@@ -391,19 +393,20 @@ namespace YH.AssetManage
             }
         }
 
-        public BundleCreateRequest()
+        public BundleCreateAsyncRequest()
         {
 
         }
 
-        public BundleCreateRequest(string bundlePath)
+        public BundleCreateAsyncRequest(string path, uint offset)
         {
-            this.bundlePath = bundlePath;
+            this.path = path;
+            this.offset = offset;
         }
 
         public override void Start()
         {
-            m_CreateRequest = AssetBundle.LoadFromFileAsync(bundlePath);
+            m_CreateRequest = AssetBundle.LoadFromFileAsync(path, 0, offset);
         }
 
         public override bool haveError
@@ -421,13 +424,81 @@ namespace YH.AssetManage
         public override void Clean()
         {
             m_CreateRequest = null;
-            bundlePath = null;
+            path = null;
             base.Clean();
         }
 
         public override string ToString()
         {
-            return string.Format("BundleCreateRequest:{0},isDone:{1}", bundlePath, isDone);
+            return string.Format("BundleCreateRequest:{0},isDone:{1}", path, isDone);
+        }
+    }
+
+    public class BundleCreateSyncRequest : Request
+    {
+        public string path { get; set; }
+        public uint offset { get; set; }
+
+        private AssetBundle m_AssetBundle = null;
+
+        public override bool isDone
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public override float progress
+        {
+            get
+            {
+                return 1;
+            }
+        }
+
+        public override AssetBundle assetBundle
+        {
+            get
+            {
+                return m_AssetBundle;
+            }
+        }
+
+        public BundleCreateSyncRequest()
+        {
+
+        }
+
+        public BundleCreateSyncRequest(string path, uint offset)
+        {
+            this.path = path;
+            this.offset = offset;
+        }
+
+        public override void Start()
+        {
+            m_AssetBundle = AssetBundle.LoadFromFile(path, 0, offset);
+        }
+
+        public override bool haveError
+        {
+            get
+            {
+                return m_AssetBundle==null;
+            }
+        }
+
+        public override void Clean()
+        {
+            m_AssetBundle = null;
+            path = null;
+            base.Clean();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("BundleCreateRequest:{0},isDone:{1}", path, isDone);
         }
     }
 }

@@ -105,5 +105,14 @@ namespace YH.AssetManage
 		{
 			Debug.LogException(exception);
 		}
+
+		[System.Diagnostics.Conditional("AMLOG_ON"), System.Diagnostics.Conditional("DEBUG")]
+		public static void Assert(bool condition, string format, params object[] args)
+		{
+			if (!condition)
+			{
+				LogErrorFormat(format, args);
+			}
+		}
 	}
 }

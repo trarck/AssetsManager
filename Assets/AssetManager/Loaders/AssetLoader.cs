@@ -7,6 +7,10 @@ namespace YH.AssetManage
     public abstract class AssetLoader : Loader
     {
         protected AssetReference m_Result;
+        //是否在加载后自动断开和AssetBundle的联系。
+        protected bool m_AutoReleaseBundle = true;
+        private AssetBundleReference m_AssetBundleReference;
+
         //拆分onComplete和onBeforeComplete，要保证onBeforeComplete和onComplete的执行顺序。
         public event Action<AssetReference> onComplete;
 
@@ -14,11 +18,24 @@ namespace YH.AssetManage
 
         public event Action<AssetLoader> onAfterComplete;
 
-        public AssetInfo info { get; set; }
+        public AssetLoadInfo info { get; set; }
 
         public Type type { get; set; }
+        public bool autoReleaseBundle
+        {
+            get
+            {
+                return m_AutoReleaseBundle;
+            }
+            set
+            {
+                if (m_AutoReleaseBundle && value == false)
+                {
+                    m_AutoReleaseBundle = value;
+                }
+            }
+        }
 
-        private AssetBundleReference m_AssetBundleReference;
         public AssetBundleReference assetBundleReference
         {
             get { return m_AssetBundleReference; }
@@ -43,7 +60,7 @@ namespace YH.AssetManage
         {
             if (info != null)
             {
-                return Path.GetExtension(info.fullName).Equals(".unity", System.StringComparison.CurrentCultureIgnoreCase);
+                return Path.GetExtension(info.path).Equals(".unity", System.StringComparison.CurrentCultureIgnoreCase);
             }
             return false;
         }
@@ -60,35 +77,42 @@ namespace YH.AssetManage
 
 		protected void DoLoadComplete()
         {
-			AMDebug.LogFormat("[AssetManage]AssetLoader {0} DoLoadComplete", info!=null?info.fullName:"");
+			AMDebug.LogFormat("[AssetManage]AssetLoader {0} DoLoadComplete", info!=null?info.path:"");
             //先调用onBeforeComplete再调用onComplete,否则可能收不到Reference的onDispose事件。
             if (onBeforeComplete != null)
             {
-                AMDebug.LogFormat("[AssetManage]AssetLoader {0} onBeforeComplete", info != null ? info.fullName : "");
+                AMDebug.LogFormat("[AssetManage]AssetLoader {0} onBeforeComplete", info != null ? info.path : "");
 				onBeforeComplete(this);
             }
 
             if (onComplete != null)
             {
-                AMDebug.LogFormat("[AssetManage]AssetLoader {0} onComplete", info != null ? info.fullName : "");
+                AMDebug.LogFormat("[AssetManage]AssetLoader {0} onComplete", info != null ? info.path : "");
 				onComplete(result);
             }
 
             if (onAfterComplete != null)
             {
-                AMDebug.LogFormat("[AssetManage]AssetLoader {0} onAfterComplete", info != null ? info.fullName : "");
+                AMDebug.LogFormat("[AssetManage]AssetLoader {0} onAfterComplete", info != null ? info.path : "");
 				onAfterComplete(this);
             }
         }
 
         public override void Clean()
         {
+            if (info != null)
+            {
+                LoadInfoPool.ReleaseAssetLoadInfo(info);
+                info = null;
+            }
+
+            type = null;
+            assetBundleReference = null;
+            m_AutoReleaseBundle = false;
+
             onComplete = null;
             onBeforeComplete = null;
             onAfterComplete = null;
-            info = null;
-            type = null;
-            assetBundleReference = null;
 
             result = null;
             base.Clean();
@@ -106,7 +130,7 @@ namespace YH.AssetManage
 
 			if (info != null)
 			{
-				AMDebug.LogErrorFormat("[AssetManage]Load asset {0} fail", info.fullName);
+				AMDebug.LogErrorFormat("[AssetManage]Load asset {0} fail", info.path);
 			}
 			DoLoadComplete();
 		}

@@ -8,17 +8,25 @@ namespace YH.AssetManage
     /// <summary>
     /// 异步加载AssetBundle
     /// AssetBundle和依赖项同时加载，判断一个AssetBundle是加载完成，要检查自己是否加载和所有依赖是否完成。
-    /// 不要有循环依赖的AssetBundle
+    /// 依赖有二种模式：
+    /// 1. 依赖只记录直接依赖，所有子依赖完成，才算依赖加载完成。不能有循环依赖，可以另外处理。少占用内存。
+    /// 2. 依赖记录所有依赖，当前记录的依赖加载完成，则依赖加载完成。可处理循环依赖，多占用点内存。  
+    /// *** 推荐使用直接依赖。不要混用1和2，理论上可以，不过混用增加复杂度。
     /// </summary>
     public class AssetBundleAsyncLoader : AssetBundleLoader
     {
         public event Action<AssetBundleAsyncLoader> onAssetBundleLoaded;
 
+        //等待依赖本体资源加载完成数。不看依赖的依赖。
         int m_WaitDependencyLoadCount = 0;
+        //所有依赖的本体是否加载完成。
         bool m_DependenciesIsLoaded = false;
 
+        //等待所有依赖和其本身完成数。
         int m_WaitDependencyCompleteCount = 0;
+        //所有依赖是否完成。
         bool m_DependenciesIsDone = false;
+
         //如果有依赖项加载失败根据AMSetting.BreakOnBundleLoadDependencyError来判断当前AssetBundle是否加载成功。
         //通常要判断失败，除非有其他方法来加载失败的依赖项。
         bool m_DependenciesHaveError = false;
@@ -55,12 +63,13 @@ namespace YH.AssetManage
         }
 
         /// <summary>
-        /// 深度检查所有的子依赖都在完成状态，虽然可以检查带循环引用的，但是不推荐有循环引用，可以在生成AssetBundle的时候进行检查。
+        /// 深度检查所有的子依赖都已经加载完成。
+        /// 虽然可以检查带循环引用的，但是不推荐有循环引用，可以在生成AssetBundle的时候进行检查。
         /// 循环引用不仅引响加载，还引响回收。
         /// </summary>
         /// <param name="checkeds"></param>
         /// <returns></returns>
-        public bool DeepCheckDependenciesComplete(HashSet<AssetBundleAsyncLoader> checkeds=null)
+        public bool DeepCheckDependenciesLoadComplete(HashSet<AssetBundleAsyncLoader> checkeds=null)
         {
             if (m_DependenciesIsLoaded)
             {
@@ -81,7 +90,7 @@ namespace YH.AssetManage
                     foreach (AssetBundleAsyncLoader loader in m_DependencyLoaders)
                     {
     
-                        if (!loader.isComplete && !loader.DeepCheckDependenciesComplete(checkeds))
+                        if (!loader.isComplete && !loader.DeepCheckDependenciesLoadComplete(checkeds))
                         {
                             return false;
                         }
@@ -103,7 +112,7 @@ namespace YH.AssetManage
                 {
                     state = State.Loading;
 
-                    if (info.dependencies.Length > 0)
+                    if (info.assetBundleInfo.dependencies.Length > 0)
                     {
                         LoadDependencies();
                     }
@@ -112,12 +121,12 @@ namespace YH.AssetManage
                         m_DependenciesIsDone = true;
                         m_DependenciesIsLoaded = true;
                     }
-                    //AssetBundle不需要等待，依赖资源加载完成。
+                    //AssetBundle不需要等待依赖AssetBundle加载完成，本体可以和依赖同时加载。
                     LoadBundle();
                 }
                 else
                 {
-                    AMDebug.LogError("[AssetManage]Load AssetBundle with no info");
+                    AMDebug.LogError("[AssetBundleAsyncLoader]Load AssetBundle with no info");
                     Error();
                 }
             }
@@ -175,18 +184,18 @@ namespace YH.AssetManage
             }
             else
             {
-				AMDebug.LogError("[AssetManage]LoadBundle: no request manager.");
+				AMDebug.LogError("[AssetBundleAsyncLoader]LoadBundle: no request manager.");
             }
         }
 
         protected virtual void LoadDependencies()
         {
-            string[] dependencies = info.dependencies;
+            ulong[] dependencies = info.assetBundleInfo.dependencies;
             m_WaitDependencyLoadCount = dependencies.Length;
             m_WaitDependencyCompleteCount = dependencies.Length;
             m_DependenciesHaveError = false;
 
-            AMDebug.LogFormat("[AssetManage]Load Dependencies {0}" , dependencies.Length);
+            AMDebug.LogFormat("[AssetBundleAsyncLoader]Load Dependencies {0}" , dependencies.Length);
             if (m_DependencyLoaders == null)
             {
                 m_DependencyLoaders = new List<AssetBundleAsyncLoader>();
@@ -203,7 +212,7 @@ namespace YH.AssetManage
 
             for (int i = 0, l = dependencies.Length; i < l; ++i)
             {
-                string dep = dependencies[i];
+                ulong dep = dependencies[i];
 
 				//if (dep.Contains("blue_s"))
 				//{
@@ -211,15 +220,69 @@ namespace YH.AssetManage
 				//    continue;
 				//}
 
-				AssetBundleAsyncLoader depLoader = loaderManager.LoadAssetBundleAsync(dep, 0, AMSetting.CacheDependencyBundle, OnDependencyComplete) as AssetBundleAsyncLoader;
+				AssetBundleAsyncLoader depLoader = loaderManager.CreateAssetBundleAsyncLoader(dep, 0, AMSetting.CacheDependencyBundle);
                 if (depLoader != null)
                 {
+                    depLoader.onComplete += OnDependencyComplete;
                     depLoader.onAssetBundleLoaded += OnDependencyLoaded;
                     depLoader.onBeforeComplete += OnBeforeDependencyComplete;
+                    m_DependencyLoaders.Add(depLoader);
                 }
-                m_DependencyLoaders.Add(depLoader);
+                else
+                {
+                    AMDebug.LogErrorFormat("[AssetBundleAsyncLoader]LoadDependencies con't create dependency for {0}", dep);
+                    --m_WaitDependencyLoadCount;
+                    --m_WaitDependencyCompleteCount;
+                }
             }
         }
+
+        protected virtual void LoadDependenciesInAllMode()
+        {
+            //这里的依赖，已经是所有依赖，所以只要处理一层就可以了。
+            ulong[] dependencies = info.assetBundleInfo.dependencies;
+            m_WaitDependencyLoadCount = dependencies.Length;
+            m_WaitDependencyCompleteCount = dependencies.Length;
+            m_DependenciesHaveError = false;
+
+            AMDebug.LogFormat("[AssetBundleAsyncLoader]Load Dependencies {0}", dependencies.Length);
+            if (m_DependencyLoaders == null)
+            {
+                m_DependencyLoaders = new List<AssetBundleAsyncLoader>();
+            }
+            else
+            {
+                m_DependencyLoaders.Clear();
+            }
+
+            ResetDependencies();
+
+            m_DependenciesIsLoaded = false;
+            m_DependenciesIsDone = false;
+
+            for (int i = 0, l = dependencies.Length; i < l; ++i)
+            {
+                ulong dep = dependencies[i];
+
+                AssetBundleAsyncLoader depLoader = loaderManager.CreateAssetBundleAsyncLoader(dep, 0, AMSetting.CacheDependencyBundle);
+                if (depLoader != null)
+                {
+                    depLoader.onComplete += OnDependencyComplete;
+                    depLoader.onAssetBundleLoaded += OnDependencyLoaded;
+                    depLoader.onBeforeComplete += OnBeforeDependencyComplete;
+                    m_DependencyLoaders.Add(depLoader);
+                    loaderManager.ActiveLoader(depLoader);
+                }
+                else
+                {
+                    AMDebug.LogErrorFormat("[AssetBundleAsyncLoader]LoadDependencies con't create dependency load for {0}->{1}", info.bundleId, dep);
+                    OnBeforeDependencyComplete(null);
+                    OnDependencyLoaded(null);
+                    OnDependencyComplete(null);
+                }
+            }
+        }
+
 
         //IEnumerator testLoader(string dep)
         //{
@@ -236,9 +299,9 @@ namespace YH.AssetManage
 
         protected void OnDependencyLoaded(AssetBundleAsyncLoader loader)
         {
-            AMDebug.LogFormat("[AssetManage]DependencyLoaded {0}=>{1}" , 
-				info!=null?info.fullName:"Null" , 
-				loader.info != null ? loader.info.fullName : "Null");
+            AMDebug.LogFormat("[AssetBundleAsyncLoader]DependencyLoaded {0}=>{1}" , 
+				info!=null?info.bundleId.ToString():"Null" , 
+				loader.info != null ? loader.info.bundleId.ToString() : "Null");
             if (--m_WaitDependencyLoadCount == 0)
             {
                 m_DependenciesIsLoaded = true;
@@ -247,8 +310,13 @@ namespace YH.AssetManage
 
         protected void OnBeforeDependencyComplete(AssetBundleLoader loader)
         {
-            AMDebug.LogFormat("[AssetManage]OnBeforeDependencyComplete remove from loader {0}=>{1}", 
-				info != null ? info.fullName : "Null", loader.info != null ? loader.info.fullName : "Null");
+            AMDebug.LogFormat("[AssetBundleAsyncLoader]OnBeforeDependencyComplete remove from loader {0}=>{1}", 
+				info != null ? info.bundleId.ToString() : "Null", loader.info != null ? loader.info.bundleId.ToString() : "Null");
+
+            if (loader == null)
+            {
+                return;
+            }
 
             //依赖项已经加载完成要从m_DependencyLoaders里移除。
             for (int i = 0, l = m_DependencyLoaders.Count; i < l; ++i)
@@ -266,11 +334,11 @@ namespace YH.AssetManage
             if (abr != null && !abr.IsEmpty())
             {
                 AddDependency(abr);
-                AMDebug.LogFormat("[AssetManage]DependencyComplete {0}=>{1},{2} " , info.fullName , abr.name , m_WaitDependencyCompleteCount);
+                AMDebug.LogFormat("[AssetBundleAsyncLoader]DependencyComplete {0}=>{1},{2} " , info.bundleId, abr.id , m_WaitDependencyCompleteCount);
             }
             else
             {
-                AMDebug.LogError("[AssetManage]Download dependency error");
+                AMDebug.LogError("[AssetBundleAsyncLoader]Download dependency error");
                 m_DependenciesHaveError = true;
             }
 
@@ -292,7 +360,7 @@ namespace YH.AssetManage
                 m_Request = null;
             }
 
-            AMDebug.LogFormat("[AssetManage]BundleRequestComplete {0}" , info.fullName);
+            AMDebug.LogFormat("[AssetBundleAsyncLoader]BundleRequestComplete {0}" , info.bundleId);
             if (!request.haveError)
             {
                 state = State.Loaded;
@@ -302,7 +370,7 @@ namespace YH.AssetManage
                 }
                 
                 //Create result
-                result = new AssetBundleReference(request.assetBundle, info != null ? info.fullName : "");
+                result = new AssetBundleReference(request.assetBundle, info.bundleId);
                 m_Result.AddTags(paramTags);
                 if (m_DependenciesIsDone )//|| (m_DependenciesIsLoaded && DeepCheckDependenciesComplete()))
                 {
@@ -311,7 +379,7 @@ namespace YH.AssetManage
             }
             else
             {
-                AMDebug.LogErrorFormat("[AssetManage]BundleRequest fail {0}" , info.fullName);
+                AMDebug.LogErrorFormat("[AssetBundleAsyncLoader]BundleRequest fail {0}" , info.bundleId);
                 Error();
             }
         }

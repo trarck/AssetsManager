@@ -7,22 +7,26 @@ namespace YH.AssetManage
 {
     public class RequestManager:IRequestManager
     {
-        internal static readonly ObjectPool<BundleCreateRequest> BundleCreateRequestPool = new ObjectPool<BundleCreateRequest>(null, l => l.Clean());
+        internal static readonly ObjectPool<BundleCreateAsyncRequest> BundleCreateRequestPool = new ObjectPool<BundleCreateAsyncRequest>(null, l => l.Clean());
         internal static readonly ObjectPool<BundleWebRequest> BundleWebRequestPool = new ObjectPool<BundleWebRequest>(null, l => l.Clean());
         internal static readonly ObjectPool<BundleWebSaveRequest> BundleWebSaveRequestPool = new ObjectPool<BundleWebSaveRequest>(null, l => l.Clean());
 
-        internal static readonly ObjectPool<AssetLoaderRequest> AssetLoaderRequestPool = new ObjectPool<AssetLoaderRequest>(null, l => l.Clean());
+        internal static readonly ObjectPool<AssetLoaderAsyncRequest> AssetLoaderRequestPool = new ObjectPool<AssetLoaderAsyncRequest>(null, l => l.Clean());
         internal static readonly ObjectPool<ResouceLoaderRequest> ResouceLoaderRequestPool = new ObjectPool<ResouceLoaderRequest>(null, l => l.Clean());
 
 		internal static readonly ObjectPool<EmptyLoaderRequest> EmptyLoaderRequestPool = new ObjectPool<EmptyLoaderRequest>(null, l => l.Clean());
 
-		int m_MaxActiveRequest = 20;
+        internal static readonly ObjectPool<BundleCreateSyncRequest> BundleCreateSyncRequestPool = new ObjectPool<BundleCreateSyncRequest>(null, l => l.Clean());
+
+        int m_MaxActiveRequest = 20;
         List<Request> m_ActiveRequests = new List<Request>();
         List<int> m_FinishedIndexs = new List<int>();
         Stack<Request> m_PrepareRequests = new Stack<Request>();
-        
-        //cache manager
-        CacheManager m_CacheManager=null;
+
+        ////cache manager
+        //CacheManager m_CacheManager=null;
+        int m_StringPoolSize = 256;
+        FixedStringPool m_StringPool =null;
 
         public int MaxActiveRequest
         {
@@ -32,14 +36,16 @@ namespace YH.AssetManage
 
         public virtual void Init()
         {
-#if ASSETMANAGE_BUNDLE_CACHE_ON
-			if (AssetPaths.HaveRemoteUrl())
-			{
-				m_CacheManager = new CacheManager();
-				m_CacheManager.cacheInfoFile = AssetPaths.ToBundlePath(cacheManager.cacheInfoFile);
-				m_CacheManager.LoadCacheInfo();
-			}
-#endif
+            //#if ASSETMANAGE_BUNDLE_CACHE_ON
+            //			if (AssetPaths.HaveRemoteUrl())
+            //			{
+            //				m_CacheManager = new CacheManager();
+            //				m_CacheManager.cacheInfoFile = AssetPaths.ToBundlePath(cacheManager.cacheInfoFile);
+            //				m_CacheManager.LoadCacheInfo();
+            //			}
+            //#endif
+            m_StringPool = new FixedStringPool();
+            m_StringPool.Init(m_StringPoolSize);
         }
 
         public virtual void Clean()
@@ -47,6 +53,7 @@ namespace YH.AssetManage
             m_ActiveRequests.Clear();
             m_FinishedIndexs.Clear();
             m_PrepareRequests.Clear();
+            m_StringPool.Clean();
         }
 
         #region request operate
@@ -67,12 +74,12 @@ namespace YH.AssetManage
         {
             //check request 
             Tick();
-#if ASSETMANAGE_BUNDLE_CACHE_ON
-            if (m_CacheManager != null)
-            {
-                m_CacheManager.Update(deltaTime);
-            }
-#endif
+//#if ASSETMANAGE_BUNDLE_CACHE_ON
+//            if (m_CacheManager != null)
+//            {
+//                m_CacheManager.Update(deltaTime);
+//            }
+//#endif
         }
 
         protected void Tick()
@@ -148,13 +155,17 @@ namespace YH.AssetManage
 			{
 				ReleaseBundleWebRequest(request as BundleWebRequest);
 			}
-			else if (request is BundleCreateRequest)
+			else if (request is BundleCreateAsyncRequest)
 			{
-				ReleaseBundleCreateRequest(request as BundleCreateRequest);
+				ReleaseBundleCreateRequest(request as BundleCreateAsyncRequest);
 			}
-			else if (request is AssetLoaderRequest)
+            else if (request is BundleCreateSyncRequest)
+            {
+                ReleaseBundleCreateSyncRequest(request as BundleCreateSyncRequest);
+            }
+            else if (request is AssetLoaderAsyncRequest)
 			{
-				ReleaseAssetLoaderRequest(request as AssetLoaderRequest);
+				ReleaseAssetLoaderRequest(request as AssetLoaderAsyncRequest);
 			}
 			else if (request is ResouceLoaderRequest)
 			{
@@ -165,57 +176,102 @@ namespace YH.AssetManage
 				EmptyLoaderRequestPool.Release(request as EmptyLoaderRequest);
 			}
         }
-		#endregion
+        #endregion
 
-		#region create bundle request
-		public virtual Request CreateAssetBundleRequest(AssetBundleInfo assetBundleInfo)
+        #region create bundle request
+        public virtual Request CreateAssetBundleRequest(ulong contentId,uint offset)
         {
-            if (assetBundleInfo == null)
+            if (contentId == 0)
             {
                 return null;
             }
 
-			if (m_CacheManager != null)
-			{
-				//use cache
-				if (m_CacheManager.IsCached(assetBundleInfo.fullName, assetBundleInfo.hash))
-				{
-					//load from cache
-					string assetPath = AssetPaths.GetFullPath(assetBundleInfo.fullName);
-					return CreateBundleCreateRequest(assetPath);
-				}
-				else
-				{
-					//download and save to cache
-					string url = AssetPaths.GetUrl(assetBundleInfo.fullName);
-					string savePath = AssetPaths.ToBundlePath(assetBundleInfo.fullName);
-					BundleWebSaveRequest webSaveRequest = CreateBundleWebSaveRequest(url, savePath, assetBundleInfo.hash, assetBundleInfo.fullName);
-					webSaveRequest.onSaveComplete += OnBundleWebRequestSaveComplete;
-					return webSaveRequest;
-				}
-			}
-			else
-			{
-				//no cache
-				string assetPath = AssetPaths.GetFullPath(assetBundleInfo.fullName);
-                AMDebug.LogFormat("[AssetManage]LoadBundle {0}", assetPath);
-				if (assetPath.Contains("://"))
-				{
-					return CreateBundleWebRequest(assetPath);
-				}
-				else
-				{
-					return CreateBundleCreateRequest(assetPath);
-				}
-			}
+            string contentName = m_StringPool.Get(sizeof(ulong)*2);
+            FixedStringPool.FillHexString(contentName, 0, contentId, FixedStringPool.Casing.Lower);
+
+            string contentPath = AssetPaths.GetFullPath(contentName);
+            AMDebug.LogFormat("[AssetManage]LoadBundle {0}", contentPath);
+            m_StringPool.Release(contentName);
+            return CreateBundleCreateRequest(contentPath, offset);
+        }
+
+
+        public virtual Request CreateAssetBundleRequest(AssetBundleLoadInfo loadInfo)
+        {
+            return CreateAssetBundleRequest(loadInfo.GetContentId(), loadInfo.GetOffset());
+
+            //         if (assetBundleInfo == null)
+            //         {
+            //             return null;
+            //         }
+
+            //if (m_CacheManager != null)
+            //{
+            //	//use cache
+            //	if (m_CacheManager.IsCached(assetBundleInfo.fullName, assetBundleInfo.hash))
+            //	{
+            //		//load from cache
+            //		string assetPath = AssetPaths.GetFullPath(assetBundleInfo.fullName);
+            //		return CreateBundleCreateRequest(assetPath);
+            //	}
+            //	else
+            //	{
+            //		//download and save to cache
+            //		string url = AssetPaths.GetUrl(assetBundleInfo.fullName);
+            //		string savePath = AssetPaths.ToBundlePath(assetBundleInfo.fullName);
+            //		BundleWebSaveRequest webSaveRequest = CreateBundleWebSaveRequest(url, savePath, assetBundleInfo.hash, assetBundleInfo.fullName);
+            //		webSaveRequest.onSaveComplete += OnBundleWebRequestSaveComplete;
+            //		return webSaveRequest;
+            //	}
+            //}
+            //else
+            //{
+            //	//no cache
+            //	string assetPath = AssetPaths.GetFullPath(assetBundleInfo.fullName);
+            //             AMDebug.LogFormat("[AssetManage]LoadBundle {0}", assetPath);
+            //	if (assetPath.Contains("://"))
+            //	{
+            //		return CreateBundleWebRequest(assetPath);
+            //	}
+            //	else
+            //	{
+            //		return CreateBundleCreateRequest(assetPath);
+            //	}
+            //}
+        }
+
+        public virtual Request CreateAssetBundleSyncRequest(ulong contentId, uint offset)
+        {
+            if (contentId == 0)
+            {
+                return null;
+            }
+
+            string contentName = m_StringPool.Get(sizeof(ulong) * 2);
+            FixedStringPool.FillHexString(contentName, 0, contentId, FixedStringPool.Casing.Lower);
+
+            string contentPath = AssetPaths.GetFullPath(contentName);
+            AMDebug.LogFormat("[AssetManage]LoadBundle {0}:{1}", contentPath, offset);
+            m_StringPool.Release(contentName);
+
+            BundleCreateAsyncRequest request = BundleCreateRequestPool.Get();
+            request.path = contentPath;
+            request.offset = offset;
+
+            return request;
+        }
+
+        public virtual Request CreateAssetBundleSyncRequest(AssetBundleLoadInfo loadInfo)
+        {
+            return CreateAssetBundleSyncRequest(loadInfo.GetContentId(), loadInfo.GetOffset());
         }
 
         private void OnBundleWebRequestSaveComplete(BundleWebSaveRequest request)
         {
-            if (m_CacheManager!=null)
-            {
-                m_CacheManager.UpdateCacheItem(request.bundleFullname, request.hash);
-            }
+            //if (m_CacheManager!=null)
+            //{
+            //    m_CacheManager.UpdateCacheItem(request.bundleFullname, request.hash);
+            //}
         }
 
 
@@ -235,16 +291,22 @@ namespace YH.AssetManage
             BundleWebRequestPool.Release(request);
         }
 
-        public static BundleCreateRequest CreateBundleCreateRequest(string bundlePath)
+        public static BundleCreateAsyncRequest CreateBundleCreateRequest(string bundlePath, uint offset)
         {
-            BundleCreateRequest request = BundleCreateRequestPool.Get();
-            request.bundlePath = bundlePath;
+            BundleCreateAsyncRequest request = BundleCreateRequestPool.Get();
+            request.path = bundlePath;
+            request.offset = offset;
             return request;
         }
 
-        public static void ReleaseBundleCreateRequest(BundleCreateRequest request)
+        public static void ReleaseBundleCreateRequest(BundleCreateAsyncRequest request)
         {
             BundleCreateRequestPool.Release(request);
+        }
+
+        public static void ReleaseBundleCreateSyncRequest(BundleCreateSyncRequest request)
+        {
+            BundleCreateSyncRequestPool.Release(request);
         }
 
         public static BundleWebSaveRequest CreateBundleWebSaveRequest(string url,string localPath, string hash = null,string fullName=null)
@@ -284,16 +346,16 @@ namespace YH.AssetManage
 		}
 
 
-		public static AssetLoaderRequest CreateAssetLoaderRequest(AssetBundle assetBundle, string assetName, Type type)
+		public static AssetLoaderAsyncRequest CreateAssetLoaderRequest(AssetBundle assetBundle, string assetName, Type type)
         {
-            AssetLoaderRequest request = AssetLoaderRequestPool.Get();
+            AssetLoaderAsyncRequest request = AssetLoaderRequestPool.Get();
             request.assetBundle = assetBundle;
             request.assetName = assetName;
             request.type = type;
             return request;
         }
 
-        public static void ReleaseAssetLoaderRequest(AssetLoaderRequest request)
+        public static void ReleaseAssetLoaderRequest(AssetLoaderAsyncRequest request)
         {
             AssetLoaderRequestPool.Release(request);
         }
@@ -315,22 +377,22 @@ namespace YH.AssetManage
 
         public void OnApplicationPause(bool pause)
         {
-#if ASSETMANAGE_BUNDLE_CACHE_ON
-            if (m_CacheManager != null)
-            {
-                m_CacheManager.SaveCacheInfo();
-            }
-#endif
+//#if ASSETMANAGE_BUNDLE_CACHE_ON
+//            if (m_CacheManager != null)
+//            {
+//                m_CacheManager.SaveCacheInfo();
+//            }
+//#endif
         }
 
         public void OnApplicationQuit()
         {
-#if ASSETMANAGE_BUNDLE_CACHE_ON
-            if (m_CacheManager != null)
-            {
-                m_CacheManager.SaveCacheInfo();
-            }
-#endif
+//#if ASSETMANAGE_BUNDLE_CACHE_ON
+//            if (m_CacheManager != null)
+//            {
+//                m_CacheManager.SaveCacheInfo();
+//            }
+//#endif
         }
 
         public override string ToString()
@@ -373,16 +435,16 @@ namespace YH.AssetManage
             return sb.ToString();
         }
 
-        public CacheManager cacheManager
-        {
-            get
-            {
-                return m_CacheManager;
-            }
-            set
-            {
-                m_CacheManager = value;
-            }
-        }
+        //public CacheManager cacheManager
+        //{
+        //    get
+        //    {
+        //        return m_CacheManager;
+        //    }
+        //    set
+        //    {
+        //        m_CacheManager = value;
+        //    }
+        //}
     }
 }

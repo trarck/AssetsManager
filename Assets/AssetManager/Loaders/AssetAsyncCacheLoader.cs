@@ -1,6 +1,6 @@
 ﻿namespace YH.AssetManage
 {
-    public class AssetBundleAsyncExistLoader : AssetBundleAsyncLoader
+    public class AssetAsyncCacheLoader : AssetAsyncLoader
 	{
         public override bool isDone
         {
@@ -12,11 +12,8 @@
 
         public override void Start()
         {
-            if (info != null)
-            {
-                AMDebug.LogErrorFormat("[AssetManage]Load AssetBundle mode not open {0}", info.fullName);
-            }
             Complete();
         }
+
     }
 }

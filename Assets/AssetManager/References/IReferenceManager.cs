@@ -8,12 +8,12 @@ namespace YH.AssetManage
 {
     public interface IReferenceManager
 	{
-		Dictionary<string, AssetReference> assets
+		Dictionary<ulong, AssetReference> assets
 		{
 			get;set;
 		}
 
-		Dictionary<string, AssetBundleReference> assetBundles
+		Dictionary<ulong, AssetBundleReference> assetBundles
 		{
 			get;set;
 		}
@@ -22,11 +22,12 @@ namespace YH.AssetManage
 
 		void Clean();
 
+		bool TryGetAsset(ulong assetPathHash, out AssetReference ar);
 		bool TryGetAsset(string assetPath, out AssetReference ar);
 		void AddAssetReference(AssetReference ar);
 		void RemoveAssetReference(AssetReference ar);
 
-		bool TryGetAssetBundle(string assetBundlePath, out AssetBundleReference abr);
+		bool TryGetAssetBundle(ulong assetBundlePath, out AssetBundleReference abr);
 		void AddAssetBundleReference(AssetBundleReference abr, bool cache);
 		void RemoveAssetBundleReference(AssetBundleReference abr);
 
@@ -44,11 +45,11 @@ namespace YH.AssetManage
 
 		void UncacheAll();
 
-		void UncacheAssetBundle(string assetBundleName);
+		void UncacheAssetBundle(ulong assetBundleName);
 
 		void UncacheAssetBundle(AssetBundleReference abr);
 
-		void UncacheAsset(string assetName);
+		void UncacheAsset(ulong assetName);
 
 		void UncacheAsset(AssetReference ar);
 

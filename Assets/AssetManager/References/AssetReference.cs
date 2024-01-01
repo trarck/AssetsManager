@@ -41,17 +41,17 @@ namespace YH.AssetManage
 
                 if (m_AssetBundleReference != null)
                 {
-                    AMDebug.LogFormat("[AssetManage]AssetReference:Release {0},{1}",name, m_AssetBundleReference!=null? m_AssetBundleReference.name:"Null");
+                    AMDebug.LogFormat("[AssetManage]AssetReference:Release {0},{1}",id.ToString(), m_AssetBundleReference!=null? m_AssetBundleReference.id.ToString():"Null");
                     m_AssetBundleReference.Release();
                 }
                 m_AssetBundleReference = value;
             }
         }
 
-        public AssetReference(Object asset, string assetPath)
+        public AssetReference(Object asset, ulong assetPath)
         {
             this.asset = asset;
-            this.name = assetPath;
+            this.id = assetPath;
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace YH.AssetManage
                 return;
             }
 
-            AMDebug.LogFormat("[AssetManage]Asset dispose {0}", name);
+            AMDebug.LogFormat("[AssetManage]Asset dispose {0}", id);
 
             base.Dispose(disposing, forceRemoveAll);
 
@@ -129,7 +129,7 @@ namespace YH.AssetManage
                 asset = null;
                 //这里通过setter调用release
                 assetBundleReference = null;
-                name = null;
+                id = 0;
             }
         }
 

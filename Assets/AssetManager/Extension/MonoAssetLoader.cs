@@ -56,12 +56,12 @@ namespace YH.AssetManage.Extension
         //    }
         //}
 
-        public void LoadAssetBundle(string path, bool cacheLoadedAsset, Action<AssetBundleReference> completeHandle = null)
+        public void LoadAssetBundle(ulong bundleId, bool cacheLoadedAsset, Action<AssetBundleReference> completeHandle = null)
         {
-            LoadAssetBundle(path, 0, cacheLoadedAsset, completeHandle);
+            LoadAssetBundle(bundleId, 0, cacheLoadedAsset, completeHandle);
         }
 
-        public void LoadAssetBundle(string path, int tag, bool cacheLoadedAsset, Action<AssetBundleReference> completeHandle = null)
+        public void LoadAssetBundle(ulong path, int tag, bool cacheLoadedAsset, Action<AssetBundleReference> completeHandle = null)
         {
             if (!m_Destroyed)
             {

@@ -38,7 +38,7 @@ namespace YH.AssetManage
         {
             if (info != null)
             {
-                string resPath = AssetPaths.AddAssetPrev(info.fullName);
+                string resPath = info.path;
                 if (type == null)
                 {
                     m_Request = new SyncLoaderRequest();
@@ -75,7 +75,7 @@ namespace YH.AssetManage
             base.Error();
             if (info != null)
             {
-                AMDebug.LogErrorFormat("[AssetManage]Load asset {0} fail", info.fullName);
+                AMDebug.LogErrorFormat("[AssetManage]Load asset {0} fail", info.path);
             }
             DoLoadComplete();
         }
@@ -99,7 +99,7 @@ namespace YH.AssetManage
                 {
                     if (isDone && m_Request.data!=null)
                     {
-                        m_Result = new AssetReference(m_Request.data, info.fullName);
+                        m_Result = new AssetReference(m_Request.data, info.pathHash);
                         m_Result.Retain();
                         m_Result.AddTags(paramTags);
                         if (assetBundleReference != null)

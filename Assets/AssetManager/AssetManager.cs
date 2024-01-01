@@ -145,77 +145,82 @@ namespace YH.AssetManage
 			UnloadUnuseds();
 		}
 
-		#region load asset bundle
+        #region load asset bundle
 
 
-		/// <summary>
-		/// 异步加载AssetBundle
-		/// </summary>
-		/// <param name="path">AssetBundle路径</param>
-		/// <param name="cache">是否要缓存</param>
-		/// <param name="completeHandle">加载完成回调</param>
-		/// <returns>loader</returns>
-		public AssetBundleLoader LoadAssetBundle(string path, bool cache, Action<AssetBundleReference> completeHandle=null)
+        /// <summary>
+        /// 异步加载AssetBundle
+        /// 不推荐手动加载AssetBundle，会通过加载Asset自动加载AssetBunde。
+        /// </summary>
+        /// <param name="bundleId">
+        /// bundleId:bundle的唯一确定值。
+        /// 可以是AssetBundle的路径hash，也可以是AssetBundle内容hash, 甚至可以是定义的序列值。
+        /// 可以通过bundle中包含的资源，通过InfoManager获取。
+        /// </param>
+        /// <param name="cache">是否要缓存</param>
+        /// <param name="completeHandle">加载完成回调</param>
+        /// <returns>loader</returns>
+        public AssetBundleLoader LoadAssetBundle(ulong bundleId, bool cache, Action<AssetBundleReference> completeHandle = null)
         {
-            return LoadAssetBundle(path,0, cache, completeHandle);
+            return LoadAssetBundle(bundleId, 0, cache, completeHandle);
         }
 
 		/// <summary>
 		/// async load asset bundle
 		/// 同一个资源只有一个正在加载的loader
 		/// </summary>
-		/// <param name="path">asset bundle path</param>
+		/// <param name="bundleId">asset bundle id</param>
 		/// <param name="tag">tag for loaded asset bundle</param>
 		/// <param name="cache">cache asset bundle</param>
 		/// <param name="completeHandle">load complete callback</param>
 		/// <param name="beforLoadComplete">before load complete callback.use for custom loader</param>
 		/// <param name="afterLoadComplete">after load complete callback.use for custom loader</param>
 		/// <returns></returns>
-		public AssetBundleLoader LoadAssetBundle(string path, int tag, bool cache,
+		public AssetBundleLoader LoadAssetBundle(ulong bundleId, int tag, bool cache,
 			Action<AssetBundleReference> completeHandle = null,
 			Action<AssetBundleLoader> beforLoadComplete = null,
 			Action<AssetBundleLoader> afterLoadComplete = null)
 		{
-			return m_LoaderManager.LoadAssetBundleAsync(path,tag,cache,completeHandle,beforLoadComplete,afterLoadComplete);
+			return m_LoaderManager.LoadAssetBundleAsync(bundleId,tag,cache,completeHandle,beforLoadComplete,afterLoadComplete);
 		}
 
 		/// <summary>
 		/// 同步加载AssetBundle
 		/// </summary>
-		/// <param name="path"></param>
+		/// <param name="bundleId"></param>
 		/// <param name="cache"></param>
 		/// <returns></returns>
-        public AssetBundleReference LoadAssetBundleSync(string path, bool cache = true)
+        public AssetBundleReference LoadAssetBundleSync(ulong bundleId, bool cache = true)
         {
-            return LoadAssetBundleSync(path, 0, cache);
+            return LoadAssetBundleSync(bundleId, 0, cache);
         }
 
         /// <summary>
         /// load asset bundle from file
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="bundleId"></param>
         /// <param name="tag"></param>
         /// <param name="cache"></param>
         /// <returns>AssetBundleReference retainted.ref count add one after load.</returns>
-        public AssetBundleReference LoadAssetBundleSync(string path, int tag, bool cache = true)
+        public AssetBundleReference LoadAssetBundleSync(ulong bundleId, int tag, bool cache = true)
         {
-            return m_LoaderManager.LoadAssetBundleSync(path,tag,cache);
+            return m_LoaderManager. LoadAssetBundleSync(bundleId,tag,cache);
         }
 		#endregion
 
-		#region load asset
+		#region load asset path string
 
-		public AssetLoader LoadAsset(string path, Action<AssetReference> completeHandle=null, bool autoReleaseBundle = true)
+		public AssetLoaderOperation LoadAsset(string path, Action<AssetReference> completeHandle=null, bool autoReleaseBundle = true)
         {
             return LoadAsset(path, 0,null, autoReleaseBundle, completeHandle);
         }
 
-        public AssetLoader LoadAsset<T>(string path, Action<AssetReference> completeHandle=null, bool autoReleaseBundle = true)
+        public AssetLoaderOperation LoadAsset<T>(string path, Action<AssetReference> completeHandle=null, bool autoReleaseBundle = true)
         {
             return LoadAsset(path, 0,  typeof(T), autoReleaseBundle, completeHandle);
         }
 
-		public AssetLoader LoadAsset<T>(string path, int tag, Type type,Action<AssetReference> completeHandle = null, bool autoReleaseBundle = true)
+		public AssetLoaderOperation LoadAsset<T>(string path, int tag, Type type,Action<AssetReference> completeHandle = null, bool autoReleaseBundle = true)
 		{
 			return LoadAsset(path, tag, typeof(T), autoReleaseBundle, completeHandle);
 		}
@@ -234,26 +239,26 @@ namespace YH.AssetManage
 		/// <param name="type"></param>
 		/// <param name="completeHandle"></param>
 		/// <returns></returns>
-		public AssetLoader LoadAsset(string path,int tag, Type type,bool autoReleaseBundle,
+		public AssetLoaderOperation LoadAsset(string path,int tag, Type type,bool autoReleaseBundle,
 			Action<AssetReference> completeHandle=null, 
 			Action<AssetLoader> beforLoadComplete = null,
 			Action<AssetLoader> afterLoadComplete = null)
         {
-            return m_LoaderManager.LoadAssetAsync(path,tag,type,autoReleaseBundle,completeHandle,beforLoadComplete,afterLoadComplete);
+            return m_LoaderManager.LoadAssetAsync(path, tag,type,autoReleaseBundle,completeHandle,beforLoadComplete,afterLoadComplete);
         }
 
-		public AssetLoader LoadAssetWithAlias(string alias, int tag, Type type, Action<AssetReference> completeHandle = null, bool autoReleaseBundle = true)
+		public AssetLoaderOperation LoadAssetWithAlias(string alias, int tag, Type type, Action<AssetReference> completeHandle = null, bool autoReleaseBundle = true)
 		{
-			AssetInfo assetInfo = m_InfoManager.FindAssetInfoWithAlias(alias);
+			AssetLoadInfo assetInfo = m_InfoManager.GetAssetInfoWithAlias(alias);
 			if (assetInfo != null)
 			{
-				return LoadAsset(assetInfo.fullName, tag, type, autoReleaseBundle, completeHandle);
+				return LoadAsset(assetInfo.path, tag, type, autoReleaseBundle, completeHandle);
 			}
 			else
 			{
 				AMDebug.LogErrorFormat("[AssetManage]LoadAsset no alias {0} find ", alias);
 			}
-			return null;
+			return AssetLoaderOperation.Empty;
 		}
 
         public AssetReference LoadAssetSync(string path)
@@ -332,9 +337,126 @@ namespace YH.AssetManage
                 }
             }
         }
-#endregion
+        #endregion
 
-#region Yield Load Asset Bundle
+        #region load asset path hash
+
+        public AssetLoaderOperation LoadAsset(ulong path, Action<AssetReference> completeHandle = null, bool autoReleaseBundle = true)
+        {
+            return LoadAsset(path, 0, null, autoReleaseBundle, completeHandle);
+        }
+
+        public AssetLoaderOperation LoadAsset<T>(ulong path, Action<AssetReference> completeHandle = null, bool autoReleaseBundle = true)
+        {
+            return LoadAsset(path, 0, typeof(T), autoReleaseBundle, completeHandle);
+        }
+
+        public AssetLoaderOperation LoadAsset<T>(ulong path, int tag, Type type, Action<AssetReference> completeHandle = null, bool autoReleaseBundle = true)
+        {
+            return LoadAsset(path, tag, typeof(T), autoReleaseBundle, completeHandle);
+        }
+        /// <summary>
+        /// 资源加载
+        /// 资源加载完成，返回一个关于资源的refrence，记录资源的使用情况。
+        /// 资源使用的三种方式：
+        ///     1.Retain(),使用完成时需要执行Release()。
+        ///     2.Retain(Object),使用完成时可以不用执行Release(Object)，等待UnloadUnuseds清理。
+        ///     3.Monitor(GameObject),当GameObject被删除时，会自动执行Release(Object)。
+        /// 对于手动删除资源最好执行RemoveAsset。
+        /// 同一个资源只有一个正在加载的loader。由Manager负责管理Loader。
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="tag"></param>
+        /// <param name="type"></param>
+        /// <param name="completeHandle"></param>
+        /// <returns></returns>
+        public AssetLoaderOperation LoadAsset(ulong path, int tag, Type type, bool autoReleaseBundle,
+            Action<AssetReference> completeHandle = null,
+            Action<AssetLoader> beforLoadComplete = null,
+            Action<AssetLoader> afterLoadComplete = null)
+        {
+            return m_LoaderManager.LoadAssetAsync(path, tag, type, autoReleaseBundle, completeHandle, beforLoadComplete, afterLoadComplete);
+        }
+
+        public AssetReference LoadAssetSync(ulong path)
+        {
+            return LoadAssetSync(path, 0, null);
+        }
+
+        public AssetReference LoadAssetSync(ulong path, int tag)
+        {
+            return LoadAssetSync(path, tag, null);
+        }
+
+        public AssetReference LoadAssetSync(ulong path, int tag, Type type)
+        {
+            return m_LoaderManager.LoadAssetSync(path, tag, type);
+        }
+
+        public void LoadAssets(ICollection<ulong> assets, Action<Dictionary<ulong, AssetReference>> callback)
+        {
+            Dictionary<ulong, AssetReference> assetReferences = new Dictionary<ulong, AssetReference>();
+            LoadAssets(assets, assetReferences, callback);
+        }
+
+        public void LoadAssets(ICollection<ulong> assets, Dictionary<ulong, AssetReference> assetReferences, Action<Dictionary<ulong, AssetReference>> callback)
+        {
+            int needCount = assets.Count;
+            int loadCount = 0;
+            bool checkAll = false;
+
+            foreach (var assetPathHash in assets)
+            {
+                if (assetPathHash>0)
+                {
+                    ++loadCount;
+                    AssetManager.Instance.LoadAsset(assetPathHash, (assetReference) => {
+                        if (assetReference != null && !assetReference.IsEmpty())
+                        {
+                            if (assetReferences != null)
+                            {
+                                assetReferences[assetPathHash] = assetReference;
+                            }
+                        }
+                        else
+                        {
+                            AMDebug.LogErrorFormat("[AssetManage]LoadAssets can't load {0}", assetPathHash);
+                        }
+
+                        --needCount;
+
+                        if (--loadCount <= 0)
+                        {
+                            if (checkAll)
+                            {
+                                //all finished
+                                if (callback != null)
+                                {
+                                    callback(assetReferences);
+                                }
+                            }
+                        }
+                    });
+                }
+                else
+                {
+                    --needCount;
+                }
+            }
+
+            checkAll = true;
+
+            if (needCount == 0 && loadCount <= 0)
+            {
+                if (callback != null)
+                {
+                    callback(assetReferences);
+                }
+            }
+        }
+        #endregion
+
+        #region Yield Load Asset Bundle
         /// <summary>
         /// 使用yield要注意loader的释放。使用using或手动调用dispose
         /// </summary>
@@ -342,9 +464,9 @@ namespace YH.AssetManage
         /// <param name="cacheLoadedAsset"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public BundleLoaderEnumerator YieldLoadAssetBundle(string path, bool cacheLoadedAsset)
+        public BundleLoaderEnumerator YieldLoadAssetBundle(ulong bundleId, bool cacheLoadedAsset)
         {
-            return YieldLoadAssetBundle(path, 0, cacheLoadedAsset);
+            return YieldLoadAssetBundle(bundleId, 0, cacheLoadedAsset);
         }
 
         /// <summary>
@@ -355,10 +477,10 @@ namespace YH.AssetManage
         /// <param name="cacheLoadedAsset"></param>
         /// <param name="completeHandle"></param>
         /// <returns></returns>
-        public BundleLoaderEnumerator YieldLoadAssetBundle(string path, int tag, bool cacheLoadedAsset)
+        public BundleLoaderEnumerator YieldLoadAssetBundle(ulong bundleId, int tag, bool cacheLoadedAsset)
         {
             BundleLoaderEnumerator bundleLoaderEnumerator = new BundleLoaderEnumerator();
-            LoadAssetBundle(path, tag, cacheLoadedAsset, bundleLoaderEnumerator.OnAssetBundleLoadComlete);
+            LoadAssetBundle(bundleId, tag, cacheLoadedAsset, bundleLoaderEnumerator.OnAssetBundleLoadComlete);
             return bundleLoaderEnumerator;
         }
 
@@ -422,14 +544,15 @@ namespace YH.AssetManage
 #region Load Scene
         public AssetBundleLoader LoadScene(string path, int tag, Action<AssetBundleReference> completeHandle)
         {
-            AssetInfo info = m_InfoManager.FindAssetInfo(path);
+            AssetLoadInfo info = m_InfoManager.GetAssetInfo(path);
             if (info != null)
             {
-                return LoadAssetBundle(info.bundleName, tag, false, completeHandle);
+                return LoadAssetBundle(info.bunldeId, tag, false, completeHandle);
             }
             else
             {
-                return LoadAssetBundle(path, tag, false, completeHandle);
+                ulong bundleId = xxHash.xxHash64.ComputeHash(path);
+                return LoadAssetBundle(bundleId, tag, false, completeHandle);
             }
         }
 
@@ -455,10 +578,10 @@ namespace YH.AssetManage
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="assetBundleName"></param>
-        public void UncacheAssetBundle(string assetBundleName)
+        /// <param name="bundleId"></param>
+        public void UncacheAssetBundle(ulong bundleId)
         {
-			m_ReferenceManager.UncacheAssetBundle(assetBundleName);
+			m_ReferenceManager.UncacheAssetBundle(bundleId);
 		}
 
         public void UncacheAssetBundle(AssetBundleReference abr)
@@ -466,12 +589,20 @@ namespace YH.AssetManage
 			m_ReferenceManager.UncacheAssetBundle(abr);
 		}
 
-        public void UncacheAsset(string assetName)
+        public void UncacheAsset(string assetPath)
         {
-			m_ReferenceManager.UncacheAsset(assetName);	  
-		}
+            if (!string.IsNullOrEmpty(assetPath))
+            {
+                UncacheAsset(xxHash.xxHash64.ComputeHash(assetPath));
+            }
+        }
 
-		public void UncacheAsset(AssetReference ar)
+        public void UncacheAsset(ulong assetPathHash)
+        {
+            m_ReferenceManager.UncacheAsset(assetPathHash);
+        }
+
+        public void UncacheAsset(AssetReference ar)
         {
 			m_ReferenceManager.UncacheAsset(ar);
 		}
@@ -625,7 +756,7 @@ namespace YH.AssetManage
 				m_LoaderManager = value;
 			}
 		}
-		public Dictionary<string,AssetBundleReference> assetBundles
+		public Dictionary<ulong, AssetBundleReference> assetBundles
         {
             get
             {
@@ -633,7 +764,7 @@ namespace YH.AssetManage
             }
         }
 
-        public Dictionary<string,AssetReference> assets
+        public Dictionary<ulong, AssetReference> assets
         {
             get
             {

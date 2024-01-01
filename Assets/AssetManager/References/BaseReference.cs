@@ -19,18 +19,18 @@ namespace YH.AssetManage
 
         HashSet<int> m_Tags = HashSetPool<int>.Get();
 
-        public string name { get; set; }
+        public ulong id { get; set; }
 
         public virtual void Retain()
         {
             ++m_RefCount;
-            AMDebug.LogFormat("[AssetManage]({0}).Retain refCount={1},name={2}" ,this,m_RefCount,name);
+            AMDebug.LogFormat("[AssetManage]({0}).Retain refCount={1},name={2}" ,this,m_RefCount,id);
         }
 
         public virtual void Release()
         {
             --m_RefCount;
-            AMDebug.LogFormat("[AssetManage]({0}).Release refCount={1},name={2}", this, m_RefCount, name);
+            AMDebug.LogFormat("[AssetManage]({0}).Release refCount={1},name={2}", this, m_RefCount, id);
             //check sub overflow
             if (m_RefCount < 0)
             {
@@ -42,7 +42,7 @@ namespace YH.AssetManage
 
         public virtual void Retain(Object owner)
         {
-            AMDebug.LogFormat("[AssetManage]({0}).Retain refCount={1},name={2},owner={3}", this, m_RefCount, name, owner);
+            AMDebug.LogFormat("[AssetManage]({0}).Retain refCount={1},name={2},owner={3}", this, m_RefCount, id, owner);
             if (owner == null)
             {
                 throw new Exception("AssetBundleReference Retain a null Object");
@@ -61,7 +61,7 @@ namespace YH.AssetManage
 
         public virtual void Release(Object owner)
         {
-            AMDebug.LogFormat("[AssetManage]({0}).Release refCount={1},name={2},owner={3}", this, m_RefCount, name, owner);
+            AMDebug.LogFormat("[AssetManage]({0}).Release refCount={1},name={2},owner={3}", this, m_RefCount, id, owner);
             for (int i = 0, l = m_Owners.Count; i < l; ++i)
             {
                 if (owner.Equals(m_Owners[i].Target))
@@ -138,7 +138,7 @@ namespace YH.AssetManage
             m_IsCached = false;
             m_Owners.Clear();
             m_Tags.Clear();
-            name = null;
+            id = 0;
         }
 
         public virtual void AddTag(int tag)

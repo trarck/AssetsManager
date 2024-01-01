@@ -16,10 +16,10 @@ namespace YH.AssetManage
 
         public event DisposeHandle onDispose;
 
-        public AssetBundleReference(AssetBundle assetBundle, string assetBundleName)
+        public AssetBundleReference(AssetBundle assetBundle, ulong assetBundleName)
         {
             this.assetBundle = assetBundle;
-            this.name = assetBundleName;
+            this.id = assetBundleName;
         }
 
         public void AddDependency(AssetBundleReference dependency)
@@ -49,7 +49,7 @@ namespace YH.AssetManage
                 return;
             }
 
-            AMDebug.LogFormat("[AssetManage]Bundle dispose {0}", name);
+            AMDebug.LogFormat("[AssetManage]Bundle dispose {0}", id);
 
             base.Dispose(disposing, forceRemoveAll);
 
@@ -70,7 +70,7 @@ namespace YH.AssetManage
         {
             if (assetBundle != null)
             {
-                AMDebug.LogFormat("[AssetManage]AssetBundle unload {0},unloadAllLoadedObjects:{1}" ,name,unloadAllLoadedObjects);
+                AMDebug.LogFormat("[AssetManage]AssetBundle unload {0},unloadAllLoadedObjects:{1}" ,id,unloadAllLoadedObjects);
                 assetBundle.Unload(unloadAllLoadedObjects);
                 assetBundle = null;
             }

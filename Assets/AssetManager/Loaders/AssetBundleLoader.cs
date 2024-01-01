@@ -18,7 +18,7 @@ namespace YH.AssetManage
 
         public event Action<AssetBundleLoader> onAfterComplete;
 
-        public AssetBundleInfo info { get; set; }
+        public AssetBundleLoadInfo info { get; set; }
 
 		public virtual void Init(Action<AssetBundleLoader> beforeCompleteHandle, Action<AssetBundleLoader> afterCompleteHandle)
 		{
@@ -58,7 +58,11 @@ namespace YH.AssetManage
 
             result = null;
 
-            info = null;
+            if (info != null)
+            {
+                LoadInfoPool.ReleaseAssetBundleLoadInfo(info);
+                info = null;
+            }
 
             ClearDependencies();
 

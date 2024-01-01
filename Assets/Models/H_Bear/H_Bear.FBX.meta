@@ -1,49 +1,131 @@
 fileFormatVersion: 2
 guid: b744e558cd4f15e45b76cd634c0e73f3
 ModelImporter:
-  serializedVersion: 23
-  fileIDToRecycleName:
-    100000: b_Head
-    100002: b_Hips
-    100004: b_LeftAnkle
-    100006: b_LeftArm
-    100008: b_LeftForeArm
-    100010: b_LeftHand
-    100012: b_LeftLeg
-    100014: b_LeftLegUpper
-    100016: b_RightAnkle
-    100018: b_RightArm
-    100020: b_RightForeArm
-    100022: b_RightHand
-    100024: b_RightLeg
-    100026: b_RightLegUpper
-    100028: b_Root
-    100030: b_Spine01
-    100032: //RootNode
-    100034: SK_H_Bear
-    400000: b_Head
-    400002: b_Hips
-    400004: b_LeftAnkle
-    400006: b_LeftArm
-    400008: b_LeftForeArm
-    400010: b_LeftHand
-    400012: b_LeftLeg
-    400014: b_LeftLegUpper
-    400016: b_RightAnkle
-    400018: b_RightArm
-    400020: b_RightForeArm
-    400022: b_RightHand
-    400024: b_RightLeg
-    400026: b_RightLegUpper
-    400028: b_Root
-    400030: b_Spine01
-    400032: //RootNode
-    400034: SK_H_Bear
-    4300000: SK_H_Bear
-    9500000: //RootNode
-    11100000: //RootNode
-    11400000: //RootNode
-    13700000: SK_H_Bear
+  serializedVersion: 19301
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: b_Head
+  - first:
+      1: 100002
+    second: b_Hips
+  - first:
+      1: 100004
+    second: b_LeftAnkle
+  - first:
+      1: 100006
+    second: b_LeftArm
+  - first:
+      1: 100008
+    second: b_LeftForeArm
+  - first:
+      1: 100010
+    second: b_LeftHand
+  - first:
+      1: 100012
+    second: b_LeftLeg
+  - first:
+      1: 100014
+    second: b_LeftLegUpper
+  - first:
+      1: 100016
+    second: b_RightAnkle
+  - first:
+      1: 100018
+    second: b_RightArm
+  - first:
+      1: 100020
+    second: b_RightForeArm
+  - first:
+      1: 100022
+    second: b_RightHand
+  - first:
+      1: 100024
+    second: b_RightLeg
+  - first:
+      1: 100026
+    second: b_RightLegUpper
+  - first:
+      1: 100028
+    second: b_Root
+  - first:
+      1: 100030
+    second: b_Spine01
+  - first:
+      1: 100032
+    second: //RootNode
+  - first:
+      1: 100034
+    second: SK_H_Bear
+  - first:
+      4: 400000
+    second: b_Head
+  - first:
+      4: 400002
+    second: b_Hips
+  - first:
+      4: 400004
+    second: b_LeftAnkle
+  - first:
+      4: 400006
+    second: b_LeftArm
+  - first:
+      4: 400008
+    second: b_LeftForeArm
+  - first:
+      4: 400010
+    second: b_LeftHand
+  - first:
+      4: 400012
+    second: b_LeftLeg
+  - first:
+      4: 400014
+    second: b_LeftLegUpper
+  - first:
+      4: 400016
+    second: b_RightAnkle
+  - first:
+      4: 400018
+    second: b_RightArm
+  - first:
+      4: 400020
+    second: b_RightForeArm
+  - first:
+      4: 400022
+    second: b_RightHand
+  - first:
+      4: 400024
+    second: b_RightLeg
+  - first:
+      4: 400026
+    second: b_RightLegUpper
+  - first:
+      4: 400028
+    second: b_Root
+  - first:
+      4: 400030
+    second: b_Spine01
+  - first:
+      4: 400032
+    second: //RootNode
+  - first:
+      4: 400034
+    second: SK_H_Bear
+  - first:
+      43: 4300000
+    second: SK_H_Bear
+  - first:
+      95: 9500000
+    second: //RootNode
+  - first:
+      111: 11100000
+    second: //RootNode
+  - first:
+      114: 11400000
+    second: //RootNode
+  - first:
+      137: 13700000
+    second: SK_H_Bear
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -51,7 +133,7 @@ ModelImporter:
       name: T_H_Bear_D
     second: {fileID: 2100000, guid: 32f9a7372b0506948871da9fa8e43333, type: 2}
   materials:
-    importMaterials: 1
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 0
@@ -84,25 +166,28 @@ ModelImporter:
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 0
+    sortHierarchyByName: 1
     importVisibility: 0
     importBlendShapes: 1
     importCameras: 0
     importLights: 0
+    fileIdsGeneration: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
     preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
     indexFormat: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
     secondaryUVPackMargin: 4
     useFileScale: 1
-    previousCalculatedGlobalScale: 1
-    hasPreviousCalculatedGlobalScale: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
@@ -111,10 +196,16 @@ ModelImporter:
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
+  referencedClips:
+  - 994f66e086dee07479be03fe41a7a787
+  - cb447510de82e1248be07ea6c494b5ba
+  - cfe999f5980964b4f860bea8d2e89cb1
+  - bc87bda6fc40d2f4b9a9eaefbff771c5
+  - a5b4a9f7440cb3c45acd4a0c4262857a
+  - afe9b19023cefab478681a9f67bace32
   importAnimation: 1
-  copyAvatar: 0
   humanDescription:
-    serializedVersion: 2
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -124,13 +215,16 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 1
   humanoidOversampling: 1
+  avatarSetup: 0
   additionalBone: 0
   userData: 
   assetBundleName: 

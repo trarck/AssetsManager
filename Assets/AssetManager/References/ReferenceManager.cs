@@ -9,12 +9,12 @@ namespace YH.AssetManage
     public class ReferenceManager:IReferenceManager
 	{
 		//all loaded  asset bundles
-		Dictionary<string, AssetBundleReference> m_AssetBundles = null;
+		Dictionary<ulong, AssetBundleReference> m_AssetBundles = null;
 
 		//all loaded  assets
-		Dictionary<string, AssetReference> m_Assets = null;
+		Dictionary<ulong, AssetReference> m_Assets = null;
 
-		public Dictionary<string, AssetBundleReference> assetBundles
+		public Dictionary<ulong, AssetBundleReference> assetBundles
 		{
 			get
 			{
@@ -26,7 +26,7 @@ namespace YH.AssetManage
 			}
 		}
 
-		public Dictionary<string, AssetReference> assets
+		public Dictionary<ulong, AssetReference> assets
 		{
 			get
 			{
@@ -40,8 +40,8 @@ namespace YH.AssetManage
 
 		public void Init()
 		{
-			m_AssetBundles = new Dictionary<string, AssetBundleReference>();
-			m_Assets = new Dictionary<string, AssetReference>();
+			m_AssetBundles = new Dictionary<ulong, AssetBundleReference>();
+			m_Assets = new Dictionary<ulong, AssetReference>();
 		}
 
 		public void Clean()
@@ -51,16 +51,26 @@ namespace YH.AssetManage
 		}
 
 		#region Asset
+		public bool TryGetAsset(ulong assetPathHash, out AssetReference ar)
+		{
+			return m_Assets.TryGetValue(assetPathHash, out ar);
+		}
+
 		public bool TryGetAsset(string assetPath, out AssetReference ar)
 		{
-			return m_Assets.TryGetValue(assetPath, out ar);
+            if (string.IsNullOrEmpty(assetPath))
+            {
+				ar = null;
+				return false;
+            }
+			return TryGetAsset(xxHash.xxHash64.ComputeHash(assetPath), out ar);
 		}
 
 		public void AddAssetReference(AssetReference ar)
 		{
 			if (ar != null)
 			{
-				m_Assets[ar.name] = ar;
+				m_Assets[ar.id] = ar;
 				//asset loader always standalone
 				ar.Cache();
 				ar.onDispose += RemoveAssetReference;
@@ -69,12 +79,12 @@ namespace YH.AssetManage
 
 		public void RemoveAssetReference(AssetReference ar)
 		{
-			m_Assets.Remove(ar.name);
+			m_Assets.Remove(ar.id);
 		}
 		#endregion
 
 		#region AssetBundle
-		public bool TryGetAssetBundle(string assetBundlePath, out AssetBundleReference abr)
+		public bool TryGetAssetBundle(ulong assetBundlePath, out AssetBundleReference abr)
 		{
 			return m_AssetBundles.TryGetValue(assetBundlePath, out abr);
 		}
@@ -83,7 +93,7 @@ namespace YH.AssetManage
 		{
 			if (abr != null)
 			{
-				m_AssetBundles[abr.name] = abr;
+				m_AssetBundles[abr.id] = abr;
 
 				if (cache)
 				{
@@ -99,7 +109,7 @@ namespace YH.AssetManage
 
 		public void RemoveAssetBundleReference(AssetBundleReference abr)
 		{
-			m_AssetBundles.Remove(abr.name);
+			m_AssetBundles.Remove(abr.id);
 		}
 
 		#endregion
@@ -132,10 +142,10 @@ namespace YH.AssetManage
 
 			AssetBundleReference abr = null;
 
-			Stack<string> checkQueue = StackPool<string>.Get();
-			HashSet<string> checkings = HashSetPool<string>.Get();
+			Stack<ulong> checkQueue = StackPool<ulong>.Get();
+			HashSet<ulong> checkings = HashSetPool<ulong>.Get();
 
-			foreach (string key in m_AssetBundles.Keys)
+			foreach (ulong key in m_AssetBundles.Keys)
 			{
 				abr = m_AssetBundles[key];
 				if (abr.isCache)
@@ -145,7 +155,7 @@ namespace YH.AssetManage
 				}
 			}
 
-			Action<string> checkFun = (key) =>
+			Action<ulong> checkFun = (key) =>
 			{
 				abr = m_AssetBundles[key];
 				checkings.Remove(key);
@@ -157,9 +167,9 @@ namespace YH.AssetManage
 					{
 						foreach (AssetBundleReference sub in abr.dependencies)
 						{
-							if (sub.isCache && !checkings.Contains(sub.name))
+							if (sub.isCache && !checkings.Contains(sub.id))
 							{
-								checkQueue.Push(sub.name);
+								checkQueue.Push(sub.id);
 							}
 						}
 					}
@@ -175,8 +185,8 @@ namespace YH.AssetManage
 				checkFun(checkQueue.Pop());
 			}
 
-			StackPool<string>.Release(checkQueue);
-			HashSetPool<string>.Release(checkings);
+			StackPool<ulong>.Release(checkQueue);
+			HashSetPool<ulong>.Release(checkings);
 		}
 
 		public void UnloadUnusedBundles(int tag)
@@ -188,11 +198,11 @@ namespace YH.AssetManage
 
 			AssetBundleReference abr = null;
 
-			Stack<string> checkQueue = StackPool<string>.Get();
-			HashSet<string> checkings = HashSetPool<string>.Get();
+			Stack<ulong> checkQueue = StackPool<ulong>.Get();
+			HashSet<ulong> checkings = HashSetPool<ulong>.Get();
 
 
-			Action<string> checkFun = (key) =>
+			Action<ulong> checkFun = (key) =>
 			{
 				abr = m_AssetBundles[key];
 				checkings.Remove(key);
@@ -205,9 +215,9 @@ namespace YH.AssetManage
 						foreach (AssetBundleReference sub in abr.dependencies)
 						{
 							//只有同样tag和空tag的ref才需要重新检查。
-							if (sub.isCache && (sub.tagCount == 0 || sub.HaveTag(tag)) && !checkings.Contains(sub.name))
+							if (sub.isCache && (sub.tagCount == 0 || sub.HaveTag(tag)) && !checkings.Contains(sub.id))
 							{
-								checkQueue.Push(sub.name);
+								checkQueue.Push(sub.id);
 							}
 						}
 					}
@@ -217,7 +227,7 @@ namespace YH.AssetManage
 				}
 			};
 
-			foreach (string key in m_AssetBundles.Keys)
+			foreach (ulong key in m_AssetBundles.Keys)
 			{
 				abr = m_AssetBundles[key];
 				if (abr.HaveTag(tag) && abr.isCache)
@@ -233,8 +243,8 @@ namespace YH.AssetManage
 				checkFun(checkQueue.Pop());
 			}
 
-			StackPool<string>.Release(checkQueue);
-			HashSetPool<string>.Release(checkings);
+			StackPool<ulong>.Release(checkQueue);
+			HashSetPool<ulong>.Release(checkings);
 		}
 
 		public void UnloadUnusedAssets()
@@ -244,7 +254,7 @@ namespace YH.AssetManage
 				return;
 			}
 			AssetReference ar = null;
-			List<string> keys = ListPool<string>.Get();
+			List<ulong> keys = ListPool<ulong>.Get();
 			keys.AddRange(m_Assets.Keys);
 
 			for (int i = 0, l = keys.Count; i < l; ++i)
@@ -256,7 +266,7 @@ namespace YH.AssetManage
 					m_Assets.Remove(keys[i]);
 				}
 			}
-			ListPool<string>.Release(keys);
+			ListPool<ulong>.Release(keys);
 		}
 
 		public void UnloadUnusedAssets(int tag)
@@ -267,7 +277,7 @@ namespace YH.AssetManage
 			}
 
 			AssetReference ar = null;
-			List<string> keys = ListPool<string>.Get();
+			List<ulong> keys = ListPool<ulong>.Get();
 			keys.AddRange(m_Assets.Keys);
 
 			for (int i = 0, l = keys.Count; i < l; ++i)
@@ -282,7 +292,7 @@ namespace YH.AssetManage
 					}
 				}
 			}
-			ListPool<string>.Release(keys);
+			ListPool<ulong>.Release(keys);
 		}
 	  
 		#endregion
@@ -316,7 +326,7 @@ namespace YH.AssetManage
 		/// 
 		/// </summary>
 		/// <param name="assetBundleName"></param>
-		public void UncacheAssetBundle(string assetBundleName)
+		public void UncacheAssetBundle(ulong assetBundleName)
 		{
 			if (m_AssetBundles.ContainsKey(assetBundleName))
 			{
@@ -333,7 +343,7 @@ namespace YH.AssetManage
 			}
 		}
 
-		public void UncacheAsset(string assetName)
+		public void UncacheAsset(ulong assetName)
 		{
 			if (m_Assets.ContainsKey(assetName))
 			{

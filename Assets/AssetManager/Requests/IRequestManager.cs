@@ -13,9 +13,10 @@ namespace YH.AssetManage
         void Init();
         void Update(float deltaTime);
         void Clean();
-        Request CreateAssetBundleRequest(AssetBundleInfo assetBundleInfo);
+        Request CreateAssetBundleRequest(AssetBundleLoadInfo assetBundleInfo);
+        Request CreateAssetBundleSyncRequest(AssetBundleLoadInfo assetBundleInfo);
 
-		Request CreateAssetRequest(AssetBundle assetBundle, string assetName, Type type);
+        Request CreateAssetRequest(AssetBundle assetBundle, string assetName, Type type);
 		Request CreateAssetRequest(string resourcePath, Type type);
 		Request CreateAssetRequest();
 

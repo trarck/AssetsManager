@@ -22,9 +22,9 @@ namespace YH.AssetManage
             {
                 state = State.Loading;
 
-                if (!string.IsNullOrEmpty(info.bundleName))
+                if (info.bunldeId>0)
                 {
-					assetBundleReference = loaderManager.LoadAssetBundleSync(info.bundleName, 0, AMSetting.CacheDependencyBundle);
+					assetBundleReference = loaderManager.LoadAssetBundleSync(info.bunldeId, 0, AMSetting.CacheDependencyBundle);
                     if (assetBundleReference!=null)
                     {
                         assetBundleReference.Release();
@@ -60,11 +60,13 @@ namespace YH.AssetManage
         {
             if (info != null)
             {
-#if SUPPORT_ASSET_ALIAS
-                string assetName = info.aliasName;
-#else
-                string assetName = AssetPaths.AddAssetPrev(info.fullName);
-#endif
+                string assetName = info.path;
+                if (string.IsNullOrEmpty(assetName))
+                {
+                    //TODO use FixeStringPool
+                    assetName = HexConverter.ToString(info.pathHash, HexConverter.Casing.Lower);
+                }
+
                 if (type == null)
                 {
                     asset = assetBundleReference.assetBundle.LoadAsset(assetName);
@@ -86,7 +88,7 @@ namespace YH.AssetManage
         {
             if (info != null)
             {
-                string resourcePath = Path.Combine(Path.GetDirectoryName(info.fullName), Path.GetFileNameWithoutExtension(info.fullName));
+                string resourcePath = Path.Combine(Path.GetDirectoryName(info.path), Path.GetFileNameWithoutExtension(info.path));
                 resourcePath = AssetPaths.RemoveAssetPrev(resourcePath);
                 if (type == null)
                 {
@@ -110,7 +112,7 @@ namespace YH.AssetManage
             state = State.Error;
             if (info != null)
             {
-				AMDebug.LogErrorFormat("[AssetManage]Load asset {0} fail", info.fullName);
+				AMDebug.LogErrorFormat("[AssetManage]Load asset {0} fail", info.path);
             }
         }
 
@@ -132,7 +134,7 @@ namespace YH.AssetManage
                 if (m_Result == null && state == State.Completed)
                 {
 
-                    m_Result = new AssetReference(asset, info.fullName);
+                    m_Result = new AssetReference(asset, info.pathHash);
                     m_Result.Retain();
                     m_Result.AddTags(paramTags);
                     if (assetBundleReference != null)

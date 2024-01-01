@@ -9,9 +9,7 @@ namespace YH.AssetManage
 {
     public class InfoManager:IInfoManager
     {
-        BundleManifest m_BundleManifest;
-        Dictionary<string, AssetInfo> m_AssetInfos = new Dictionary<string, AssetInfo>();
-        Dictionary<string, AssetBundleInfo> m_AssetBundleInfos = new Dictionary<string, AssetBundleInfo>();
+        AssetBundleManifest m_AssetBundleManifest;
 
         MonoBehaviour m_CoroutineExecuter;
 		Coroutine m_LoadPackageFileCoroutine;
@@ -20,22 +18,6 @@ namespace YH.AssetManage
         int m_RetryTimes=AMSetting.RequestRetryTimes;
 
         public event Action<bool> onLoadComplete;
-
-        public Dictionary<string,AssetBundleInfo> AssetBundleInfos
-        {
-            get
-            {
-                return m_AssetBundleInfos;
-            }
-        }
-
-        public Dictionary<string,AssetInfo> AssetInfos
-        {
-            get
-            {
-                return m_AssetInfos;
-            }
-        }
 
         public InfoManager(MonoBehaviour coroutineExecuter)
         {
@@ -153,36 +135,32 @@ namespace YH.AssetManage
             steam.Position = 0;
             StreamReader reader = new StreamReader(steam);
             string content = reader.ReadToEnd();
-            BundleManifest bundleManifest = JsonUtility.FromJson<BundleManifest>(content);
+            AssetBundleManifest bundleManifest = JsonUtility.FromJson<AssetBundleManifest>(content);
             AddBundleManifest(bundleManifest);
         }
 
         public void LoadFromBinaryStream(Stream steam)
         {
-            BinaryReader reader = new BinaryReader(steam);
-
-            //skip head sign
-            //reader.ReadInt32();
-            steam.Position = 4;
-            BundleManifest bundleManifest = new BundleManifest();
-            bundleManifest.Read(reader);
+            AssetBundleManifestReader reader = new AssetBundleManifestReader(steam);
+            AssetBundleManifest bundleManifest = new AssetBundleManifest();
+            reader.ReadManifest(ref bundleManifest);
 
             AddBundleManifest(bundleManifest);
         }
 
-        private void AddBundleManifest(BundleManifest bundleManifest)
+        private void AddBundleManifest(AssetBundleManifest bundleManifest)
         {
-            if (m_BundleManifest != null)
-            {
-                //merge to m_BundleManifest
-                m_BundleManifest.bundleInfos.AddRange(bundleManifest.bundleInfos);
-            }
-            else
-            {
-                m_BundleManifest = bundleManifest;
-            }
+            //if (m_AssetBundleManifest != null)
+            //{
+            //    //merge to m_BundleManifest
+            //    m_AssetBundleManifest.bundleInfos.AddRange(bundleManifest.bundleInfos);
+            //}
+            //else
+            //{
+            //    m_AssetBundleManifest = bundleManifest;
+            //}
 
-            UpdateManifest(bundleManifest);
+            //UpdateManifest(bundleManifest);
         }
 
         public void SaveBinary(string fileName)
@@ -196,91 +174,107 @@ namespace YH.AssetManage
 
         public void SaveBinaryStream(Stream stream)
         {
-            if (m_BundleManifest != null)
-            {
-                BinaryWriter writer = new BinaryWriter(stream);
-                writer.Write(0x41424D49);
-                m_BundleManifest.Write(writer);
-            }
+            //if (m_AssetBundleManifest != null)
+            //{
+            //    BinaryWriter writer = new BinaryWriter(stream);
+            //    writer.Write(0x41424D49);
+            //    m_AssetBundleManifest.Write(writer);
+            //}
         }
 
-        protected void UpdateManifest(BundleManifest bundleManifest)
+        protected void UpdateManifest(AssetBundleManifest bundleManifest)
         {
-            if (bundleManifest == null)
-            {
-                return;
-            }
+            //if (bundleManifest == null)
+            //{
+            //    return;
+            //}
 
-            //create asset bundle map
-            AssetBundleInfo bundleInfo = null;
-            for (int i = 0, l = bundleManifest.bundleInfos.Count; i < l; ++i)
-            {
-                bundleInfo = bundleManifest.bundleInfos[i];
-                m_AssetBundleInfos.Add(bundleInfo.fullName, bundleInfo);
-            }
+            ////create asset bundle map
+            //AssetBundleLoadInfo bundleInfo = null;
+            //for (int i = 0, l = bundleManifest.bundleInfos.Count; i < l; ++i)
+            //{
+            //    bundleInfo = bundleManifest.bundleInfos[i];
+            //    m_AssetBundleInfos.Add(bundleInfo.fullName, bundleInfo);
+            //}
 
-            AssetInfo assetInfo = null;
-            for (int i = 0, l = bundleManifest.bundleInfos.Count; i < l; ++i)
-            {
-                bundleInfo = bundleManifest.bundleInfos[i];
+            //AssetLoadInfo assetInfo = null;
+            //for (int i = 0, l = bundleManifest.bundleInfos.Count; i < l; ++i)
+            //{
+            //    bundleInfo = bundleManifest.bundleInfos[i];
 
-                //create asset info map
-                for (int j = 0, k = bundleInfo.assets.Count; j < k; ++j)
-                {
-                    assetInfo = bundleInfo.assets[j];
-                    assetInfo.bundleName = bundleInfo.fullName;
-                    m_AssetInfos.Add(assetInfo.fullName, assetInfo);
-                }
-            }
+            //    //create asset info map
+            //    for (int j = 0, k = bundleInfo.assets.Count; j < k; ++j)
+            //    {
+            //        assetInfo = bundleInfo.assets[j];
+            //        assetInfo.bundleName = bundleInfo.fullName;
+            //        m_AssetInfos.Add(assetInfo.path, assetInfo);
+            //    }
+            //}
         }
 
-        public AssetInfo FindAssetInfo(string key)
+        public AssetLoadInfo GetAssetInfo(string assetPath)
         {
-            if (m_AssetInfos != null && !string.IsNullOrEmpty(key))
+            if (string.IsNullOrEmpty(assetPath))
             {
-                if (m_AssetInfos.ContainsKey(key))
-                {
-                    return m_AssetInfos[key];
-                }
+                return null;
+            }
 
-                string fixKey = AssetPaths.AddAssetPrev(key);
-                if (!fixKey.Equals(key))
+            ulong assetPathHash = xxHash.xxHash64.ComputeHash(assetPath);
+            return GetAssetInfo(assetPath, assetPathHash);
+        }
+
+        public AssetLoadInfo GetAssetInfo(string path, ulong assetPathHash)
+        {
+            if (m_AssetBundleManifest == null)
+            {
+                AMDebug.LogErrorFormat("[InfoManager]GetAssetInfo not load manifest {0}", string.IsNullOrEmpty(path) ? assetPathHash.ToString() : path);
+                return null;
+            }
+
+            ulong bundleId = 0;
+            AssetLoadInfo loadInfo = null;
+            if (m_AssetBundleManifest._AssetIdToBundleIds.TryGetValue(assetPathHash, out bundleId))
+            {
+                loadInfo = LoadInfoPool.GetAssetLoadInfo();
+                loadInfo.pathHash = assetPathHash;
+                loadInfo.bunldeId = bundleId;
+                if (!string.IsNullOrEmpty(path))
                 {
-                    if (m_AssetInfos.ContainsKey(fixKey))
-                    {
-                        return m_AssetInfos[fixKey];
-                    }
+                    loadInfo.path = path;
                 }
             }
+            return loadInfo;
+        }
+
+        public AssetLoadInfo GetAssetInfoWithAlias(string alias)
+        {
             return null;
         }
 
-        public AssetInfo FindAssetInfoWithAlias(string alias)
+        public AssetBundleLoadInfo GetAssetBundleInfo(ulong bundleId)
         {
-            if (m_AssetInfos != null && !string.IsNullOrEmpty(alias))
+            if (m_AssetBundleManifest == null)
             {
-                if (m_AssetInfos.ContainsKey(alias))
-                {
-                    return m_AssetInfos[alias];
-                }
+                AMDebug.LogErrorFormat("[InfoManager]GetAssetBundleInfo not load manifest {0}", bundleId);
+                return null;
             }
-            return null;
-        }
 
-        public AssetBundleInfo FindAssetBundleInfo(string key)
-        {
-            if (m_AssetBundleInfos != null && m_AssetBundleInfos.ContainsKey(key))
+            AssetBundleInfo2 assetBundleInfo = null;
+            if(!m_AssetBundleManifest._Bundles.TryGetValue(bundleId,out assetBundleInfo) )
             {
-                return m_AssetBundleInfos[key];
+                return null;
             }
-            return null;
+
+            AssetBundleLoadInfo loadInfo = LoadInfoPool.GetAssetBundleLoadInfo();
+            loadInfo.bundleId = bundleId;
+            loadInfo.assetBundleInfo = assetBundleInfo;
+            return loadInfo;
         }
 
         public void Clean()
         {
             onLoadComplete = null;
-            m_AssetInfos.Clear();
-            m_AssetBundleInfos.Clear();
+            m_AssetBundleManifest = null;
 
 			if (m_LoadPackageFileCoroutine != null && m_CoroutineExecuter != null)
 			{
@@ -306,19 +300,27 @@ namespace YH.AssetManage
             }
         }
 
-        public string version
+        public Version version
         {
             get
             {
-                return m_BundleManifest != null ? m_BundleManifest.version : null;
+                return m_AssetBundleManifest != null ? m_AssetBundleManifest.version : null;
             }
         }
 
-        public int format
+        public byte format
         {
             get
             {
-                return m_BundleManifest != null ? m_BundleManifest.format : 0;
+                return m_AssetBundleManifest != null ? m_AssetBundleManifest.format : (byte)0;
+            }
+        }
+
+        public bool useBundleDependenciesAll
+        {
+            get
+            {
+                return m_AssetBundleManifest != null ? m_AssetBundleManifest.bundleDependenciesAll : false;
             }
         }
     }

@@ -14,8 +14,8 @@ namespace YH.AssetManage
         public static readonly ObjectPool<AssetBundleSyncLoader> AssetBundleSyncLoaderPool = new ObjectPool<AssetBundleSyncLoader>(null, l => l.Clean());
         public static readonly ObjectPool<AssetSyncLoader> AssetSyncLoaderPool = new ObjectPool<AssetSyncLoader>(null, l => l.Clean());
 
-		public static readonly ObjectPool<AssetBundleAsyncExistLoader> AssetBundleAsyncExistLoaderPool = new ObjectPool<AssetBundleAsyncExistLoader>(null, l => l.Clean());
-		public static readonly ObjectPool<AssetAsyncExistLoader> AssetAsyncExistLoaderPool = new ObjectPool<AssetAsyncExistLoader>(null, l => l.Clean());
+		public static readonly ObjectPool<AssetBundleAsyncCacheLoader> AssetBundleAsyncExistLoaderPool = new ObjectPool<AssetBundleAsyncCacheLoader>(null, l => l.Clean());
+		public static readonly ObjectPool<AssetAsyncCacheLoader> AssetAsyncExistLoaderPool = new ObjectPool<AssetAsyncCacheLoader>(null, l => l.Clean());
 
 		private static Dictionary<Type, Action<Loader>> m_ReleaseLoaderTypeMap = InitReleaseLoaderTypeMap();
 
@@ -26,8 +26,8 @@ namespace YH.AssetManage
 				{typeof(AssetAsyncLoader),ReleaseAssetAsyncLoader},
 				{typeof(AssetBundleSyncLoader),ReleaseAssetBundleSyncLoader},
 				{typeof(AssetSyncLoader),ReleaseAssetSyncLoader},
-				{typeof(AssetBundleAsyncExistLoader),ReleaseAssetBundleAsyncExistLoader},
-				{typeof(AssetAsyncExistLoader),ReleaseAssetAsyncExistLoader}
+				{typeof(AssetBundleAsyncCacheLoader),ReleaseAssetBundleAsyncExistLoader},
+				{typeof(AssetAsyncCacheLoader),ReleaseAssetAsyncExistLoader}
 			};	  
 		}
 
@@ -53,12 +53,12 @@ namespace YH.AssetManage
 
 		public static void ReleaseAssetBundleAsyncExistLoader(Loader loader)
 		{
-			AssetBundleAsyncExistLoaderPool.Release(loader as AssetBundleAsyncExistLoader);
+			AssetBundleAsyncExistLoaderPool.Release(loader as AssetBundleAsyncCacheLoader);
 		}
 
 		public static void ReleaseAssetAsyncExistLoader(Loader loader)
 		{
-			AssetAsyncExistLoaderPool.Release(loader as AssetAsyncExistLoader);
+			AssetAsyncExistLoaderPool.Release(loader as AssetAsyncCacheLoader);
 		}
 
 		public static void Release(Loader loader)

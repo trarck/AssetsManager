@@ -9,21 +9,16 @@ namespace Tests
 {
     public class TestRequests
     {
-        AssetManager m_AssetManager;
-
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             Debug.Log("OneTimeSetUp");
-            m_AssetManager = AssetManager.Instance;
-            m_AssetManager.Init();
         }
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
             Debug.Log("OneTimeTearDown");
-            m_AssetManager.Clean();
         }
 
         [SetUp]
@@ -36,104 +31,35 @@ namespace Tests
         public void TearDown()
         {
             Debug.Log("TearDown");
-
-            //m_AssetManager.UnloadUnuseds();
         }
-
-        #region Asset
-
+        
         [Test]
-        public void TestLoadAssetSync()
+        public void TestSyncRequest()
         {
-            AssetReference result = m_AssetManager.LoadAssetSync("ArtResources/Prefabs/MyPrefab.prefab");
+            BundleCreateSyncRequest request = new BundleCreateSyncRequest("myprefab",0);
+            request.Start();
+            AssetBundle result = request.assetBundle;
             Assert.AreNotEqual(result, null);
         }
 
         [UnityTest]
-        public IEnumerator TestLoadAsset()
+        public IEnumerator TestCreateAsyncRequest()
         {
-            AssetReference result = null;
-            bool isDone = false;
-            m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
-            {
-                isDone = true;
-                result = ar;
-            });
-
-            while (!isDone)
-            {
-                yield return null;
-            }
+            BundleCreateAsyncRequest request = new BundleCreateAsyncRequest("myprefab", 0);
+            request.Start();
+            yield return request;
+            AssetBundle result = request.assetBundle;
             Assert.AreNotEqual(result, null);
         }
 
-        // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
-        // `yield return null;` to skip a frame.
-        [UnityTest]
-        public IEnumerator TestYeildLoadAsset()
-        {
-            AssetLoaderEnumerator assetLoaderEnumerator = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
-            yield return assetLoaderEnumerator;
-            AssetReference result = assetLoaderEnumerator.assetReference;
-            Assert.AreNotEqual(result, null);
-            assetLoaderEnumerator.Dispose();
-        }
-
-        [UnityTest]
-        public IEnumerator TestYeildLoadAsset2()
-        {
-            AssetLoaderEnumerator assetLoaderEnumerator = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
-            yield return assetLoaderEnumerator;
-            AssetReference result = assetLoaderEnumerator.assetReference;
-            Assert.AreNotEqual(result, null);
-            assetLoaderEnumerator.Dispose();
-
-            assetLoaderEnumerator = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
-            yield return assetLoaderEnumerator;
-            result = assetLoaderEnumerator.assetReference;
-            Assert.AreNotEqual(result, null);
-            assetLoaderEnumerator.Dispose();
-        }
-
-        #endregion
-
-        #region AssetBundle
-        [Test]
-        public void TestLoadAssetBundleSync()
-        {
-            AssetBundleReference result = m_AssetManager.LoadAssetBundleSync("myprefab",false);
-            Assert.AreNotEqual(result, null);
-        }
-
-
-        [UnityTest]
-        public IEnumerator TestLoadAssetBundle()
-        {
-            AssetBundleReference result = null;
-            bool isDone = false;
-            m_AssetManager.LoadAssetBundle("myprefab",false, (abr) =>
-            {
-                isDone = true;
-                result = abr;
-            });
-
-            while (!isDone)
-            {
-                yield return null;
-            }
-            Assert.AreNotEqual(result, null);
-        }
-
-        [UnityTest]
-        public IEnumerator TestYeildLoadAssetBundle()
-        {
-            BundleLoaderEnumerator bundleLoaderEnumerator = m_AssetManager.YieldLoadAssetBundle("myprefab", false);
-            yield return bundleLoaderEnumerator;
-            AssetBundleReference result = bundleLoaderEnumerator.assetBundleReference;
-            Assert.AreNotEqual(result, null);
-            bundleLoaderEnumerator.Dispose();
-        }
-
-        #endregion
+        //[UnityTest]
+        //public IEnumerator TestAssetAsyncRequest()
+        //{
+        //    BundleCreateAsyncRequest request = new BundleCreateAsyncRequest("myprefab", 0);
+        //    request.Start();
+        //    yield return request;
+        //    AssetBundle result = request.assetBundle;
+        //    Assert.AreNotEqual(result, null);
+        //}
     }
 }

@@ -22,102 +22,134 @@ namespace YH.AssetManage
         public void ReadManifest(ref AssetBundleManifest manifest)
         {
             //read head
-            ReadHeader();
-
-            //read block tabel
-            ReadBlockTable();
+            ReadHeader(manifest);
+   
+            //read stream block tabel
+            ReadStreamBlockTable();
 
             //read data
-            for (int i = 0; i < _Header.blockCount; ++i)
+            // TODO use regiest Block read function
+            for (int i = 0; i < _Header.streamBlockCount; ++i)
             {
-                switch (_BlockTable[i].type)
+                switch (_StreamBlockTable[i].type)
                 {
-                    case BlockType.Version:
+                    case StreamBlockType.Version:
                     {
                         //asset version
-                        ReadVersion(manifest);
+                        ReadVersion(_StreamBlockTable[i], manifest);
                         break;
                     }
-                    case BlockType.Bundle:
+                    case StreamBlockType.Bundle:
                     {
                         //bundles
-                        ReadBundles(manifest);
+                        ReadBundles(_StreamBlockTable[i], manifest);
                         break;
                     }
                 }
             }
         }
 
-        protected void ReadHeader()
+        protected void ReadHeader(AssetBundleManifest manifest)
         {
             _Header = new AssetBundleManifestHeader();
             _Header.magic = _Reader.ReadUInt32();
             _Header.format = _Reader.ReadByte();
-            _Header.flag =(ManifestFlag) _Reader.ReadUInt16();
-            _Header.blockCount = _Reader.ReadByte();
+            _Header.flag =(ManifestFlag) _Reader.ReadByte();
+            _Header.streamBlockCount = _Reader.ReadUInt16();
+
+            manifest.format = _Header.format;
+            manifest.bundleDependenciesAll = (_Header.flag & ManifestFlag.BundleDependenciesAll) != 0;
+            manifest.useBlock = (_Header.flag & ManifestFlag.BundleInBlock) != 0;
         }
 
-        protected void ReadBlockTable()
+        protected void ReadStreamBlockTable()
         {
-            if (_Header.blockCount == 0)
+            if (_Header.streamBlockCount == 0)
             {
                 //no data to read
                 return;
             }
 
-            _BlockTable = new AssetBundleManifestBlockInfo[_Header.blockCount];
-            for(int i = 0; i < _Header.blockCount; ++i)
+            _StreamBlockTable = new AssetBundleManifestBlockInfo[_Header.streamBlockCount];
+            for(int i = 0; i < _Header.streamBlockCount; ++i)
             {
-                _BlockTable[i].DeserializeValue(_Reader.ReadUInt32());
+                _StreamBlockTable[i].DeserializeValue(_Reader.ReadUInt32());
             }
         }
 
-        protected void ReadVersion(AssetBundleManifest manifest)
+        protected void ReadVersion(AssetBundleManifestBlockInfo blockInfo, AssetBundleManifest manifest)
         {
+            //_Reader.BaseStream.Position = blockInfo.offset;
             manifest.version = VersionSerializer.DeserializeVersion(_Reader);
         }
 
-        protected void ReadBundles(AssetBundleManifest manifest)
+        protected void ReadBundles(AssetBundleManifestBlockInfo blockInfo, AssetBundleManifest manifest)
         {
-            int count = _Reader.ReadInt32();
-            manifest._AssetIdToBundles = new Dictionary<ulong, AssetBundleInfo>(count * 2);
-            manifest._Bundles = new Dictionary<ulong, AssetBundleInfo>(count);
-
-            List<AssetBundleInfo> bundles = new List<AssetBundleInfo>(count);
-            for (int i = 0; i < count; ++i)
+            if (manifest.useBlock)
             {
-                AssetBundleInfo bundleInfo = new AssetBundleInfo();
-                bundleInfo.id = _Reader.ReadUInt64();
-                ReadAssets(manifest, bundleInfo);
-                manifest._Bundles.Add(bundleInfo.id, bundleInfo);
-                bundles.Add(bundleInfo);
+                ReadBundlesWithBlock(blockInfo, manifest);
             }
-
-            for (int i = 0; i < count; ++i)
+            else
             {
-                AssetBundleInfo bundleInfo = bundles[i];
-                ReadDependencies(bundles, bundleInfo);
+                ReadBundlesNoBlock(blockInfo, manifest);
             }
         }
 
-        protected void ReadAssets(AssetBundleManifest manifest, AssetBundleInfo bundleInfo)
+
+        protected void ReadBundlesNoBlock(AssetBundleManifestBlockInfo streamBlockInfo, AssetBundleManifest manifest)
+        {
+            //_Reader.BaseStream.Position = streamBlockInfo.offset;
+            int count = _Reader.ReadInt32();
+            manifest._AssetIdToBundleIds = new Dictionary<ulong, ulong>(count);
+            manifest._Bundles = new Dictionary<ulong, AssetBundleInfo2>(count);
+
+            for (int i = 0; i < count; ++i)
+            {
+                AssetBundleInfo2 bundleInfo = new AssetBundleInfo2();
+                ulong bundleId = _Reader.ReadUInt64();
+                manifest._Bundles.Add(bundleId, bundleInfo);
+                ReadAssets(bundleId, manifest);
+                ReadDependencies(bundleInfo, manifest);
+            }
+        }
+
+        protected void ReadBundlesWithBlock(AssetBundleManifestBlockInfo streamBlockInfo, AssetBundleManifest manifest)
+        {
+            //_Reader.BaseStream.Position = streamBlockInfo.offset;
+            int count = _Reader.ReadInt32();
+            manifest._AssetIdToBundleIds = new Dictionary<ulong, ulong>(count);
+            manifest._Bundles = new Dictionary<ulong, AssetBundleInfo2>(count);
+
+            for (int i = 0; i < count; ++i)
+            {
+                AssetBundleBlockInfo bundleInfo = new AssetBundleBlockInfo();
+                ulong bundleId = _Reader.ReadUInt64();
+                manifest._Bundles.Add(bundleId, bundleInfo);
+
+                ReadAssets(bundleId, manifest);
+                ReadDependencies(bundleInfo, manifest);
+                bundleInfo.contentId = _Reader.ReadUInt64();
+                bundleInfo.offset = _Reader.ReadUInt32();
+            }
+        }
+
+        protected void ReadAssets(ulong bundleId, AssetBundleManifest manifest)
         {
             int count = _Reader.ReadInt32();
             for (int i = 0; i < count; ++i)
             {
                 ulong assetId = _Reader.ReadUInt64();
-                manifest._AssetIdToBundles[assetId] = bundleInfo;
+                manifest._AssetIdToBundleIds[assetId] = bundleId;
             }
         }
 
-        protected void ReadDependencies(List<AssetBundleInfo> bundles, AssetBundleInfo bundleInfo)
+        protected void ReadDependencies(AssetBundleInfo2 bundleInfo, AssetBundleManifest manifest)
         {
             int depCount = _Reader.ReadInt32();
-            bundleInfo.dependencies = new AssetBundleInfo[depCount];
+            bundleInfo.dependencies = new ulong[depCount];
             for (int i = 0; i < depCount; ++i)
             {
-                int bundleIndex = _Reader.ReadInt32();
-                bundleInfo.dependencies[i] = bundles[bundleIndex];
+                bundleInfo.dependencies[i] = _Reader.ReadUInt64();
             }
         }
     }

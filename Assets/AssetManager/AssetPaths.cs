@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using UnityEngine;
 
 
@@ -24,6 +25,10 @@ namespace YH.AssetManage
         public static string remoteUrl = "";
 
         public static List<string> searchPaths = new List<string>();
+
+        private static string m_BundlesFullPath = null;
+
+        private static ThreadLocal<StringBuilder> m_StringBuilderCache = new ThreadLocal<StringBuilder>();
 
         /// <summary>
         /// 设置默认路径
@@ -150,7 +155,11 @@ namespace YH.AssetManage
             if (paths.Length == 0) return string.Empty;
             if (paths.Length == 1) return paths[0];
 
-            StringBuilder sb = new StringBuilder();
+            if (!m_StringBuilderCache.IsValueCreated)
+            {
+                m_StringBuilderCache.Value = new StringBuilder();
+            }
+            StringBuilder sb = m_StringBuilderCache.Value;
 
             string c=null,n=null;            
 
@@ -226,11 +235,18 @@ namespace YH.AssetManage
 
         public static string GetBundlePath()
         {
-            if (Path.IsPathRooted(bundlesPath))
+            if (m_BundlesFullPath == null)
             {
-                return bundlesPath;
+                if (Path.IsPathRooted(bundlesPath))
+                {
+                    m_BundlesFullPath = bundlesPath;
+                }
+                else
+                {
+                    m_BundlesFullPath = Combine(Application.persistentDataPath, bundlesPath);
+                }
             }
-            return Combine(Application.persistentDataPath, bundlesPath);
+            return m_BundlesFullPath;
         }
 
         public static string ToBundlePath(string filename)
@@ -245,8 +261,9 @@ namespace YH.AssetManage
             {
                 return filename;
             }
+
             //To bundle dir
-            return Path.Combine(GetBundlePath(), filename);
+            return Combine(GetBundlePath(), filename);
         }
 
         public static string GetUrl(string filename)

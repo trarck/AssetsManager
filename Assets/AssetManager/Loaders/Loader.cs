@@ -25,8 +25,7 @@ namespace YH.AssetManage
         protected bool m_ForceDone = false;
         //是否缓存加载后的资源。
         protected bool m_CacheResult = false;
-        //是否在加载后自动断开和AssetBundle的联系。
-        protected bool m_AutoReleaseBundle = true;
+
 
         HashSet<int> m_ParamTags = null;
 
@@ -39,22 +38,6 @@ namespace YH.AssetManage
 		protected bool m_Aborted = false;
 
 		public abstract bool isDone { get; }
-
-        public bool autoReleaseBundle
-		{
-			get
-			{
-				return m_AutoReleaseBundle;
-			}
-			set
-			{
-				if (m_AutoReleaseBundle && value == false)
-				{
-					m_AutoReleaseBundle = value;
-				}
-			}
-		}
-
 
         public HashSet<int> paramTags
         {
@@ -99,7 +82,6 @@ namespace YH.AssetManage
                 m_State = value;
             }
         }
-
 
 		public virtual void Retain()
 		{
@@ -149,7 +131,7 @@ namespace YH.AssetManage
             state = State.Idle;
             m_ForceDone = false;
             m_CacheResult = false;
-			m_AutoReleaseBundle = false;
+
 			if (m_ParamTags != null)
             {
                 m_ParamTags.Clear();

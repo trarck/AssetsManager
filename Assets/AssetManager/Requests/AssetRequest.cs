@@ -6,7 +6,7 @@ using UnityEngine;
 namespace YH.AssetManage
 {
 
-    public class AssetLoaderRequest : Request
+    public class AssetLoaderAsyncRequest : Request
     {
         AssetBundleRequest m_Request;
         bool m_Aborted = false;
@@ -52,12 +52,12 @@ namespace YH.AssetManage
             }
         }
 
-        public AssetLoaderRequest()
+        public AssetLoaderAsyncRequest()
         {
 
         }
 
-        public AssetLoaderRequest(AssetBundle assetBundle, string assetName,Type type)
+        public AssetLoaderAsyncRequest(AssetBundle assetBundle, string assetName,Type type)
         {
             this.assetBundle = assetBundle;
             this.assetName = assetName;

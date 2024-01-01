@@ -22,12 +22,14 @@ namespace YH.AssetManage
             if (m_State == State.Inited)
             {
                 state = State.Loading;
-                if (!string.IsNullOrEmpty(info.bundleName))
+                if (info.bunldeId!=0)
                 {
-					m_AssetBundleLoader = loaderManager.LoadAssetBundleAsync(info.bundleName, 0, AMSetting.CacheDependencyBundle, OnAssetBundleLoadComplete);
+                    // load from bundle
+					m_AssetBundleLoader = loaderManager.LoadAssetBundleAsync(info.bunldeId, 0, AMSetting.CacheDependencyBundle, OnAssetBundleLoadComplete);
                 }
                 else
                 {
+                    // load from resource
                     LoadAsset();
                 }
             }
@@ -108,11 +110,13 @@ namespace YH.AssetManage
         {
             if (info != null)
             {
-#if SUPPORT_ASSET_ALIAS
-                string assetName = info.aliasName;
-#else
-                string assetName = AssetPaths.AddAssetPrev(info.fullName);
-#endif
+                string assetName = info.path;
+                if (string.IsNullOrEmpty(assetName))
+                {
+                    //TODO use FixeStringPool
+                    assetName = HexConverter.ToString(info.pathHash, HexConverter.Casing.Lower);
+                }
+
                 AMDebug.LogFormat("[AssetManage]Load asset {0}", assetName);
 
                 m_Request = loaderManager.requestManager.CreateAssetRequest(assetBundleReference.assetBundle, assetName, type);
@@ -130,7 +134,7 @@ namespace YH.AssetManage
         {
             if (info != null)
             {
-                string resourcePath = Path.Combine(Path.GetDirectoryName(info.fullName), Path.GetFileNameWithoutExtension(info.fullName));
+                string resourcePath = Path.Combine(Path.GetDirectoryName(info.path), Path.GetFileNameWithoutExtension(info.path));
                 resourcePath = AssetPaths.RemoveAssetPrev(resourcePath);
                 m_Request = loaderManager.requestManager.CreateAssetRequest(resourcePath, type);
                 m_Request.onComplete += OnRequestComplete;
@@ -161,7 +165,7 @@ namespace YH.AssetManage
 
             if (!request.haveError)
             {
-                result = new AssetReference(request.data, info.fullName);
+                result = new AssetReference(request.data, info.pathHash);
                 m_Result.AddTags(paramTags);
                 if (assetBundleReference != null)
                 {

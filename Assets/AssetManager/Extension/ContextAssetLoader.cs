@@ -56,7 +56,7 @@ namespace YH.AssetManage.Extension
             {
                 AMDebug.LogFormat("[AssetManage]ContextAssetLoader Start load asset {0}.", path);
                 //这里暂时使用匿名函数。
-                AssetLoader loader = AssetManager.Instance.LoadAsset(path, tag, type, autoReleaseBundle, completeHandle);
+                AssetLoader loader = AssetManager.Instance.LoadAsset(path, tag, type, autoReleaseBundle, completeHandle).loader;
                 loader.onBeforeComplete += OnAssetBeforeComplete;
                 m_AssetLoaders.Add(loader);
                 m_AssetCompleteHandles[loader] = completeHandle;
@@ -70,18 +70,18 @@ namespace YH.AssetManage.Extension
 
         #region AssetBundle
 
-        public void LoadAssetBundle(string path, bool cacheLoadedAsset, Action<AssetBundleReference> completeHandle = null)
+        public void LoadAssetBundle(ulong bundleId, bool cacheLoadedAsset, Action<AssetBundleReference> completeHandle = null)
         {
-            LoadAssetBundle(path, 0, cacheLoadedAsset, completeHandle);
+            LoadAssetBundle(bundleId, 0, cacheLoadedAsset, completeHandle);
         }
 
-        public void LoadAssetBundle(string path, int tag, bool cacheLoadedAsset, Action<AssetBundleReference> completeHandle = null)
+        public void LoadAssetBundle(ulong bundleId, int tag, bool cacheLoadedAsset, Action<AssetBundleReference> completeHandle = null)
         {
             if (m_Context != null && m_Context.enable)
             {
-                AMDebug.LogFormat("[AssetManage]ContextAssetLoader Start load asset bundle {0}.", path);
+                AMDebug.LogFormat("[AssetManage]ContextAssetLoader Start load asset bundle {0}.", bundleId.ToString());
                 //这里暂时使用匿名函数。
-                AssetBundleLoader loader = AssetManager.Instance.LoadAssetBundle(path, tag, cacheLoadedAsset, completeHandle);
+                AssetBundleLoader loader = AssetManager.Instance.LoadAssetBundle(bundleId, tag, cacheLoadedAsset, completeHandle);
                 if (loader!=null)
                 {
                     loader.onBeforeComplete += OnAssetBundleBeforeComplete;
@@ -91,7 +91,7 @@ namespace YH.AssetManage.Extension
             }
             else
             {
-                AMDebug.LogFormat("[ContextAssetLoader] Can't load asset bundle {0}.The context is disable", path);
+                AMDebug.LogFormat("[ContextAssetLoader] Can't load asset bundle {0}.The context is disable", bundleId);
             }
         }
         #endregion

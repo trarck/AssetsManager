@@ -9,11 +9,12 @@ namespace YH.AssetManage
     public interface IInfoManager
     {
         bool loading { get; }
-        string version { get; }
-        int format { get; }
+        Version version { get; }
+        byte format { get; }
+
+        bool useBundleDependenciesAll { get; }
+
         event Action<bool> onLoadComplete;
-        Dictionary<string, AssetBundleInfo> AssetBundleInfos { get; }
-        Dictionary<string, AssetInfo> AssetInfos { get; }
 
         void Init();
 		void Clean();
@@ -23,10 +24,9 @@ namespace YH.AssetManage
         void SaveBinary(string fileName);
         void SaveBinaryStream(Stream stream);
 
-        AssetInfo FindAssetInfo(string key);
-        AssetInfo FindAssetInfoWithAlias(string alias);
-        AssetBundleInfo FindAssetBundleInfo(string key);
-
-   
+        AssetLoadInfo GetAssetInfo(string assetPath);
+        AssetLoadInfo GetAssetInfo(string assetPath, ulong assetPathHash);
+        AssetLoadInfo GetAssetInfoWithAlias(string alias);
+        AssetBundleLoadInfo GetAssetBundleInfo(ulong bundleId);
     }
 }
