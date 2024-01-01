@@ -48,18 +48,18 @@ namespace Tests
 
 			int loadCount = 3;
 
-			m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+			m_AssetManager.LoadAsset("Assets/ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
 			{
 				result1 = ar;
 				--loadCount;
 			});
 
-			m_AssetManager.LoadAsset("ArtResources/Materials/MyMaterial.mat", (ar) =>
+			m_AssetManager.LoadAsset("Assets/ArtResources/Materials/MyMaterial.mat", (ar) =>
 			{
 				result2 = ar;
 				--loadCount;
 			});
-			m_AssetManager.LoadAsset("ArtResources/Textures/bnt_Blue_S.png", (ar) =>
+			m_AssetManager.LoadAsset("Assets/ArtResources/Textures/bnt_Blue_S.png", (ar) =>
 			{
 				result3 = ar;
 				--loadCount;
@@ -82,13 +82,13 @@ namespace Tests
 			AssetReference result2 = null;
 			int loadCount = 2;
 
-			m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+			m_AssetManager.LoadAsset("Assets/ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
 			{
 				result1 = ar;
 				--loadCount;
 			});
 
-			m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+			m_AssetManager.LoadAsset("Assets/ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
 			{
 				result2 = ar;
 				--loadCount;
@@ -111,7 +111,7 @@ namespace Tests
 
 			Object obj = null;
 
-			m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
+			m_AssetManager.LoadAsset("Assets/ArtResources/Prefabs/MyPrefab.prefab", (ar) =>
 			{
 				--loadCount;
 				if (ar != null)
@@ -129,7 +129,7 @@ namespace Tests
 
 			Assert.AreEqual(1, m_AssetManager.assets.Count);
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
-			Assert.AreEqual(2, m_AssetManager.assetBundles.Count);
+			Assert.AreEqual(3, m_AssetManager.assetBundles.Count);
 #else
         Assert.AreEqual(0,m_AssetManager.assetBundles.Count);
 #endif
@@ -153,10 +153,10 @@ namespace Tests
 		[Test]
 		public void TestSyncLoad()
 		{
-			AssetReference ar = m_AssetManager.LoadAssetSync("ArtResources/Prefabs/MyPrefab.prefab");
+			AssetReference ar = m_AssetManager.LoadAssetSync("Assets/ArtResources/Prefabs/MyPrefab.prefab");
 			Assert.AreNotEqual(ar, null);
 
-			AssetReference ar2 = m_AssetManager.LoadAssetSync("ArtResources / Materials / MyMaterial.mat");
+			AssetReference ar2 = m_AssetManager.LoadAssetSync("Assets/ArtResources / Materials / MyMaterial.mat");
 			Assert.AreNotEqual(ar2, null);
 		}
 
@@ -164,12 +164,12 @@ namespace Tests
 		public IEnumerator TestSyncThenAsyncLoad()
 		{
 			//先同步再异步
-			AssetReference ar = m_AssetManager.LoadAssetSync("ArtResources/Prefabs/MyPrefab.prefab");
+			AssetReference ar = m_AssetManager.LoadAssetSync("Assets/ArtResources/Prefabs/MyPrefab.prefab");
 			Assert.AreNotEqual(ar, null);
 
 			int loadCount = 1;
 			AssetReference ar2 = null;
-			m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (tar) =>
+			m_AssetManager.LoadAsset("Assets/ArtResources/Prefabs/MyPrefab.prefab", (tar) =>
 			 {
 				 ar2 = tar;
 				 --loadCount;
@@ -187,7 +187,7 @@ namespace Tests
 			//先异步再同步
 			int loadCount = 1;
 			AssetReference ar2 = null;
-			m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefab.prefab", (tar) =>
+			m_AssetManager.LoadAsset("Assets/ArtResources/Prefabs/MyPrefab.prefab", (tar) =>
 			{
 				ar2 = tar;
 				--loadCount;
@@ -198,7 +198,7 @@ namespace Tests
 			}
 			Assert.AreNotEqual(ar2, null);
 
-			AssetReference ar = m_AssetManager.LoadAssetSync("ArtResources/Prefabs/MyPrefab.prefab");
+			AssetReference ar = m_AssetManager.LoadAssetSync("Assets/ArtResources/Prefabs/MyPrefab.prefab");
 			Assert.AreNotEqual(ar, null);
 		}
 
@@ -211,7 +211,7 @@ namespace Tests
 
 			int loadCount = 1;
 
-			m_AssetManager.LoadAsset("ArtResources/Prefabs/MyPrefabXXX.prefab", (ar) =>
+			m_AssetManager.LoadAsset("Assets/ArtResources/Prefabs/MyPrefabXXX.prefab", (ar) =>
 			{
 				result1 = ar;
 				--loadCount;
@@ -230,7 +230,7 @@ namespace Tests
 		[UnityTest]
 		public IEnumerator TestYeildLoadAsset()
 		{
-			AssetLoaderEnumerator assetLoaderEnumerator = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
+			AssetLoaderEnumerator assetLoaderEnumerator = m_AssetManager.YieldLoadAsset("Assets/ArtResources/Prefabs/MyPrefab.prefab");
 			yield return assetLoaderEnumerator;
 			AssetReference result = assetLoaderEnumerator.assetReference;
 			Assert.AreNotEqual(result, null);
@@ -240,13 +240,13 @@ namespace Tests
 		[UnityTest]
 		public IEnumerator TestYeildLoadSameAsset()
 		{
-			AssetLoaderEnumerator assetLoaderEnumerator = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
+			AssetLoaderEnumerator assetLoaderEnumerator = m_AssetManager.YieldLoadAsset("Assets/ArtResources/Prefabs/MyPrefab.prefab");
 			yield return assetLoaderEnumerator;
 			AssetReference result = assetLoaderEnumerator.assetReference;
 			Assert.AreNotEqual(result, null);
 			assetLoaderEnumerator.Dispose();
 
-			assetLoaderEnumerator = m_AssetManager.YieldLoadAsset("ArtResources/Prefabs/MyPrefab.prefab");
+			assetLoaderEnumerator = m_AssetManager.YieldLoadAsset("Assets/ArtResources/Prefabs/MyPrefab.prefab");
 			yield return assetLoaderEnumerator;
 			result = assetLoaderEnumerator.assetReference;
 			Assert.AreNotEqual(result, null);

@@ -84,58 +84,58 @@ public class TestLoadPerformance : MonoBehaviour
         }
     }
 
-    public void LoadBundleSync()
-    {
-        string bundlePath = m_BundlePathInputField.text;
-        if (string.IsNullOrEmpty(bundlePath))
-        {
-            AddMessage("asset bunde path is empty.");
-            return;
-        }
+    //public void LoadBundleSync()
+    //{
+    //    string bundlePath = m_BundlePathInputField.text;
+    //    if (string.IsNullOrEmpty(bundlePath))
+    //    {
+    //        AddMessage("asset bunde path is empty.");
+    //        return;
+    //    }
 
-        float startTime = Time.realtimeSinceStartup;
-        var abr = m_AssetManager.LoadAssetBundleSync(bundlePath);
-        float loadTime = Time.realtimeSinceStartup - startTime;
+    //    float startTime = Time.realtimeSinceStartup;
+    //    var abr = m_AssetManager.LoadAssetBundleSync(bundlePath);
+    //    float loadTime = Time.realtimeSinceStartup - startTime;
 
-        AddMessage("sync load bundle used:" + loadTime.ToString());
-        if (abr != null)
-        {
-            AddMessage("load bunde success.");
-            m_AssetBundle = abr.assetBundle;
-        }
-        else
-        {
-            AddMessage("load bunde fail.");
-            m_AssetBundle = null;
-        }
-    }
+    //    AddMessage("sync load bundle used:" + loadTime.ToString());
+    //    if (abr != null)
+    //    {
+    //        AddMessage("load bunde success.");
+    //        m_AssetBundle = abr.assetBundle;
+    //    }
+    //    else
+    //    {
+    //        AddMessage("load bunde fail.");
+    //        m_AssetBundle = null;
+    //    }
+    //}
 
-    public void LoadBundleASync()
-    {
-        string bundlePath = m_BundlePathInputField.text;
-        if (string.IsNullOrEmpty(bundlePath))
-        {
-            AddMessage("asset bunde path is empty.");
-            return;
-        }
+    //public void LoadBundleASync()
+    //{
+    //    string bundlePath = m_BundlePathInputField.text;
+    //    if (string.IsNullOrEmpty(bundlePath))
+    //    {
+    //        AddMessage("asset bunde path is empty.");
+    //        return;
+    //    }
 
-        float startTime = Time.realtimeSinceStartup;
-        m_AssetManager.LoadAssetBundle(bundlePath, true, (abr) =>
-        {
-            float loadTime = Time.realtimeSinceStartup - startTime;
-            AddMessage("async load bundle used:" + loadTime.ToString());
-            if (abr != null)
-            {
+    //    float startTime = Time.realtimeSinceStartup;
+    //    m_AssetManager.LoadAssetBundle(bundlePath, true, (abr) =>
+    //    {
+    //        float loadTime = Time.realtimeSinceStartup - startTime;
+    //        AddMessage("async load bundle used:" + loadTime.ToString());
+    //        if (abr != null)
+    //        {
 
-                AddMessage("load bunde success.");
-                m_AssetBundle = abr.assetBundle;
-            }
-            else
-            {
-                AddMessage("load bunde fail.");
-            }
-        });
-    }
+    //            AddMessage("load bunde success.");
+    //            m_AssetBundle = abr.assetBundle;
+    //        }
+    //        else
+    //        {
+    //            AddMessage("load bunde fail.");
+    //        }
+    //    });
+    //}
 
     public void LoadAssetSync()
     {

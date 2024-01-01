@@ -39,5 +39,11 @@ namespace Tests
 
             m_AssetManager.UnloadUnuseds();
         }
+
+        [Test]
+        public void TestInfoLoad()
+        {
+
+        }
     }
 }

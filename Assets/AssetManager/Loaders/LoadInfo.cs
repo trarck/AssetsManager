@@ -28,7 +28,7 @@ namespace YH.AssetManage
     {
         // buindle id
         public ulong bundleId;
-        public AssetBundleInfo2 assetBundleInfo;
+        public AssetBundleRuntimeInfo assetBundleInfo;
 
         public void Clean()
         {
@@ -38,11 +38,16 @@ namespace YH.AssetManage
 
         public ulong GetContentId()
         {
+            ulong contentId = 0;
             if (assetBundleInfo != null)
             {
-                return assetBundleInfo.GetContentId();
+                contentId= assetBundleInfo.GetContentId();
+                if (contentId == 0)
+                {
+                    contentId = bundleId;
+                }
             }
-            return 0;
+            return contentId;
         }
 
         public uint GetOffset()

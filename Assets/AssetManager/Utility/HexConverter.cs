@@ -42,13 +42,13 @@ namespace YH.AssetManage
         public static string ToString(ulong v, Casing casing = Casing.Upper)
         {
             char[] result = new char[sizeof(ulong) * 2];
-            ToCharsBuffer((byte)(v >> 7), result, 0, casing);
-            ToCharsBuffer((byte)(v >> 6), result, 2, casing);
-            ToCharsBuffer((byte)(v >> 5), result, 4, casing);
-            ToCharsBuffer((byte)(v >> 4), result, 6, casing);
-            ToCharsBuffer((byte)(v >> 3), result, 8, casing);
-            ToCharsBuffer((byte)(v >> 2), result, 10, casing);
-            ToCharsBuffer((byte)(v >> 1), result, 12, casing);
+            ToCharsBuffer((byte)(v >> 56), result, 0, casing);
+            ToCharsBuffer((byte)(v >> 48), result, 2, casing);
+            ToCharsBuffer((byte)(v >> 40), result, 4, casing);
+            ToCharsBuffer((byte)(v >> 32), result, 6, casing);
+            ToCharsBuffer((byte)(v >> 24), result, 8, casing);
+            ToCharsBuffer((byte)(v >> 16), result, 10, casing);
+            ToCharsBuffer((byte)(v >> 8), result, 12, casing);
             ToCharsBuffer((byte)(v & 0xFF), result, 14, casing);
             return new string(result);
         }
@@ -56,9 +56,9 @@ namespace YH.AssetManage
         public static string ToString(int v, Casing casing = Casing.Upper)
         {
             char[] result = new char[sizeof(ulong) * 2];
-            ToCharsBuffer((byte)(v >> 3), result, 0, casing);
-            ToCharsBuffer((byte)(v >> 2), result, 2, casing);
-            ToCharsBuffer((byte)(v >> 1), result, 4, casing);
+            ToCharsBuffer((byte)(v >> 24), result, 0, casing);
+            ToCharsBuffer((byte)(v >> 16), result, 2, casing);
+            ToCharsBuffer((byte)(v >> 8), result, 4, casing);
             ToCharsBuffer((byte)(v & 0xFF), result, 6, casing);
             return new string(result);
         }
@@ -66,7 +66,7 @@ namespace YH.AssetManage
         public static string ToString(short v, Casing casing = Casing.Upper)
         {
             char[] result = new char[sizeof(ulong) * 2];
-            ToCharsBuffer((byte)(v >> 1), result, 0, casing);
+            ToCharsBuffer((byte)(v >> 8), result, 0, casing);
             ToCharsBuffer((byte)(v & 0xFF), result, 2, casing);
             return new string(result);
         }

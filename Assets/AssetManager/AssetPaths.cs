@@ -9,13 +9,16 @@ namespace YH.AssetManage
 {
     public class AssetPaths
     {
+        private const string DirectorySeparatorChar = "/";
+        public const string AssetBundelExt = ".ab";
+
         public static string dataPath = Application.dataPath;
 
         public static string streamingAssetsPath = Application.streamingAssetsPath;
 
         public static string bundlesPath="AssetBundles";
 
-        public static string bundleManifestFile = "all.manifest.json";
+        public static string bundleManifestFile = "all.manifest";
 
         public static string bundlesEditorBuildOutPath = "AssetBundles";
 
@@ -160,6 +163,7 @@ namespace YH.AssetManage
                 m_StringBuilderCache.Value = new StringBuilder();
             }
             StringBuilder sb = m_StringBuilderCache.Value;
+            sb.Clear();
 
             string c=null,n=null;            
 
@@ -201,7 +205,7 @@ namespace YH.AssetManage
                     }
                     else
                     {
-                        sb.Append(Path.DirectorySeparatorChar);
+                        sb.Append(DirectorySeparatorChar);
                         sb.Append(n);
                     }
                 }

@@ -390,13 +390,13 @@ namespace YH.AssetManage
         {
             fixed (char* pDest = dest)
             {
-                ToCharsBuffer((byte)(data >> 7), pDest + destPos, casing);
-                ToCharsBuffer((byte)(data >> 6), pDest + destPos+2, casing);
-                ToCharsBuffer((byte)(data >> 5), pDest + destPos+4, casing);
-                ToCharsBuffer((byte)(data >> 4), pDest + destPos+6, casing);
-                ToCharsBuffer((byte)(data >> 3), pDest + destPos+8, casing);
-                ToCharsBuffer((byte)(data >> 2), pDest + destPos+10, casing);
-                ToCharsBuffer((byte)(data >> 1), pDest + destPos+12, casing);
+                ToCharsBuffer((byte)(data >> 56), pDest + destPos, casing);
+                ToCharsBuffer((byte)(data >> 48), pDest + destPos+2, casing);
+                ToCharsBuffer((byte)(data >> 40), pDest + destPos+4, casing);
+                ToCharsBuffer((byte)(data >> 32), pDest + destPos+6, casing);
+                ToCharsBuffer((byte)(data >> 24), pDest + destPos+8, casing);
+                ToCharsBuffer((byte)(data >> 16), pDest + destPos+10, casing);
+                ToCharsBuffer((byte)(data >> 8), pDest + destPos+12, casing);
                 ToCharsBuffer((byte)(data & 0xFF), pDest + destPos+14, casing);
             }
         }
@@ -405,9 +405,9 @@ namespace YH.AssetManage
         {
             fixed (char* pDest = dest)
             {
-                ToCharsBuffer((byte)(data >> 3), pDest + destPos, casing);
-                ToCharsBuffer((byte)(data >> 2), pDest + destPos+2, casing);
-                ToCharsBuffer((byte)(data >> 1), pDest + destPos+4, casing);
+                ToCharsBuffer((byte)(data >> 24), pDest + destPos, casing);
+                ToCharsBuffer((byte)(data >> 16), pDest + destPos+2, casing);
+                ToCharsBuffer((byte)(data >> 8), pDest + destPos+4, casing);
                 ToCharsBuffer((byte)(data&0xFF), pDest + destPos+6, casing);
             }
         }
@@ -416,7 +416,7 @@ namespace YH.AssetManage
         {
             fixed (char* pDest = dest)
             {
-                ToCharsBuffer((byte)(data >> 1), pDest + destPos, casing);
+                ToCharsBuffer((byte)(data >> 8), pDest + destPos, casing);
                 ToCharsBuffer((byte)(data & 0xFF), pDest + destPos+2, casing);
             }
         }

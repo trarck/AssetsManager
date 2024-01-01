@@ -1,0 +1,829 @@
+{
+    "assets": [
+        {
+            "assetPath": "Assets/ArtResources/Pres/MyPrefab.prefab",
+            "assetType": 1,
+            "fileSize": 2295,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [
+                "Assets/ArtResources/Materials/MyMaterial.mat"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Materials/MyMaterial.mat",
+            "assetType": 1,
+            "fileSize": 2094,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Pres/MyPrefab.prefab",
+                "Assets/ArtResources/Pres/TestPrefab.prefab",
+                "Assets/ArtResources/Prefabs/MyPrefab.prefab",
+                "Assets/ArtResources/Prefabs/TestPrefab.prefab",
+                "Assets/ArtResources/Prefabs/CircelRefs/APreab.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Textures/bnt_Blue_S.png",
+                "Assets/Shaders/Buildin/DefaultResourcesExtra/Unlit/Unlit-Normal.shader"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Textures/bnt_Blue_S.png",
+            "assetType": 1,
+            "fileSize": 194114,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Materials/MyMaterial.mat",
+                "Assets/ArtResources/Materials/TestMat.mat",
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_A.mat"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Shaders/Buildin/DefaultResourcesExtra/Unlit/Unlit-Normal.shader",
+            "assetType": 3,
+            "fileSize": 1694,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Materials/MyMaterial.mat"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Pres/TestPrefab.prefab",
+            "assetType": 1,
+            "fileSize": 2297,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [
+                "Assets/ArtResources/Materials/MyMaterial.mat"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Prefabs/MyPrefab.prefab",
+            "assetType": 1,
+            "fileSize": 2295,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [
+                "Assets/ArtResources/Materials/MyMaterial.mat"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Prefabs/p_cf_anim.prefab",
+            "assetType": 1,
+            "fileSize": 467218,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [
+                "Assets/HS/cf_base/p_cf_anim.fbx"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/HS/cf_base/p_cf_anim.fbx",
+            "assetType": 1,
+            "fileSize": 383936,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Prefabs/p_cf_anim.prefab"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Prefabs/TestMatProp.prefab",
+            "assetType": 1,
+            "fileSize": 2645,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [
+                "Assets/ArtResources/Materials/TestMat.mat"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Materials/TestMat.mat",
+            "assetType": 1,
+            "fileSize": 2117,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Prefabs/TestMatProp.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Textures/bnt_Blue_S.png",
+                "Assets/Shaders/TestShader.shader"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Shaders/TestShader.shader",
+            "assetType": 3,
+            "fileSize": 1828,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Materials/TestMat.mat"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Prefabs/TestPrefab.prefab",
+            "assetType": 1,
+            "fileSize": 2297,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [
+                "Assets/ArtResources/Materials/MyMaterial.mat"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Prefabs/StdShader/StdA.prefab",
+            "assetType": 1,
+            "fileSize": 1942,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [
+                "Assets/ArtResources/Materials/MyDefault.mat"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Materials/MyDefault.mat",
+            "assetType": 1,
+            "fileSize": 2038,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Prefabs/StdShader/StdA.prefab",
+                "Assets/ArtResources/Prefabs/StdShader/StdB.prefab",
+                "Assets/ArtResources/Prefabs/StdShader/StdC.prefab"
+            ],
+            "dependencies": [
+                "Assets/Shaders/Buildin/DefaultResourcesExtra/Standard.shader"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Shaders/Buildin/DefaultResourcesExtra/Standard.shader",
+            "assetType": 3,
+            "fileSize": 12090,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Materials/MyDefault.mat",
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_A.mat"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Prefabs/StdShader/StdB.prefab",
+            "assetType": 1,
+            "fileSize": 1942,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [
+                "Assets/ArtResources/Materials/MyDefault.mat"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Prefabs/StdShader/StdC.prefab",
+            "assetType": 1,
+            "fileSize": 1942,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [
+                "Assets/ArtResources/Materials/MyDefault.mat"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Prefabs/SameRefers/SameRefA.prefab",
+            "assetType": 1,
+            "fileSize": 1983,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_A.mat"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
+            "assetType": 1,
+            "fileSize": 2166,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Prefabs/SameRefers/SameRefA.prefab",
+                "Assets/ArtResources/Prefabs/SameRefers/SameRefB.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Textures/bnt_Blue_S.png",
+                "Assets/Shaders/Buildin/DefaultResourcesExtra/Standard.shader",
+                "Assets/ArtResources/Textures/bnt_Blue_S2.png"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Textures/bnt_Blue_S2.png",
+            "assetType": 1,
+            "fileSize": 5575,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_A.mat"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Materials/SameRefers/Mat_Same_A.mat",
+            "assetType": 1,
+            "fileSize": 2166,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Prefabs/SameRefers/SameRefA.prefab",
+                "Assets/ArtResources/Prefabs/SameRefers/SameRefB.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Textures/bnt_Blue_S.png",
+                "Assets/Shaders/Buildin/DefaultResourcesExtra/Standard.shader",
+                "Assets/ArtResources/Textures/bnt_Blue_S2.png"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Prefabs/SameRefers/SameRefB.prefab",
+            "assetType": 1,
+            "fileSize": 1983,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_A.mat"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Prefabs/CircelRefs/APreab.prefab",
+            "assetType": 1,
+            "fileSize": 3143,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Prefabs/CircelRefs/CPreab.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Materials/MyMaterial.mat",
+                "Assets/ArtResources/Prefabs/CircelRefs/BPreab.prefab"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Prefabs/CircelRefs/BPreab.prefab",
+            "assetType": 1,
+            "fileSize": 3255,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Prefabs/CircelRefs/APreab.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Prefabs/CircelRefs/CPreab.prefab"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Prefabs/CircelRefs/CPreab.prefab",
+            "assetType": 1,
+            "fileSize": 3255,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Prefabs/CircelRefs/BPreab.prefab"
+            ],
+            "dependencies": [
+                "Assets/ArtResources/Prefabs/CircelRefs/APreab.prefab"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/ArtResources/Monster/H_Bear.prefab",
+            "assetType": 1,
+            "fileSize": 23781,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [
+                "Assets/Models/H_Bear/H_Bear@die.FBX",
+                "Assets/Models/H_Bear/H_Bear@wait.FBX",
+                "Assets/Models/H_Bear/H_Bear@attack.FBX",
+                "Assets/Models/H_Bear/H_Bear@idleaction.FBX",
+                "Assets/Models/H_Bear/H_Bear@move.FBX",
+                "Assets/Models/H_Bear/Materials/T_H_Bear_D.mat",
+                "Assets/Models/H_Bear/H_Bear@uniqueskill.FBX",
+                "Assets/Models/H_Bear/H_Bear.FBX",
+                "Assets/IGSoft_Resources/Projects/[Resources]/MM/_MaterialsUser/daoguang 2.mat"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Models/H_Bear/H_Bear@die.FBX",
+            "assetType": 1,
+            "fileSize": 307072,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Monster/H_Bear.prefab",
+                "Assets/Models/H_Bear/H_Bear.FBX"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Models/H_Bear/H_Bear@wait.FBX",
+            "assetType": 1,
+            "fileSize": 212032,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Monster/H_Bear.prefab",
+                "Assets/Models/H_Bear/H_Bear.FBX"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Models/H_Bear/H_Bear@attack.FBX",
+            "assetType": 1,
+            "fileSize": 182656,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Monster/H_Bear.prefab",
+                "Assets/Models/H_Bear/H_Bear.FBX"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Models/H_Bear/H_Bear@idleaction.FBX",
+            "assetType": 1,
+            "fileSize": 332288,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Monster/H_Bear.prefab",
+                "Assets/Models/H_Bear/H_Bear.FBX"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Models/H_Bear/H_Bear@move.FBX",
+            "assetType": 1,
+            "fileSize": 205120,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Monster/H_Bear.prefab",
+                "Assets/Models/H_Bear/H_Bear.FBX"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Models/H_Bear/Materials/T_H_Bear_D.mat",
+            "assetType": 1,
+            "fileSize": 2264,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Monster/H_Bear.prefab",
+                "Assets/Models/H_Bear/H_Bear.FBX"
+            ],
+            "dependencies": [
+                "Assets/Models/H_Bear/T_H_Bear_D.TGA",
+                "Assets/Resources/Shaders/Illumin-Diffuse.shader"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Models/H_Bear/T_H_Bear_D.TGA",
+            "assetType": 1,
+            "fileSize": 786476,
+            "addressable": false,
+            "refers": [
+                "Assets/Models/H_Bear/Materials/T_H_Bear_D.mat"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Resources/Shaders/Illumin-Diffuse.shader",
+            "assetType": 3,
+            "fileSize": 3272,
+            "addressable": false,
+            "refers": [
+                "Assets/Models/H_Bear/Materials/T_H_Bear_D.mat"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Models/H_Bear/H_Bear@uniqueskill.FBX",
+            "assetType": 1,
+            "fileSize": 264256,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Monster/H_Bear.prefab",
+                "Assets/Models/H_Bear/H_Bear.FBX"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Models/H_Bear/H_Bear.FBX",
+            "assetType": 1,
+            "fileSize": 117632,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Monster/H_Bear.prefab"
+            ],
+            "dependencies": [
+                "Assets/Models/H_Bear/H_Bear@die.FBX",
+                "Assets/Models/H_Bear/H_Bear@wait.FBX",
+                "Assets/Models/H_Bear/H_Bear@attack.FBX",
+                "Assets/Models/H_Bear/H_Bear@idleaction.FBX",
+                "Assets/Models/H_Bear/H_Bear@move.FBX",
+                "Assets/Models/H_Bear/Materials/T_H_Bear_D.mat",
+                "Assets/Models/H_Bear/H_Bear@uniqueskill.FBX"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/IGSoft_Resources/Projects/[Resources]/MM/_MaterialsUser/daoguang 2.mat",
+            "assetType": 1,
+            "fileSize": 3285,
+            "addressable": false,
+            "refers": [
+                "Assets/ArtResources/Monster/H_Bear.prefab"
+            ],
+            "dependencies": [
+                "Assets/IGSoft_Resources/Projects/[Resources]/MM/daoguang_xiong.png"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/IGSoft_Resources/Projects/[Resources]/MM/daoguang_xiong.png",
+            "assetType": 1,
+            "fileSize": 21789,
+            "addressable": false,
+            "refers": [
+                "Assets/IGSoft_Resources/Projects/[Resources]/MM/_MaterialsUser/daoguang 2.mat"
+            ],
+            "dependencies": [],
+            "allDependencies": []
+        }
+    ],
+    "bundles": [
+        {
+            "name": "myprefab",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/ArtResources/Pres/MyPrefab.prefab",
+            "assets": [
+                "Assets/ArtResources/Pres/MyPrefab.prefab"
+            ],
+            "refers": [],
+            "dependencies": [
+                "mymaterial"
+            ]
+        },
+        {
+            "name": "testprefab",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/ArtResources/Pres/TestPrefab.prefab",
+            "assets": [
+                "Assets/ArtResources/Pres/TestPrefab.prefab"
+            ],
+            "refers": [],
+            "dependencies": [
+                "mymaterial"
+            ]
+        },
+        {
+            "name": "myprefab",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/ArtResources/Prefabs/MyPrefab.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/MyPrefab.prefab"
+            ],
+            "refers": [],
+            "dependencies": [
+                "mymaterial"
+            ]
+        },
+        {
+            "name": "p_cf_anim",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/ArtResources/Prefabs/p_cf_anim.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/p_cf_anim.prefab",
+                "Assets/HS/cf_base/p_cf_anim.fbx"
+            ],
+            "refers": [],
+            "dependencies": []
+        },
+        {
+            "name": "testmatprop",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/ArtResources/Prefabs/TestMatProp.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/TestMatProp.prefab",
+                "Assets/ArtResources/Materials/TestMat.mat",
+                "Assets/Shaders/TestShader.shader"
+            ],
+            "refers": [],
+            "dependencies": [
+                "bnt_blue_s"
+            ]
+        },
+        {
+            "name": "testprefab",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/ArtResources/Prefabs/TestPrefab.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/TestPrefab.prefab"
+            ],
+            "refers": [],
+            "dependencies": [
+                "mymaterial"
+            ]
+        },
+        {
+            "name": "stda",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/ArtResources/Prefabs/StdShader/StdA.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/StdShader/StdA.prefab"
+            ],
+            "refers": [],
+            "dependencies": [
+                "mydefault"
+            ]
+        },
+        {
+            "name": "stdb",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/ArtResources/Prefabs/StdShader/StdB.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/StdShader/StdB.prefab"
+            ],
+            "refers": [],
+            "dependencies": [
+                "mydefault"
+            ]
+        },
+        {
+            "name": "stdc",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/ArtResources/Prefabs/StdShader/StdC.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/StdShader/StdC.prefab"
+            ],
+            "refers": [],
+            "dependencies": [
+                "mydefault"
+            ]
+        },
+        {
+            "name": "samerefa",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/ArtResources/Prefabs/SameRefers/SameRefA.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/SameRefers/SameRefA.prefab"
+            ],
+            "refers": [],
+            "dependencies": [
+                "mat_same_b"
+            ]
+        },
+        {
+            "name": "samerefb",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/ArtResources/Prefabs/SameRefers/SameRefB.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/SameRefers/SameRefB.prefab"
+            ],
+            "refers": [],
+            "dependencies": [
+                "mat_same_b"
+            ]
+        },
+        {
+            "name": "apreab",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": 1448655002,
+            "mainAsset": "Assets/ArtResources/Prefabs/CircelRefs/APreab.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/CircelRefs/APreab.prefab"
+            ],
+            "refers": [
+                "cpreab"
+            ],
+            "dependencies": [
+                "mymaterial",
+                "bpreab"
+            ]
+        },
+        {
+            "name": "bpreab",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": -1838432560,
+            "mainAsset": "Assets/ArtResources/Prefabs/CircelRefs/BPreab.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/CircelRefs/BPreab.prefab"
+            ],
+            "refers": [
+                "apreab"
+            ],
+            "dependencies": [
+                "cpreab"
+            ]
+        },
+        {
+            "name": "cpreab",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": -730288129,
+            "mainAsset": "Assets/ArtResources/Prefabs/CircelRefs/CPreab.prefab",
+            "assets": [
+                "Assets/ArtResources/Prefabs/CircelRefs/CPreab.prefab"
+            ],
+            "refers": [
+                "bpreab"
+            ],
+            "dependencies": [
+                "apreab"
+            ]
+        },
+        {
+            "name": "h_bear",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/ArtResources/Monster/H_Bear.prefab",
+            "assets": [
+                "Assets/ArtResources/Monster/H_Bear.prefab",
+                "Assets/Models/H_Bear/H_Bear.FBX",
+                "Assets/IGSoft_Resources/Projects/[Resources]/MM/_MaterialsUser/daoguang 2.mat",
+                "Assets/IGSoft_Resources/Projects/[Resources]/MM/daoguang_xiong.png",
+                "Assets/Models/H_Bear/H_Bear@die.FBX",
+                "Assets/Models/H_Bear/H_Bear@wait.FBX",
+                "Assets/Models/H_Bear/H_Bear@attack.FBX",
+                "Assets/Models/H_Bear/H_Bear@idleaction.FBX",
+                "Assets/Models/H_Bear/H_Bear@move.FBX",
+                "Assets/Models/H_Bear/Materials/T_H_Bear_D.mat",
+                "Assets/Models/H_Bear/T_H_Bear_D.TGA",
+                "Assets/Resources/Shaders/Illumin-Diffuse.shader",
+                "Assets/Models/H_Bear/H_Bear@uniqueskill.FBX"
+            ],
+            "refers": [],
+            "dependencies": []
+        },
+        {
+            "name": "mymaterial",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": false,
+            "refersHashCode": -1461416234,
+            "mainAsset": "Assets/ArtResources/Materials/MyMaterial.mat",
+            "assets": [
+                "Assets/ArtResources/Materials/MyMaterial.mat",
+                "Assets/Shaders/Buildin/DefaultResourcesExtra/Unlit/Unlit-Normal.shader"
+            ],
+            "refers": [
+                "myprefab",
+                "testprefab",
+                "myprefab",
+                "testprefab",
+                "apreab"
+            ],
+            "dependencies": [
+                "bnt_blue_s"
+            ]
+        },
+        {
+            "name": "bnt_blue_s",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": false,
+            "refersHashCode": -1713845474,
+            "mainAsset": "Assets/ArtResources/Textures/bnt_Blue_S.png",
+            "assets": [
+                "Assets/ArtResources/Textures/bnt_Blue_S.png"
+            ],
+            "refers": [
+                "mymaterial",
+                "testmatprop",
+                "mat_same_b"
+            ],
+            "dependencies": []
+        },
+        {
+            "name": "mydefault",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": false,
+            "refersHashCode": -413056138,
+            "mainAsset": "Assets/ArtResources/Materials/MyDefault.mat",
+            "assets": [
+                "Assets/ArtResources/Materials/MyDefault.mat"
+            ],
+            "refers": [
+                "stda",
+                "stdb",
+                "stdc"
+            ],
+            "dependencies": [
+                "standard"
+            ]
+        },
+        {
+            "name": "standard",
+            "variantName": "",
+            "bundleType": 3,
+            "standalone": false,
+            "refersHashCode": 713717739,
+            "mainAsset": "Assets/Shaders/Buildin/DefaultResourcesExtra/Standard.shader",
+            "assets": [
+                "Assets/Shaders/Buildin/DefaultResourcesExtra/Standard.shader"
+            ],
+            "refers": [
+                "mydefault",
+                "mat_same_b"
+            ],
+            "dependencies": []
+        },
+        {
+            "name": "mat_same_b",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": false,
+            "refersHashCode": 877943379,
+            "mainAsset": "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
+            "assets": [
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_A.mat",
+                "Assets/ArtResources/Textures/bnt_Blue_S2.png"
+            ],
+            "refers": [
+                "samerefa",
+                "samerefb"
+            ],
+            "dependencies": [
+                "bnt_blue_s",
+                "standard"
+            ]
+        }
+    ]
+}

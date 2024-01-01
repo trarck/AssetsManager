@@ -16,7 +16,7 @@ namespace YH.AssetManage
         //public string path;
     }
 
-    public class AssetBundleInfo2
+    public class AssetBundleRuntimeInfo
     {
         //bundle path hash use block. bundle content hash not use block
         //序列化的时候是有bundleId。在创建运行时对象时，不加bundleId，bundleId作为字典的key里，value里没有必要在保存一份。预计10万量级可以省8k左右内容
@@ -37,7 +37,7 @@ namespace YH.AssetManage
         }
     }
 
-    public class AssetBundleBlockInfo:AssetBundleInfo2
+    public class AssetBundleBlockInfo:AssetBundleRuntimeInfo
     {
         //bundle path hash use block. bundle content hash not use block
         //序列化的时候是有bundleId。在创建运行时对象时，不加bundleId，bundleId作为字典的key里，value里没有必要在保存一份。预计10万量级可以省8k左右内容
@@ -82,7 +82,7 @@ namespace YH.AssetManage
         //asset id to bundle info
         internal Dictionary<ulong, ulong> _AssetIdToBundleIds;
         //bundle id to bundle info
-        internal Dictionary<ulong, AssetBundleInfo2> _Bundles;
+        internal Dictionary<ulong, AssetBundleRuntimeInfo> _Bundles;
     }
 
 }

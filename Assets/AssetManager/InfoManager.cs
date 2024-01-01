@@ -116,17 +116,12 @@ namespace YH.AssetManage
             doLoadComplete(success);
         }
 
-        public void LoadFromStream(Stream steam)
+        public void LoadFromStream(Stream stream)
         {
-            BinaryReader reader = new BinaryReader(steam);
-
-            if (reader.ReadChar() == 'A' && reader.ReadChar() == 'B' && reader.ReadChar() == 'M' && reader.ReadChar() == 'I')
+            if (!LoadFromBinaryStream(stream))
             {
-                LoadFromBinaryStream(steam);
-            }
-            else
-            {
-                LoadFromTextStream(steam);
+                stream.Position = 0;
+                LoadFromTextStream(stream);
             }
         }
 
@@ -139,17 +134,22 @@ namespace YH.AssetManage
             AddBundleManifest(bundleManifest);
         }
 
-        public void LoadFromBinaryStream(Stream steam)
+        public bool LoadFromBinaryStream(Stream steam)
         {
             AssetBundleManifestReader reader = new AssetBundleManifestReader(steam);
             AssetBundleManifest bundleManifest = new AssetBundleManifest();
-            reader.ReadManifest(ref bundleManifest);
+            if(!reader.ReadManifest(ref bundleManifest))
+            {
+                return false;
+            }
 
             AddBundleManifest(bundleManifest);
+            return true;
         }
 
         private void AddBundleManifest(AssetBundleManifest bundleManifest)
         {
+            m_AssetBundleManifest = bundleManifest;
             //if (m_AssetBundleManifest != null)
             //{
             //    //merge to m_BundleManifest
@@ -259,7 +259,7 @@ namespace YH.AssetManage
                 return null;
             }
 
-            AssetBundleInfo2 assetBundleInfo = null;
+            AssetBundleRuntimeInfo assetBundleInfo = null;
             if(!m_AssetBundleManifest._Bundles.TryGetValue(bundleId,out assetBundleInfo) )
             {
                 return null;

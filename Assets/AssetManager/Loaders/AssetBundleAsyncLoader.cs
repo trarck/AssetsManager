@@ -227,12 +227,14 @@ namespace YH.AssetManage
                     depLoader.onAssetBundleLoaded += OnDependencyLoaded;
                     depLoader.onBeforeComplete += OnBeforeDependencyComplete;
                     m_DependencyLoaders.Add(depLoader);
+                    loaderManager.ActiveLoader(depLoader);
                 }
                 else
                 {
                     AMDebug.LogErrorFormat("[AssetBundleAsyncLoader]LoadDependencies con't create dependency for {0}", dep);
-                    --m_WaitDependencyLoadCount;
-                    --m_WaitDependencyCompleteCount;
+                    OnBeforeDependencyComplete(null);
+                    OnDependencyLoaded(null);
+                    OnDependencyComplete(null);
                 }
             }
         }

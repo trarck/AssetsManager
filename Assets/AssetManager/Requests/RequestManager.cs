@@ -186,8 +186,9 @@ namespace YH.AssetManage
                 return null;
             }
 
-            string contentName = m_StringPool.Get(sizeof(ulong)*2);
+            string contentName = m_StringPool.Get(sizeof(ulong)*2+AssetPaths.AssetBundelExt.Length);
             FixedStringPool.FillHexString(contentName, 0, contentId, FixedStringPool.Casing.Lower);
+            FixedStringPool.FillStringChecked(contentName, sizeof(ulong) * 2, AssetPaths.AssetBundelExt);
 
             string contentPath = AssetPaths.GetFullPath(contentName);
             AMDebug.LogFormat("[AssetManage]LoadBundle {0}", contentPath);

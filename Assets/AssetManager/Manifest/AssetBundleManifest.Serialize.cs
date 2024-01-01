@@ -27,9 +27,9 @@ namespace YH.AssetManage
         public ushort streamBlockCount;    //2b
     }
 
-    public struct AssetBundleManifestBlockInfo
+    public struct AssetBundleManifestStreamInfo
     {
-        public StreamBlockType type;//1b
+        public StreamType type;//1b
         public uint offset;       //3b
 
         public uint SerializeValue()
@@ -39,12 +39,12 @@ namespace YH.AssetManage
 
         public void DeserializeValue(uint val)
         {
-            type = (StreamBlockType)(val >> 24);
+            type = (StreamType)(val >> 24);
             offset = val & 0xFFFFFF;
         }
     }
 
-    public enum StreamBlockType : byte
+    public enum StreamType : byte
     {
         Version = 1,
         Bundle = 2,
@@ -56,7 +56,7 @@ namespace YH.AssetManage
         public const byte CurrentFormat = 1;
 
         protected AssetBundleManifestHeader _Header;
-        protected AssetBundleManifestBlockInfo[] _StreamBlockTable;
+        protected AssetBundleManifestStreamInfo[] _StreamBlockTable;
     }
 
     public class VersionSerializer
@@ -75,6 +75,14 @@ namespace YH.AssetManage
             int minor = reader.ReadInt32();
             int build = reader.ReadInt32();
             int revision = reader.ReadInt32();
+            if (build < 0)
+            {
+                build = 0;
+            }
+            if (revision < 0)
+            {
+                revision = 0;
+            }
             Version version = new Version(major, minor, build, revision);
             return version;
         }
