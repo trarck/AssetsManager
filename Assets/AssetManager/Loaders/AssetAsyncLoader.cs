@@ -165,7 +165,7 @@ namespace YH.AssetManage
 
             if (!request.haveError)
             {
-                result = new AssetReference(request.data, info.pathHash);
+                result = new AssetReference(request.asset, info.pathHash);
                 m_Result.AddTags(paramTags);
                 if (assetBundleReference != null)
                 {

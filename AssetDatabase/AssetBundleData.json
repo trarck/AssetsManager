@@ -427,6 +427,19 @@
             "refers": [
                 "Assets/Models/H_Bear/Materials/T_H_Bear_D.mat"
             ],
+            "dependencies": [
+                "Assets/Shaders/Buildin/DefaultResourcesExtra/Normal-VertexLit.shader"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Shaders/Buildin/DefaultResourcesExtra/Normal-VertexLit.shader",
+            "assetType": 3,
+            "fileSize": 3818,
+            "addressable": false,
+            "refers": [
+                "Assets/Resources/Shaders/Illumin-Diffuse.shader"
+            ],
             "dependencies": [],
             "allDependencies": []
         },
@@ -725,6 +738,7 @@
                 "Assets/Models/H_Bear/Materials/T_H_Bear_D.mat",
                 "Assets/Models/H_Bear/T_H_Bear_D.TGA",
                 "Assets/Resources/Shaders/Illumin-Diffuse.shader",
+                "Assets/Shaders/Buildin/DefaultResourcesExtra/Normal-VertexLit.shader",
                 "Assets/Models/H_Bear/H_Bear@uniqueskill.FBX"
             ],
             "refers": [],

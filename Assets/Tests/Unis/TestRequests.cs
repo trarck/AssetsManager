@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using System.IO;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -13,6 +13,7 @@ namespace Tests
         public void OneTimeSetUp()
         {
             Debug.Log("OneTimeSetUp");
+            AssetPaths.SetupDefaultSearchPaths();
         }
 
         [OneTimeTearDown]
@@ -36,7 +37,8 @@ namespace Tests
         [Test]
         public void TestSyncRequest()
         {
-            BundleCreateSyncRequest request = new BundleCreateSyncRequest("myprefab",0);
+            string assetbundlePath = AssetPaths.GetFullPath("myprefab"+AssetPaths.AssetBundelExt);
+            BundleCreateSyncRequest request = new BundleCreateSyncRequest(assetbundlePath, 0);
             request.Start();
             AssetBundle result = request.assetBundle;
             Assert.AreNotEqual(result, null);
@@ -45,21 +47,46 @@ namespace Tests
         [UnityTest]
         public IEnumerator TestCreateAsyncRequest()
         {
-            BundleCreateAsyncRequest request = new BundleCreateAsyncRequest("myprefab", 0);
+            string assetbundlePath = AssetPaths.GetFullPath("myprefab" + AssetPaths.AssetBundelExt);
+            BundleCreateAsyncRequest request = new BundleCreateAsyncRequest(assetbundlePath, 0);
             request.Start();
             yield return request;
             AssetBundle result = request.assetBundle;
             Assert.AreNotEqual(result, null);
         }
 
-        //[UnityTest]
-        //public IEnumerator TestAssetAsyncRequest()
-        //{
-        //    BundleCreateAsyncRequest request = new BundleCreateAsyncRequest("myprefab", 0);
-        //    request.Start();
-        //    yield return request;
-        //    AssetBundle result = request.assetBundle;
-        //    Assert.AreNotEqual(result, null);
-        //}
+        [UnityTest]
+        public IEnumerator TestAssetAsyncRequest()
+        {
+            string assetbundlePath = AssetPaths.GetFullPath("myprefab" + AssetPaths.AssetBundelExt);
+            BundleCreateAsyncRequest request = new BundleCreateAsyncRequest(assetbundlePath, 0);
+            request.Start();
+            yield return request;
+            AssetBundle result = request.assetBundle;
+            Assert.AreNotEqual(result, null);
+            AssetLoaderAsyncRequest assetRequest = new AssetLoaderAsyncRequest(result, "Assets/ArtResources/Prefabs/MyPrefab.prefab", typeof(GameObject));
+            assetRequest.Start();
+            yield return assetRequest;
+            GameObject asset = assetRequest.asset as GameObject;
+            Assert.AreNotEqual(asset, null);
+        }
+
+        [UnityTest]
+        public IEnumerator TestAssetResourceRequest()
+        {
+            ResouceLoaderRequest assetRequest = new ResouceLoaderRequest("Tests/ResPrefab", typeof(GameObject));
+
+            string assetbundlePath = AssetPaths.GetFullPath("myprefab" + AssetPaths.AssetBundelExt);
+            BundleCreateAsyncRequest request = new BundleCreateAsyncRequest(assetbundlePath, 0);
+            request.Start();
+            yield return request;
+            AssetBundle result = request.assetBundle;
+            Assert.AreNotEqual(result, null);
+            AssetLoaderAsyncRequest assetRequest = new AssetLoaderAsyncRequest(result, "Assets/ArtResources/Prefabs/MyPrefab.prefab", typeof(GameObject));
+            assetRequest.Start();
+            yield return assetRequest;
+            GameObject asset = assetRequest.asset as GameObject;
+            Assert.AreNotEqual(asset, null);
+        }
     }
 }

@@ -44,7 +44,7 @@ namespace YH.AssetManage
             }
         }
 
-        public override UnityEngine.Object data
+        public override UnityEngine.Object asset
         {
             get
             {
@@ -164,7 +164,7 @@ namespace YH.AssetManage
             }
         }
 
-        public override UnityEngine.Object data
+        public override UnityEngine.Object asset
         {
             get
             {

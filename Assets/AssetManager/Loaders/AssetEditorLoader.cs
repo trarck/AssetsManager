@@ -42,14 +42,14 @@ namespace YH.AssetManage
                 if (type == null)
                 {
                     m_Request = new SyncLoaderRequest();
-                    m_Request.data = AssetDatabase.LoadMainAssetAtPath(resPath);
+                    m_Request.asset = AssetDatabase.LoadMainAssetAtPath(resPath);
                 }
                 else
                 {
                     m_Request = new SyncLoaderRequest();
-                    m_Request.data = AssetDatabase.LoadAssetAtPath(resPath, type);
+                    m_Request.asset = AssetDatabase.LoadAssetAtPath(resPath, type);
                 }
-                if (m_Request.data != null)
+                if (m_Request.asset != null)
                 {
                     Complete();
                 }
@@ -97,9 +97,9 @@ namespace YH.AssetManage
 
                 if (m_Result == null && state == State.Completed)
                 {
-                    if (isDone && m_Request.data!=null)
+                    if (isDone && m_Request.asset!=null)
                     {
-                        m_Result = new AssetReference(m_Request.data, info.pathHash);
+                        m_Result = new AssetReference(m_Request.asset, info.pathHash);
                         m_Result.Retain();
                         m_Result.AddTags(paramTags);
                         if (assetBundleReference != null)

@@ -22,7 +22,7 @@ namespace YH.AssetManage
         public abstract float progress { get; }
         public abstract bool haveError { get; }
 
-        public virtual UnityEngine.Object data { get; set; }
+        public virtual UnityEngine.Object asset { get; set; }
         public virtual AssetBundle assetBundle { get; set; }
 
         public bool MoveNext()
@@ -62,7 +62,7 @@ namespace YH.AssetManage
         public virtual void Clean()
         {
             onComplete=null;
-            data = null;
+            asset = null;
             assetBundle = null;
             autoRelease = true;
         }
