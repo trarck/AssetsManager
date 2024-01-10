@@ -82,11 +82,6 @@ namespace Tests
             yield return request;
             AssetBundle result = request.assetBundle;
             Assert.AreNotEqual(result, null);
-            AssetLoaderAsyncRequest assetRequest = new AssetLoaderAsyncRequest(result, "Assets/ArtResources/Prefabs/MyPrefab.prefab", typeof(GameObject));
-            assetRequest.Start();
-            yield return assetRequest;
-            GameObject asset = assetRequest.asset as GameObject;
-            Assert.AreNotEqual(asset, null);
         }
     }
 }

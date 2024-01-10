@@ -3,12 +3,10 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 
-
 namespace YH
 {
     public class FileSystem
     {
-
         public static string dataPath = Application.dataPath;
 
         public static string streamingAssetsPath = Application.streamingAssetsPath;

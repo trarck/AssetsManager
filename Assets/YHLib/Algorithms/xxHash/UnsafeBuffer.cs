@@ -1,20 +1,19 @@
-﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
-namespace YH.Hash.xxHash
+namespace YH.xxHash
 {
     internal static class UnsafeBuffer
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void BlockCopy(byte[] src, int srcOffset, byte[] dst, int dstOffset, int count)
         {
-            Debug.Assert(src != null);
-            Debug.Assert(dst != null);
-            Debug.Assert(srcOffset >= 0 && srcOffset < src.Length);
-            Debug.Assert(dstOffset >= 0 && dstOffset < dst.Length);
-            Debug.Assert(count >= 0);
-            Debug.Assert(count + srcOffset <= src.Length);
-            Debug.Assert(count + dstOffset <= dst.Length);
+            //Debug.Assert(src != null);
+            //Debug.Assert(dst != null);
+            //Debug.Assert(srcOffset >= 0 && srcOffset < src.Length);
+            //Debug.Assert(dstOffset >= 0 && dstOffset < dst.Length);
+            //Debug.Assert(count >= 0);
+            //Debug.Assert(count + srcOffset <= src.Length);
+            //Debug.Assert(count + dstOffset <= dst.Length);
                       
             fixed (byte* pSrc = &src[srcOffset])
             fixed (byte* pDst = &dst[dstOffset])

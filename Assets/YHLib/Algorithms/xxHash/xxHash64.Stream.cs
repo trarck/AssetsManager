@@ -1,24 +1,29 @@
-﻿using System.Diagnostics;
+﻿using System.Threading;
 using System.IO;
+using System.Diagnostics;
 
-namespace YH.Hash.xxHash
+namespace YH.xxHash
 {
     public static partial class xxHash64
-    {      
+    {
+        private const int _StreamBufferSize = 8192;
+        private static ThreadLocal<byte[]> _StreamBuffer = new ThreadLocal<byte[]>();
+
         /// <summary>
         /// Compute xxHash for the stream
         /// </summary>
         /// <param name="stream">The stream of data</param>
-        /// <param name="bufferSize">The buffer size</param>
         /// <param name="seed">The seed number</param>
         /// <returns>The hash</returns>
-        public static ulong ComputeHash(Stream stream, int bufferSize = 8192, ulong seed = 0)
+        public static ulong ComputeHash(Stream stream, ulong seed = 0)
         {
             Debug.Assert(stream != null);
-            Debug.Assert(bufferSize > 32);
-            
-            // Optimizing memory allocation
-            byte[] buffer = new byte[bufferSize + 32];
+            if (!_StreamBuffer.IsValueCreated)
+            {
+                _StreamBuffer.Value = new byte[_StreamBufferSize+32];
+            }
+
+            byte[] buffer = _StreamBuffer.Value;
 
             int  readBytes;
             int  offset = 0;
@@ -31,7 +36,7 @@ namespace YH.Hash.xxHash
             ulong v4 = seed - p1;
             
             // Read flow of bytes
-            while ((readBytes = stream.Read(buffer, offset, bufferSize)) > 0)
+            while ((readBytes = stream.Read(buffer, offset, _StreamBufferSize)) > 0)
             {
                 length = length + readBytes;
                 offset = offset + readBytes;
