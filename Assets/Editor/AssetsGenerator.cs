@@ -4,7 +4,7 @@ using System.Text;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using YH;
+using YH.IO;
 
 public class StringGenerator
 {
