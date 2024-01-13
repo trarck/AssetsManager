@@ -5,14 +5,11 @@ using YH.AssetManage;
 
 public class Main : MonoBehaviour {
     
-
 	// Use this for initialization
 	void Start () 
     {
-        
-
-        //StartCoroutine(DoSomething());
-	}
+        StartCoroutine(DoSomething());
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -24,7 +21,7 @@ public class Main : MonoBehaviour {
         yield return new WaitForSeconds(3);
         Debug.Log("Goto Battle");
 
-        AssetManager.Instance.LoadScene("Scenes/Battle.unity", AssetTag.Battle, (abr) =>
+        AssetManager.Instance.LoadScene("Assets/Scenes/Battle.unity", AssetTag.Battle, (abr) =>
         {
             Debug.Log("LoadCompete");
             SceneManager.LoadScene("Scenes/Battle");

@@ -139,7 +139,9 @@
             "assetType": 1,
             "fileSize": 2297,
             "addressable": false,
-            "refers": [],
+            "refers": [
+                "Assets/Scenes/Battle.unity"
+            ],
             "dependencies": [
                 "Assets/ArtResources/Materials/MyMaterial.mat"
             ],
@@ -427,9 +429,7 @@
             "refers": [
                 "Assets/Models/H_Bear/Materials/T_H_Bear_D.mat"
             ],
-            "dependencies": [
-                "Assets/Shaders/Buildin/DefaultResourcesExtra/Normal-VertexLit.shader"
-            ],
+            "dependencies": [],
             "allDependencies": []
         },
         {
@@ -437,9 +437,7 @@
             "assetType": 3,
             "fileSize": 3818,
             "addressable": false,
-            "refers": [
-                "Assets/Resources/Shaders/Illumin-Diffuse.shader"
-            ],
+            "refers": [],
             "dependencies": [],
             "allDependencies": []
         },
@@ -497,9 +495,133 @@
             ],
             "dependencies": [],
             "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Scenes/Battle.unity",
+            "assetType": 2,
+            "fileSize": 9638,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [
+                "Assets/ArtResources/Prefabs/TestPrefab.prefab"
+            ],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Scenes/Init.unity",
+            "assetType": 2,
+            "fileSize": 7925,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [],
+            "allDependencies": []
+        },
+        {
+            "assetPath": "Assets/Scenes/Main.unity",
+            "assetType": 2,
+            "fileSize": 8911,
+            "addressable": false,
+            "refers": [],
+            "dependencies": [],
+            "allDependencies": []
         }
     ],
     "bundles": [
+        {
+            "name": "mymaterial",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": false,
+            "refersHashCode": -1461416234,
+            "mainAsset": "Assets/ArtResources/Materials/MyMaterial.mat",
+            "assets": [
+                "Assets/ArtResources/Materials/MyMaterial.mat",
+                "Assets/Shaders/Buildin/DefaultResourcesExtra/Unlit/Unlit-Normal.shader"
+            ],
+            "refers": [
+                "myprefab",
+                "testprefab",
+                "myprefab",
+                "testprefab",
+                "apreab"
+            ],
+            "dependencies": [
+                "bnt_blue_s"
+            ]
+        },
+        {
+            "name": "bnt_blue_s",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": false,
+            "refersHashCode": -1482894780,
+            "mainAsset": "Assets/ArtResources/Textures/bnt_Blue_S.png",
+            "assets": [
+                "Assets/ArtResources/Textures/bnt_Blue_S.png"
+            ],
+            "refers": [
+                "mymaterial",
+                "mat_same_b",
+                "testmatprop"
+            ],
+            "dependencies": []
+        },
+        {
+            "name": "mydefault",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": false,
+            "refersHashCode": -413056138,
+            "mainAsset": "Assets/ArtResources/Materials/MyDefault.mat",
+            "assets": [
+                "Assets/ArtResources/Materials/MyDefault.mat"
+            ],
+            "refers": [
+                "stda",
+                "stdb",
+                "stdc"
+            ],
+            "dependencies": [
+                "standard"
+            ]
+        },
+        {
+            "name": "standard",
+            "variantName": "",
+            "bundleType": 3,
+            "standalone": false,
+            "refersHashCode": 713717739,
+            "mainAsset": "Assets/Shaders/Buildin/DefaultResourcesExtra/Standard.shader",
+            "assets": [
+                "Assets/Shaders/Buildin/DefaultResourcesExtra/Standard.shader"
+            ],
+            "refers": [
+                "mydefault",
+                "mat_same_b"
+            ],
+            "dependencies": []
+        },
+        {
+            "name": "mat_same_b",
+            "variantName": "",
+            "bundleType": 1,
+            "standalone": false,
+            "refersHashCode": 877943379,
+            "mainAsset": "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
+            "assets": [
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
+                "Assets/ArtResources/Materials/SameRefers/Mat_Same_A.mat",
+                "Assets/ArtResources/Textures/bnt_Blue_S2.png"
+            ],
+            "refers": [
+                "samerefa",
+                "samerefb"
+            ],
+            "dependencies": [
+                "bnt_blue_s",
+                "standard"
+            ]
+        },
         {
             "name": "myprefab",
             "variantName": "",
@@ -581,12 +703,14 @@
             "variantName": "",
             "bundleType": 1,
             "standalone": true,
-            "refersHashCode": 0,
+            "refersHashCode": -1367177442,
             "mainAsset": "Assets/ArtResources/Prefabs/TestPrefab.prefab",
             "assets": [
                 "Assets/ArtResources/Prefabs/TestPrefab.prefab"
             ],
-            "refers": [],
+            "refers": [
+                "battle_unity"
+            ],
             "dependencies": [
                 "mymaterial"
             ]
@@ -738,106 +862,64 @@
                 "Assets/Models/H_Bear/Materials/T_H_Bear_D.mat",
                 "Assets/Models/H_Bear/T_H_Bear_D.TGA",
                 "Assets/Resources/Shaders/Illumin-Diffuse.shader",
-                "Assets/Shaders/Buildin/DefaultResourcesExtra/Normal-VertexLit.shader",
                 "Assets/Models/H_Bear/H_Bear@uniqueskill.FBX"
             ],
             "refers": [],
             "dependencies": []
         },
         {
-            "name": "mymaterial",
+            "name": "battle_unity",
             "variantName": "",
-            "bundleType": 1,
-            "standalone": false,
-            "refersHashCode": -1461416234,
-            "mainAsset": "Assets/ArtResources/Materials/MyMaterial.mat",
+            "bundleType": 2,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/Scenes/Battle.unity",
             "assets": [
-                "Assets/ArtResources/Materials/MyMaterial.mat",
-                "Assets/Shaders/Buildin/DefaultResourcesExtra/Unlit/Unlit-Normal.shader"
+                "Assets/Scenes/Battle.unity"
             ],
-            "refers": [
-                "myprefab",
-                "testprefab",
-                "myprefab",
-                "testprefab",
-                "apreab"
-            ],
+            "refers": [],
             "dependencies": [
-                "bnt_blue_s"
+                "testprefab"
             ]
         },
         {
-            "name": "bnt_blue_s",
+            "name": "init_unity",
             "variantName": "",
-            "bundleType": 1,
-            "standalone": false,
-            "refersHashCode": -1713845474,
-            "mainAsset": "Assets/ArtResources/Textures/bnt_Blue_S.png",
+            "bundleType": 2,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/Scenes/Init.unity",
             "assets": [
-                "Assets/ArtResources/Textures/bnt_Blue_S.png"
+                "Assets/Scenes/Init.unity"
             ],
-            "refers": [
-                "mymaterial",
-                "testmatprop",
-                "mat_same_b"
-            ],
+            "refers": [],
             "dependencies": []
         },
         {
-            "name": "mydefault",
+            "name": "main_unity",
             "variantName": "",
-            "bundleType": 1,
-            "standalone": false,
-            "refersHashCode": -413056138,
-            "mainAsset": "Assets/ArtResources/Materials/MyDefault.mat",
+            "bundleType": 2,
+            "standalone": true,
+            "refersHashCode": 0,
+            "mainAsset": "Assets/Scenes/Main.unity",
             "assets": [
-                "Assets/ArtResources/Materials/MyDefault.mat"
+                "Assets/Scenes/Main.unity"
             ],
-            "refers": [
-                "stda",
-                "stdb",
-                "stdc"
-            ],
-            "dependencies": [
-                "standard"
-            ]
+            "refers": [],
+            "dependencies": []
         },
         {
-            "name": "standard",
+            "name": "normal-vertexlit",
             "variantName": "",
             "bundleType": 3,
             "standalone": false,
-            "refersHashCode": 713717739,
-            "mainAsset": "Assets/Shaders/Buildin/DefaultResourcesExtra/Standard.shader",
+            "refersHashCode": 0,
+            "mainAsset": "Assets/Shaders/Buildin/DefaultResourcesExtra/Normal-VertexLit.shader",
             "assets": [
-                "Assets/Shaders/Buildin/DefaultResourcesExtra/Standard.shader"
+                "Assets/Shaders/Buildin/DefaultResourcesExtra/Normal-VertexLit.shader"
             ],
-            "refers": [
-                "mydefault",
-                "mat_same_b"
-            ],
+            "refers": [],
             "dependencies": []
-        },
-        {
-            "name": "mat_same_b",
-            "variantName": "",
-            "bundleType": 1,
-            "standalone": false,
-            "refersHashCode": 877943379,
-            "mainAsset": "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
-            "assets": [
-                "Assets/ArtResources/Materials/SameRefers/Mat_Same_B.mat",
-                "Assets/ArtResources/Materials/SameRefers/Mat_Same_A.mat",
-                "Assets/ArtResources/Textures/bnt_Blue_S2.png"
-            ],
-            "refers": [
-                "samerefa",
-                "samerefb"
-            ],
-            "dependencies": [
-                "bnt_blue_s",
-                "standard"
-            ]
         }
     ]
 }

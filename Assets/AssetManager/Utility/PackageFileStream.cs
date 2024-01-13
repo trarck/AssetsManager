@@ -25,7 +25,7 @@ namespace YH.AssetManage
 #if UNITY_ANDROID
                     _Impl = new PackageFileStreamAndroid();
 #else
-                    _Impl = new FileStreamHelperCommon();
+                    _Impl = new PackageFileStreamCommon();
 #endif
                 }
 
