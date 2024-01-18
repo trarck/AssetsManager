@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace YH.Hash.xxHash
+namespace YH.xxHash
 {
     internal static class BitUtils
     {

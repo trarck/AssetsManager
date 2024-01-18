@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace YH.Hash.xxHash
+namespace YH.xxHash
 {
     public static partial class xxHash32
     {

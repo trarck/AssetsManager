@@ -49,7 +49,7 @@ namespace YH.AssetManage
 
         public void LoadFromPackage(string url)
         {
-            AMDebug.LogFormat("[AssetManage]Load File {0} ", url);
+            AMDebug.LogFormat("[AssetManage]LoadFromPackage {0} ", url);
 			m_LoadPackageFileCoroutine = m_CoroutineExecuter.StartCoroutine(LoadPackageFile(url));
         }
 

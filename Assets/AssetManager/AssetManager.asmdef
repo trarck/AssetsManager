@@ -1,3 +1,15 @@
-﻿{
-	"name": "AssetManager"
+{
+    "name": "AssetManager",
+    "references": [
+        "GUID:78a1dade28e5d8c4b8d1f836713b7e06"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

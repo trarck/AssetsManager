@@ -1,24 +1,29 @@
-﻿using System.Diagnostics;
+﻿using System.Threading;
 using System.IO;
+using System.Diagnostics;
 
-namespace YH.Hash.xxHash
+namespace YH.xxHash
 {
     public static partial class xxHash32
     {
+        private const int _StreamBufferSize = 4096;
+        private static ThreadLocal<byte[]> _StreamBuffer = new ThreadLocal<byte[]>();
+
         /// <summary>
         /// Compute xxHash for the stream
         /// </summary>
         /// <param name="stream">The stream of data</param>
-        /// <param name="bufferSize">The buffer size</param>
         /// <param name="seed">The seed number</param>
         /// <returns>The hash</returns>
-        public static uint ComputeHash(Stream stream, int bufferSize = 4096, uint seed = 0)
+        public static uint ComputeHash(Stream stream, uint seed = 0)
         {
             Debug.Assert(stream != null);
-            Debug.Assert(bufferSize > 16);
-            
-            // Optimizing memory allocation
-            byte[] buffer = new byte[bufferSize + 16];
+            if (!_StreamBuffer.IsValueCreated)
+            {
+                _StreamBuffer.Value = new byte[_StreamBufferSize + 32];
+            }
+
+            byte[] buffer = _StreamBuffer.Value;
 
             int readBytes;
             int offset = 0;
@@ -31,7 +36,7 @@ namespace YH.Hash.xxHash
             uint v4 = seed - p1;
 
             // Read flow of bytes
-            while ((readBytes = stream.Read(buffer, offset, bufferSize)) > 0)
+            while ((readBytes = stream.Read(buffer, offset, _StreamBufferSize)) > 0)
             {
                 length = length + readBytes;
                 offset = offset + readBytes;
