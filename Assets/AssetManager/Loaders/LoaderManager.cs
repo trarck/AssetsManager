@@ -72,6 +72,14 @@ namespace YH.AssetManage
 
 		#region Asset
 
+		public int AssetLoadingCount
+        {
+            get
+            {
+				return m_AssetLoadings.Count;
+            }
+        }
+
 		public AssetLoadInfo CreateAssetLoadInfo(string path, ulong pathHash)
         {
 			AssetLoadInfo info = null;
@@ -298,7 +306,6 @@ namespace YH.AssetManage
 			return ar;
 		}
 
-
 		public AssetAsyncLoader CreateOrGetAssetAsyncLoader(ulong assetPathHash, int tag, Type type, bool autoReleaseBundle = true)
 		{
 			AssetAsyncLoader loader = null;
@@ -513,6 +520,15 @@ namespace YH.AssetManage
 		#endregion
 
 		#region AssetBundle
+
+		public int AssetBundleLoadingCount
+		{
+			get
+			{
+				return m_AssetBundleLoadings.Count;
+			}
+		}
+
 		public AssetBundleLoadInfo CreateAssetBundleLoaderInfo(ulong bundleId)
 		{
 			AssetBundleLoadInfo info = null;
@@ -660,7 +676,6 @@ namespace YH.AssetManage
 			return loader;
 		}
 
-
 		public AssetBundleReference LoadAssetBundleSync(ulong bundleId, int tag, bool cache = true)
 		{
 			if (bundleId==0)
@@ -711,7 +726,6 @@ namespace YH.AssetManage
 			return abr;
 		}
 
-
 		public void RemoveAssetBundleLoading(AssetBundleLoader loader)
 		{
 			AssetBundleLoadInfo info = loader.info;
@@ -758,6 +772,7 @@ namespace YH.AssetManage
 		{
 			ReleaseLoader(loader);
 		}
+
 		#endregion
 
 		public void ActiveLoader(Loader loader)

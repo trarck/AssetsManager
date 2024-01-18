@@ -42,6 +42,10 @@ namespace Tests
             request.Start();
             AssetBundle result = request.assetBundle;
             Assert.AreNotEqual(result, null);
+            if (result)
+            {
+                result.Unload(true);
+            }
         }
 
         [UnityTest]
@@ -53,6 +57,10 @@ namespace Tests
             yield return request;
             AssetBundle result = request.assetBundle;
             Assert.AreNotEqual(result, null);
+            if (result)
+            {
+                result.Unload(true);
+            }
         }
 
         [UnityTest]
@@ -69,20 +77,16 @@ namespace Tests
             yield return assetRequest;
             GameObject asset = assetRequest.asset as GameObject;
             Assert.AreNotEqual(asset, null);
+            if (result)
+            {
+                result.Unload(true);
+            }
         }
 
         [UnityTest]
-        public IEnumerator TestAssetResourceRequest()
+        public IEnumerator TestAssetResourceAsyncRequest()
         {
             ResouceLoaderRequest assetRequest = new ResouceLoaderRequest("Tests/ResPrefab", typeof(GameObject));
-
-            string assetbundlePath = AssetPaths.GetFullPath("myprefab" + AssetPaths.AssetBundelExt);
-            BundleCreateAsyncRequest request = new BundleCreateAsyncRequest(assetbundlePath, 0);
-            request.Start();
-            yield return request;
-            AssetBundle result = request.assetBundle;
-            Assert.AreNotEqual(result, null);
-            AssetLoaderAsyncRequest assetRequest = new AssetLoaderAsyncRequest(result, "Assets/ArtResources/Prefabs/MyPrefab.prefab", typeof(GameObject));
             assetRequest.Start();
             yield return assetRequest;
             GameObject asset = assetRequest.asset as GameObject;

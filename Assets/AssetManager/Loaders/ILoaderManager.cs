@@ -27,6 +27,7 @@ namespace YH.AssetManage
 
 		void Clean();
 
+		int AssetBundleLoadingCount { get; }
 		AssetBundleLoader LoadAssetBundleAsync(ulong bundleId, int tag, bool cache,
 			Action<AssetBundleReference> completeHandle = null,
 			Action<AssetBundleLoader> beforLoadComplete = null,
@@ -39,6 +40,7 @@ namespace YH.AssetManage
 		AssetBundleSyncLoader CreateAssetBundleSyncLoader(ulong bundleId);
 
 
+		int AssetLoadingCount { get; }
 		AssetLoaderOperation LoadAssetAsync(string path, int tag, Type type, bool autoReleaseBundle,
 			Action<AssetReference> completeHandle = null,
 			Action<AssetLoader> beforLoadComplete = null,

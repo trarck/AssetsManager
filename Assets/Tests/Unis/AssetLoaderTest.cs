@@ -148,6 +148,8 @@ namespace Tests
 			Assert.AreEqual(0, m_AssetManager.assets.Count);
 
 			Assert.AreEqual(0, m_AssetManager.assetBundles.Count);
+			Assert.AreEqual(0, m_AssetManager.loaderManager.AssetLoadingCount);
+			Assert.AreEqual(0, m_AssetManager.loaderManager.AssetBundleLoadingCount);
 		}
 
 		[Test]
