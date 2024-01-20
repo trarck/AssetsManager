@@ -9,7 +9,7 @@ namespace YH.AssetManage
 		Dictionary<ulong, AssetBundleAsyncLoader> m_AssetBundleLoadings = new Dictionary<ulong, AssetBundleAsyncLoader>();
 		
 		//正在加载asset的loader
-		Dictionary<ulong, AssetAsyncLoader> m_AssetLoadings = new Dictionary<ulong, AssetAsyncLoader>();
+		Dictionary<ulong, AssetLoader> m_AssetLoadings = new Dictionary<ulong, AssetLoader>();
 
 		IRequestManager m_RequestManager;
 		IInfoManager m_InfoManager;
@@ -107,9 +107,9 @@ namespace YH.AssetManage
 			return info;
 		}
 
-		public AssetAsyncLoader CreateAssetAsyncLoader(string path, ulong pathHash=0)
+		public AssetLoader CreateAssetAsyncLoader(string path, ulong pathHash=0)
         {
-			AssetAsyncLoader loader = null;
+			AssetLoader loader = null;
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
             loader = LoaderPool.AssetAsyncLoaderPool.Get();// new AssetAsyncLoader();
 #else
@@ -120,9 +120,9 @@ namespace YH.AssetManage
             return loader;
         }
 
-		public AssetSyncLoader CreateAssetSyncLoader(string path, ulong pathHash=0)
+		public AssetLoader CreateAssetSyncLoader(string path, ulong pathHash=0)
 		{
-			AssetSyncLoader loader = null;
+			AssetLoader loader = null;
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
 			loader = new AssetSyncLoader();
 #else
@@ -133,16 +133,16 @@ namespace YH.AssetManage
 			return loader;
 		}
 
-		public AssetAsyncLoader CreateAssetCacheLoader(string path)
+		public AssetLoader CreateAssetCacheLoader(string path)
 		{
-			AssetAsyncCacheLoader loader = LoaderPool.AssetAsyncExistLoaderPool.Get();
+			AssetLoader loader = LoaderPool.AssetAsyncExistLoaderPool.Get();
 			loader.loaderManager = this;
 			return loader;
 		}
 
-		public AssetAsyncLoader CreateOrGetAssetAsyncLoader(string path, int tag, Type type, bool autoReleaseBundle = true)
+		public AssetLoader CreateOrGetAssetAsyncLoader(string path, int tag, Type type, bool autoReleaseBundle = true)
 		{
-			AssetAsyncLoader loader = null;
+			AssetLoader loader = null;
 			if (string.IsNullOrEmpty(path))
 			{
 				return loader;
@@ -216,7 +216,7 @@ namespace YH.AssetManage
 			Action<AssetLoader> beforLoadComplete = null,
 			Action<AssetLoader> afterLoadComplete = null)
 		{
-			AssetAsyncLoader loader = CreateOrGetAssetAsyncLoader(path, tag, type, autoReleaseBundle);
+			AssetLoader loader = CreateOrGetAssetAsyncLoader(path, tag, type, autoReleaseBundle);
 			if (loader != null)
 			{
 				if (completeHandle != null)
@@ -298,9 +298,9 @@ namespace YH.AssetManage
 		}
 
 
-		public AssetAsyncLoader CreateOrGetAssetAsyncLoader(ulong assetPathHash, int tag, Type type, bool autoReleaseBundle = true)
+		public AssetLoader CreateOrGetAssetAsyncLoader(ulong assetPathHash, int tag, Type type, bool autoReleaseBundle = true)
 		{
-			AssetAsyncLoader loader = null;
+			AssetLoader loader = null;
 			if (assetPathHash==0)
 			{
 				return loader;
@@ -372,7 +372,7 @@ namespace YH.AssetManage
 			Action<AssetLoader> beforLoadComplete = null,
 			Action<AssetLoader> afterLoadComplete = null)
 		{
-			AssetAsyncLoader loader = CreateOrGetAssetAsyncLoader(assetPathHash, tag, type, autoReleaseBundle);
+			AssetLoader loader = CreateOrGetAssetAsyncLoader(assetPathHash, tag, type, autoReleaseBundle);
 			if (loader != null)
 			{
 				if (completeHandle != null)
@@ -524,8 +524,8 @@ namespace YH.AssetManage
 			}
 #else
             //just for message
-            info = new AssetBundleInfo();
-            info.bundleId = path;
+            info = new AssetBundleLoadInfo();
+            info.bundleId = bundleId;
 #endif
 			return info;
 		}
@@ -535,11 +535,9 @@ namespace YH.AssetManage
 			AssetBundleAsyncLoader loader = null;
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
             loader = LoaderPool.AssetBundleAsyncLoaderPool.Get();
-#else
-            loader = new AssetBundleEmptyLoader();
-#endif
 			loader.info = CreateAssetBundleLoaderInfo(bundleId);
             loader.loaderManager = this;
+#endif
             return loader;
         }
 
@@ -609,18 +607,18 @@ namespace YH.AssetManage
 			return loader;
 		}
 
-		public AssetBundleSyncLoader CreateAssetBundleSyncLoader(ulong bundleId)
+		public AssetBundleLoader CreateAssetBundleSyncLoader(ulong bundleId)
 		{
-			AssetBundleSyncLoader loader = null;
+			AssetBundleLoader loader = null;
 
 #if !UNITY_EDITOR || ASSET_BUNDLE_LOADER
 			loader = LoaderPool.AssetBundleSyncLoaderPool.Get();
-#else
-			AMDebug.LogWarningFormat("[LoaderManager]Not need  load bundle {0}, create empty", path);
-            loader = new AssetBundleEmptyLoader();
-#endif
 			loader.info = CreateAssetBundleLoaderInfo(bundleId);
 			loader.loaderManager = this;
+#else
+			AMDebug.LogWarningFormat("[LoaderManager]Not need  load bundle {0}, create empty", bundleId);
+#endif
+
 			return loader;
 		}
 
@@ -691,7 +689,7 @@ namespace YH.AssetManage
 				else
 				{
 					AMDebug.LogFormat("[LoaderManage]LoadAssetBundleSync create new loader {0}", bundleId);
-					AssetBundleSyncLoader loader = CreateAssetBundleSyncLoader(bundleId);
+					AssetBundleLoader loader = CreateAssetBundleSyncLoader(bundleId);
 					if (loader != null)
 					{
 						loader.state = Loader.State.Inited;
@@ -703,6 +701,10 @@ namespace YH.AssetManage
 						abr.Retain();
 						OnAssetBundleBeforeLoaded(loader);
 						OnAssetBundleAfterLoaded(loader);
+					}
+                    else
+                    {
+						AMDebug.LogErrorFormat("[LoaderManage]LoadAssetBundleSync create new loader fail. {0}", bundleId);
 					}
 				}
 			}

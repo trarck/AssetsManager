@@ -36,7 +36,7 @@ namespace YH.AssetManage
 		AssetBundleAsyncLoader CreateAssetBundleAsyncLoader(ulong bundleId, int tag, bool cache);
 		AssetBundleAsyncLoader CreateNewAssetBundleAsyncLoader(ulong bundleId);
 		AssetBundleAsyncLoader CreateAssetBundleCacheLoader(ulong bundleId);
-		AssetBundleSyncLoader CreateAssetBundleSyncLoader(ulong bundleId);
+		AssetBundleLoader CreateAssetBundleSyncLoader(ulong bundleId);
 
 
 		AssetLoaderOperation LoadAssetAsync(string path, int tag, Type type, bool autoReleaseBundle,
@@ -45,9 +45,9 @@ namespace YH.AssetManage
 			Action<AssetLoader> afterLoadComplete = null);
 
 		AssetReference LoadAssetSync(string path, int tag, Type type);
-		AssetAsyncLoader CreateAssetAsyncLoader(string path, ulong pathHash = 0);
-		AssetAsyncLoader CreateAssetCacheLoader(string path);
-		AssetSyncLoader CreateAssetSyncLoader(string path, ulong pathHash = 0);
+		AssetLoader CreateAssetAsyncLoader(string path, ulong pathHash = 0);
+		AssetLoader CreateAssetCacheLoader(string path);
+		AssetLoader CreateAssetSyncLoader(string path, ulong pathHash = 0);
 
 		void ActiveLoader(Loader loader);
 		void ReleaseLoader(Loader loader);

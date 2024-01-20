@@ -50,6 +50,7 @@ namespace YH.AssetManage
             {
                 LoadFromStream(stream);
             }
+            doLoadComplete(m_AssetBundleManifest!=null);
         }
 
         IEnumerator LoadPackageFile(string fileUrl)

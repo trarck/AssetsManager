@@ -24,7 +24,10 @@ namespace YH.AssetManage
         public AndroidAssetStream(AndroidJavaObject innerStream)
         {
             _InternalStream = innerStream;
-            _Length = innerStream.Call<int>("available");
+            if (innerStream != null)
+            {
+                _Length = innerStream.Call<int>("available");
+            }
         }
 
         public override bool CanRead
@@ -67,8 +70,11 @@ namespace YH.AssetManage
 
         public override void Close()
         {
-            _InternalStream.Call("close");
-            _InternalStream.Dispose();
+            if (_InternalStream != null)
+            {
+                _InternalStream.Call("close");
+                _InternalStream.Dispose();
+            }
             base.Close();
         }
 
@@ -79,13 +85,12 @@ namespace YH.AssetManage
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            int ret = 0;
+            int readOffset = 0;
             IntPtr array = IntPtr.Zero;
             try
             {
                 array = AndroidJNI.NewSByteArray(count);
 
-                int readOffset = 0;
                 int bytesLeft = count;
                 IntPtr rawObject = _InternalStream.GetRawObject();
                 while (bytesLeft > 0)
@@ -104,15 +109,15 @@ namespace YH.AssetManage
                 }
 
                 sbyte[] data = AndroidJNI.FromSByteArray(array);
-                Buffer.BlockCopy(data, 0, buffer, offset, ret);
-                _Position += ret;
+                Buffer.BlockCopy(data, 0, buffer, offset, readOffset);
+                _Position += readOffset;
             }
             finally
             {
                 if (array != IntPtr.Zero)
                     AndroidJNI.DeleteLocalRef(array);
             }
-            return ret;
+            return readOffset;
         }
 
         public override long Seek(long offset, SeekOrigin origin)

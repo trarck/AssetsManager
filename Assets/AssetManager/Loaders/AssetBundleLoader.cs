@@ -18,6 +18,8 @@ namespace YH.AssetManage
 
         public event Action<AssetBundleLoader> onAfterComplete;
 
+        public event Action<AssetBundleLoader> onAssetBundleLoaded;
+
         public AssetBundleLoadInfo info { get; set; }
 
 		public virtual void Init(Action<AssetBundleLoader> beforeCompleteHandle, Action<AssetBundleLoader> afterCompleteHandle)
@@ -50,11 +52,20 @@ namespace YH.AssetManage
             }
         }
 
+        protected void DoAssetBundleLoaded()
+        {
+            if (onAssetBundleLoaded != null)
+            {
+                onAssetBundleLoaded(this);
+            }
+        }
+
         public override void Clean()
         {
             onComplete = null;
             onBeforeComplete = null;
             onAfterComplete = null;
+            onAssetBundleLoaded = null;
 
             result = null;
 
