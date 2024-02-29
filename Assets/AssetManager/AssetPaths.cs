@@ -30,6 +30,7 @@ namespace YH.AssetManage
         public static List<string> searchPaths = new List<string>();
 
         private static string m_BundlesFullPath = null;
+        private static string m_AndroidStreamingAssetsFullPath = null;
 
         private static ThreadLocal<StringBuilder> m_StringBuilderCache = new ThreadLocal<StringBuilder>();
 
@@ -39,6 +40,7 @@ namespace YH.AssetManage
         /// </summary>
         public static void SetupDefaultSearchPaths()
         {
+            m_AndroidStreamingAssetsFullPath = dataPath + "!/assets/" + bundlesPath + "/";
             //add search paths
             AddSearchPath(GetBundlePath());
             AddSearchPath(Application.persistentDataPath);
@@ -108,16 +110,21 @@ namespace YH.AssetManage
 
         public static string StreamingUrlForFilename(string filename)
         {
-#if UNITY_ANROID
-            return "jar:file://" + Application.dataPath + "!/assets/" + filename;
+#if UNITY_ANDROID
+            return "jar:file://" + dataPath + "!/assets/" + filename;
 #else
-            return "file://" + Combine(Application.streamingAssetsPath, filename);
+            return "file://" + Combine(streamingAssetsPath, filename);
 #endif
         }
 
         public static string StreamingPathForFilename(string filename)
         {
-            return Combine(Application.streamingAssetsPath, filename);
+            return Combine(streamingAssetsPath, bundlesPath, filename);
+//#if UNITY_ANDROID
+//            return m_AndroidStreamingAssetsFullPath + filename;
+//#else
+//            return Combine(streamingAssetsPath, bundlesPath, filename);
+//#endif
         }
 
         public static string GetFullPath(string filename)
@@ -279,7 +286,7 @@ namespace YH.AssetManage
 
             if (string.IsNullOrEmpty(remoteUrl))
             {
-                return StreamingPathForFilename(filename);
+                return StreamingUrlForFilename(filename);
             }
             else
             {

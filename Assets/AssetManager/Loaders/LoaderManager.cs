@@ -51,6 +51,10 @@ namespace YH.AssetManage
 			}
 		}
 
+		public int AssetBundleLoadingCount => m_AssetBundleLoadings.Count;
+
+		public int AssetLoadingCount => m_AssetLoadings.Count;
+
 		public void Init()
 		{
 			

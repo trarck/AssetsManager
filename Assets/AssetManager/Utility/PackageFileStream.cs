@@ -10,6 +10,8 @@ namespace YH.AssetManage
         Stream Open(string path);
 
         bool Exists(string path);
+
+        string ReadAllText(string path);
     }
 
     public class PackageFileStream
@@ -48,6 +50,10 @@ namespace YH.AssetManage
                 return true;
             }
             return Directory.Exists(path);
+        }
+        public string ReadAllText(string path)
+        {
+            return File.ReadAllText(path);
         }
     }
 
@@ -114,22 +120,7 @@ namespace YH.AssetManage
             return path.Substring(start + SplitFlag.Length);
         }
 
-        public bool Exists(string path)
-        {
-            try
-            {
-                using (AndroidJavaObject fileDescriptor = AssetManager.Call<AndroidJavaObject>("openFd", GetAssetFilePath(path)))
-                {
-                    if (fileDescriptor != null)
-                        return true;
-                }
-            }
-            catch (Exception) { }
-
-            return false;
-        }
-
-        public bool Existed(string filePath)
+        public bool Exists(string filePath)
         {
             var fileDir = Path.GetDirectoryName(filePath);
             var fileName = Path.GetFileName(filePath);
@@ -160,6 +151,14 @@ namespace YH.AssetManage
         public Stream Open(string path)
         {
             return new AndroidAssetStream(AssetManager.Call<AndroidJavaObject>("open", GetAssetFilePath(path)));
+        }
+
+        public string ReadAllText(string path)
+        {
+            using (StreamReader sr = new StreamReader(Open(path)))
+            {
+                return sr.ReadToEnd();
+            }
         }
     }
 }

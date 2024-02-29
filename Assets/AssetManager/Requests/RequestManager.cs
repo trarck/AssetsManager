@@ -179,7 +179,7 @@ namespace YH.AssetManage
         #endregion
 
         #region create bundle request
-        public virtual Request CreateAssetBundleRequest(ulong contentId,uint offset)
+        public virtual Request CreateAssetBundleRequest(ulong contentId, uint offset)
         {
             if (contentId == 0)
             {
@@ -191,7 +191,7 @@ namespace YH.AssetManage
             FixedStringPool.FillStringChecked(contentName, sizeof(ulong) * 2, AssetPaths.AssetBundelExt);
 
             string contentPath = AssetPaths.GetFullPath(contentName);
-            AMDebug.LogFormat("[AssetManage]LoadBundle {0}", contentPath);
+            AMDebug.LogFormat("[AssetManage]CreateAssetBundleRequest {0}:{1}", contentPath, offset);
             m_StringPool.Release(contentName);
             return CreateBundleCreateRequest(contentPath, offset);
         }
@@ -252,7 +252,7 @@ namespace YH.AssetManage
             FixedStringPool.FillHexString(contentName, 0, contentId, FixedStringPool.Casing.Lower);
 
             string contentPath = AssetPaths.GetFullPath(contentName);
-            AMDebug.LogFormat("[AssetManage]LoadBundle {0}:{1}", contentPath, offset);
+            AMDebug.LogFormat("[AssetManage]CreateAssetBundleSyncRequest {0}:{1}", contentPath, offset);
             m_StringPool.Release(contentName);
 
             BundleCreateAsyncRequest request = BundleCreateRequestPool.Get();

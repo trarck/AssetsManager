@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 
 namespace YH.AssetManage
 {
-    class AcceptAllCertificatesSignedHandler : CertificateHandler
+    public class AcceptAllCertificatesSignedHandler : CertificateHandler
     {
         protected override bool ValidateCertificate(byte[] certificateData)
         {

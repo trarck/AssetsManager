@@ -33,7 +33,7 @@ namespace YH.AssetManage
         {
             m_Loading = true;
 
-            if (filePath.Contains("://"))
+            if (filePath.Contains("!/assets/"))
             {
                 LoadFromPackage(filePath);
             }
