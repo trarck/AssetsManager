@@ -33,12 +33,8 @@ namespace YH.AssetManage
         {
             m_Loading = true;
 
-            if (filePath.Contains("://"))
+            if (filePath.Contains("!/assets/"))
             {
-                if (!filePath.Contains(Application.version))
-                {
-                    filePath += "?v=" + Application.version;
-                }
                 LoadFromPackage(filePath);
             }
             else
@@ -47,10 +43,14 @@ namespace YH.AssetManage
             }
         }
 
-        public void LoadFromPackage(string url)
+        public void LoadFromPackage(string filePath)
         {
-            AMDebug.LogFormat("[AssetManage]LoadFromPackage {0} ", url);
-			m_LoadPackageFileCoroutine = m_CoroutineExecuter.StartCoroutine(LoadPackageFile(url));
+            AMDebug.LogFormat("[AssetManage]LoadFromPackage {0} ", filePath);
+            using (Stream stream = PackageFileStream.Impl.Open(filePath))
+            {
+                LoadFromStream(stream);
+            }
+            doLoadComplete(m_AssetBundleManifest!=null);
         }
 
         IEnumerator LoadPackageFile(string fileUrl)

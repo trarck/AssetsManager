@@ -65,7 +65,7 @@ public class ModelMaterialTest
 
                 serializedObject.ApplyModifiedPropertiesWithoutUndo();
             }
-            importer.importMaterials = false;
+            importer.materialImportMode = ModelImporterMaterialImportMode.None;
             if (needRefresh)
             {
                 Debug.Log("Refresh");

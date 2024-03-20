@@ -15,8 +15,6 @@ namespace YH.AssetManage
     /// </summary>
     public class AssetBundleAsyncLoader : AssetBundleLoader
     {
-        public event Action<AssetBundleAsyncLoader> onAssetBundleLoaded;
-
         //等待依赖本体资源加载完成数。不看依赖的依赖。
         int m_WaitDependencyLoadCount = 0;
         //所有依赖的本体是否加载完成。
@@ -299,7 +297,7 @@ namespace YH.AssetManage
         //    m_DependencyLoaders.Add(depLoader);
         //}
 
-        protected void OnDependencyLoaded(AssetBundleAsyncLoader loader)
+        protected void OnDependencyLoaded(AssetBundleLoader loader)
         {
             AMDebug.LogFormat("[AssetBundleAsyncLoader]DependencyLoaded {0}=>{1}" , 
 				info!=null?info.bundleId.ToString():"Null" , 
@@ -366,11 +364,8 @@ namespace YH.AssetManage
             if (!request.haveError)
             {
                 state = State.Loaded;
-                if (onAssetBundleLoaded != null)
-                {
-                    onAssetBundleLoaded(this);
-                }
-                
+                DoAssetBundleLoaded();
+
                 //Create result
                 result = new AssetBundleReference(request.assetBundle, info.bundleId);
                 m_Result.AddTags(paramTags);
@@ -434,7 +429,6 @@ namespace YH.AssetManage
 
         public override void Clean()
         {
-            onAssetBundleLoaded = null;
             m_WaitDependencyLoadCount = 0;
             m_DependenciesIsLoaded = false;
             m_WaitDependencyCompleteCount = 0;

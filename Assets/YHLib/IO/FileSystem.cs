@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 
-namespace YH
+namespace YH.IO
 {
     public class FileSystem
     {
