@@ -24,10 +24,10 @@ public class Main : MonoBehaviour {
         yield return new WaitForSeconds(3);
         Debug.Log("Goto Battle");
 
-        AssetManager.Instance.LoadScene("Scenes/Battle.unity", AssetTag.Battle, (abr) =>
+        AssetManager.Instance.LoadScene("Assets/Scenes/Battle.unity", AssetTag.Battle, (abr) =>
         {
             Debug.Log("LoadCompete");
-            SceneManager.LoadScene("Scenes/Battle");
+            SceneManager.LoadScene("Assets/Scenes/Battle");
         });
     }
 }

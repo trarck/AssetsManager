@@ -22,24 +22,24 @@ public class Init : MonoBehaviour {
 
     void GotoMain()
     {
-        StartCoroutine(Testloop());
-        //AssetManager.Instance.LoadAsset("Scenes/Main.unity", (ar) =>
-        //{
-        //    Debug.Log("LoadCompete");
-        //    Debug.Log(ar.asset);
-        //    SceneManager.LoadScene("Scenes/Main");
-        //});
+        //StartCoroutine(Testloop());
+        AssetManager.Instance.LoadAsset("Assets/Scenes/Main.unity", (ar) =>
+        {
+            Debug.Log("LoadCompete");
+            Debug.Log(ar.asset);
+            SceneManager.LoadScene("Scenes/Main");
+        });
 
-        //AssetManager.Instance.LoadScene("Scenes/Main.unity",AssetTag.Main, (abr) =>
-        //{
-        //    Debug.Log("LoadCompete");
-        //    SceneManager.LoadScene("Scenes/Main");
-        //});
+        AssetManager.Instance.LoadScene("Assets/Scenes/Main.unity", AssetTag.Main, (abr) =>
+         {
+             Debug.Log("LoadCompete");
+             SceneManager.LoadScene("Scenes/Main");
+         });
     }
 
     IEnumerator Testloop()
     {
-        AssetLoaderEnumerator loader = AssetManager.Instance.YieldLoadAsset("ArtResources/Prefabs/TestMatProp.prefab");
+        AssetLoaderEnumerator loader = AssetManager.Instance.YieldLoadAsset("Assets/ArtResources/Prefabs/TestMatProp.prefab");
         yield return loader;
         AssetReference ar = loader.assetReference;
         Debug.Log(ar + "," + Time.frameCount);

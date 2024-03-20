@@ -1,1 +1,1 @@
-{"importConfig":{"infos":[{"id":0,"path":"Assets/ArtResources","pattern":"\\.prefab$"}],"formats":[]},"bundlePathPrefixClears":["Assets/ArtResources","Assets"]}
+{"importConfig":{"infos":[{"id":0,"path":"Assets/ArtResources","pattern":"\\.prefab$"},{"id":0,"path":"Assets/Scenes","pattern":""}],"formats":[]},"bundlePathPrefixClears":["Assets/ArtResources","Assets/Scenes"]}
