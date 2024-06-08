@@ -24,7 +24,7 @@ public class Main : MonoBehaviour {
         AssetManager.Instance.LoadScene("Assets/Scenes/Battle.unity", AssetTag.Battle, (abr) =>
         {
             Debug.Log("LoadCompete");
-            SceneManager.LoadScene("Scenes/Battle");
+            SceneManager.LoadScene("Assets/Scenes/Battle");
         });
     }
 }
